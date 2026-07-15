@@ -161,7 +161,15 @@ echo "$ALL_FILES" | while IFS= read -r relpath || [ -n "$relpath" ]; do
     target_dir="$(dirname "$target")"
 
     if is_protected "$rel"; then
-      echo "[update] PROTECTED: $rel (skipped)"
+      # PROTECTED is for OLD content (preserve user customization).
+      # If target doesn't exist yet, this is a FRESH create - allow it.
+      if [ ! -f "$target" ]; then
+        mkdir -p "$target_dir"
+        cp "$relpath" "$target"
+        echo "[update] ADDED:  $rel (fresh create, would otherwise be PROTECTED)"
+      else
+        echo "[update] PROTECTED: $rel (skipped - existing user content preserved)"
+      fi
       continue
     fi
 
