@@ -1,0 +1,23 @@
+# --- Backup / temp / cache files (not part of the work) ---
+*.bak
+*.bak.*
+*.tmp
+*.log
+*~
+*.pyc
+__pycache__/
+
+# --- plugin source: stray backup from upstream copy ---
+arthurpower/.claude-plugin/plugin.json.bak.2026-07-14-<local-project>
+arthurpower/skills/skill-authoring/scripts/__pycache__/
+
+# --- Serena working cache (local LSP state, not portable) ---
+arthurpower/.serena/
+
+# --- runtime eval artifacts ---
+.evals/results/
+
+# --- project-reports: <local-project> historical evidence, deferred this cycle ---
+# (PHASE_C_* v0.7.0 acceptance reports + debug scripts from <local-project>; revisit
+# which belong in PR after core setup-arthurpower v3 work lands)
+project-reports/

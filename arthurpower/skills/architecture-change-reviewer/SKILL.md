@@ -1,0 +1,78 @@
+---
+name: architecture-change-reviewer
+description: Use when planning a new feature, adding a module, refactoring across module boundaries, or any multi-file change (3+ files) before implementation begins. Mandatory pre-implementation planning gate for feature-shaped requests where 2+ Core Skills plausibly apply. Triggers on 加个新功能, 新功能, new feature, add a feature, 多文件改动, refactor, architecture review.
+disable-model-invocation: true
+---
+
+# Architecture Change Reviewer
+
+## Overview
+
+Multi-file changes are reviewed **before code lands**, by mapping each affected Core Skill to a one-line verdict. If any verdict is "no" or "unclear", the plan is incomplete — fix it, don't ship it. Cross-skill conflicts (e.g. "split the bounded context" vs "one commit per logical task") resolve by sequencing, not merging.
+
+## When to use
+- Planning a change that touches 3+ files
+- Adding a new module / subsystem / bounded context
+- Refactoring across module boundaries
+- A task where 2 or more Core Skills plausibly apply
+- Before implementation begins, on a change with cross-file blast radius
+
+## When not to use
+- Single-file typo fix
+- Single-file bugfix with a clear single Core Skill in scope
+- Pure documentation or comment changes
+- Trivial rename inside one file
+
+## Procedure
+1. Enumerate the planned files. Stop if fewer than 3.
+2. For each Core Skill, write a one-line verdict:
+   - bounded-context-guardian: are module boundaries respected?
+   - defensive-contract-validator: is the change covered by tests for the 5 boundary classes?
+   - error-handling-enforcer: is every failure path typed, non-empty, EXIT-documented?
+   - complexity-anti-drift: does the diff keep every metric under threshold?
+   - minimal-change-verifier: is this 1 logical task? Will it land in 1 commit?
+3. If any verdict is "no" or "unclear" — stop, go back to the responsible Core Skill and fix the plan.
+4. If 2 Core Skills conflict (e.g. bounded context says split, minimal change says one commit) — split, then commit per split. Don't merge.
+5. If no Core Skill applies — the change is too small to need this reviewer. Proceed without.
+6. **Task Decomposition** (after all 5 verdicts are yes): break the plan into ordered tasks. Each task = one logical unit, <= one commit (per 1 commit = 1 逻辑任务 spec), with explicit acceptance criteria. Order by dependency, not by file. Mark parallelizable tasks `[parallel]`. A task with no acceptance criterion is not a task, it's a hope.
+
+## Rationalization Table
+
+| Excuse | Reality |
+|--------|---------|
+| "Just 4 files, I can eyeball the verdict" | 4 files × 5 Core Skills = 20 checks. Eyeballing skips 18. |
+| "It's obviously a small change, skip the review" | "Obviously small" is the rationalization that ships shotgun surgery. Enumerate anyway. |
+| "Two Core Skills conflict, just pick one" | Conflict means both apply. Sequence them, don't drop one. |
+| "Plan is in my head, no need to write it down" | Head-plan ≠ reviewable plan. PR description must show the 5-line verdict block. |
+| "Cross-skill review is bureaucratic overhead" | Cross-skill review catches the diff that slips past every individual Core Skill. |
+
+## Red Flags - Stop and Start Over
+
+- Plan description does not list affected files
+- Any of the 5 Core Skills has no written verdict
+- Verdict uses "probably" / "should" / "looks good" instead of yes/no/unclear
+- 2+ Core Skills in conflict and the plan does not sequence them
+- Implementation has begun before the 5-line verdict is committed to PR description
+- "I'll review during PR" — review is pre-implementation, not post-hoc
+
+## Required Baseline
+
+**Zero tolerance**: no multi-file change proceeds without all 5 Core Skill verdicts written as yes/no/unclear. Any "no" or "unclear" verdict blocks implementation. Conflicts are sequenced, never merged.
+
+## Acceptance Criteria
+- [ ] Plan has >= 3 affected files
+- [ ] Each Core Skill has a written verdict (one line)
+- [ ] All 5 verdicts are "yes" or "N/A with reason" (no "probably", no "should")
+- [ ] No Core Skill conflict unresolved
+- [ ] Implementation does not begin before this review is satisfied
+- [ ] Architecture review verdict is committed in the PR description
+
+## Verification
+- `grep -c "bounded-context-guardian:" PR.md` ≥ 1 (verdict block present)
+- `grep -c "minimal-change-verifier:" PR.md` ≥ 1 (all 5 verdicts in PR description)
+- `git diff --stat | wc -l` matches planned file list (no scope creep)
+- Each verdict line contains "yes", "no", or "unclear" (no "probably" / "should" / "looks good")
+
+## Example
+
+See [references/example-verdict-block.md](references/example-verdict-block.md) for a complete 5-verdict example showing how to use this skill to review a multi-file change before PR.

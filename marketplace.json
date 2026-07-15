@@ -1,0 +1,15 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "arthurpower-local",
+  "owner": {
+    "name": "arthurpower-team"
+  },
+  "plugins": [
+    {
+      "name": "arthurpower",
+      "source": "./plugins/arthurpower",
+      "description": "Curated engineering constraint plugin (v0.5.0). 18 Core Skills grouped into 6 families: (1) S1-S6 governance — bounded-context-guardian (S1, module boundaries), defensive-contract-validator (S2, 5 bou...",
+      "version": "0.7.0"
+    }
+  ]
+}
