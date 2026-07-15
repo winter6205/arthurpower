@@ -235,7 +235,7 @@ bash scripts/update.sh --from-git <owner>/<repo> --force
 - [ ] `docs/adr/` 目录存在 (空目录也 OK)
 - [ ] 6 个 hook 文件存在于 `.claude/hooks/` (pre-context-write-guard / pre-stale-read / pre-read-contract / post-ssot-priority / post-conflict-annotation / pre-fs-guard)
 - [ ] **hook 注册按需** (Step 5b 三分支)
-- [ ] `domain-modeling` + `deep-dive-protocol` + `setup-arthurpower` + `self-evolving-rules` 在 `.claude/skills/`
+- [ ] `domain-modeling` + `setup-arthurpower` 在 `.claude/skills/` (模板自带); `deep-dive-protocol` + `self-evolving-rules` 由 plugin 全局供给 (fresh 模式不必复制到 `.claude/skills/`, plugin 装上即有)
 - [ ] `.claude/rules/context-loop.md` 存在
 - [ ] `.claude/rules/boundary-testing-protocol.md` 存在 (跨多文件/多 hook 改动必走 6 步流程)
 - [ ] `.claude/rules/self-evolving.md` 存在 (规则沉淀 6 步流程)
