@@ -132,7 +132,7 @@ CONTEXT.md ## Language 段:
 - 4 词条 + 3 ADR 已落盘 (本条记), 实际 SKILL.md frontmatter 改 + code-review skill 新建 + rules 改 + user-level 改 待实施
 - pre-context-write-guard.cjs hook bug 修复 (Edit 模式跳过文件级 schema 校验) - 待 V 拍板
 
-**成功 = CONTEXT.md ## Language 段 4 词条 + docs/adr/ 3 ADR 落盘, schema 符合 CONTEXT-FORMAT.md + ADR-FORMAT.md, domain-modeling 写入主权经 hook 验证 (Edit 片段 bug 已记 hook_debug.log)**.
+**PASS = CONTEXT.md ## Language 段 4 词条 + docs/adr/ 3 ADR 落盘, schema 符合 CONTEXT-FORMAT.md + ADR-FORMAT.md, domain-modeling 写入主权经 hook 验证 (Edit 片段 bug 已记 hook_debug.log)**.
 
 ## Flagged ambiguities
 
@@ -330,7 +330,7 @@ Predictability / Invocation / Writing the description / Information hierarchy (�
 - `/plugin` TUI 无输出是真 bug (或限制), CLI `claude plugin list` 才是可靠入口 -- 沉淀为新词条 `plugin load error 可观测性`
 - "删 skills 数组"反而更适合手动加 skill 的流程: 以后 mkdir + SKILL.md 即可, 不用维护 plugin.json 数组
 
-**成功 = arthurpower@arthurpower-local 从 failed to load 变 enabled, 27 个 skill 全在 registry, `Skill(arthurpower:writing-plans)` 可解析** (plugin skill 走 `plugin:skill` namespace 全限定形式).
+**PASS = arthurpower@arthurpower-local 从 failed to load 变 enabled, 27 个 skill 全在 registry, `Skill(arthurpower:writing-plans)` 可解析** (plugin skill 走 `plugin:skill` namespace 全限定形式).
 
 ---
 
@@ -392,7 +392,7 @@ Predictability / Invocation / Writing the description / Information hierarchy (�
 - V 重启 Claude Code 后 /mcp 确认 scrapling 在 <local-project> 不连, 其他项目连接
 - 6 个 MP 在 <local-project> connected: context7 / codebase-memory-mcp / serena / minimax-search / exa (5 个 + scrapling 被 denied)
 
-**成功 = <local-project> 项目 scrapling 不连 (deniedMcpServers 拒绝), 其他项目 scrapling 连接 (用户级 enabled, 无项目级 denied)**
+**PASS = <local-project> 项目 scrapling 不连 (deniedMcpServers 拒绝), 其他项目 scrapling 连接 (用户级 enabled, 无项目级 denied)**
 
 **沉淀新词条** (## Language 段):
 - MCP 三层定义 + 审批分离
@@ -421,7 +421,7 @@ Predictability / Invocation / Writing the description / Information hierarchy (�
 
 `docs/adr/0004-self-evolving-rules-user-invoked-skill.md` - 恢复 self-evolving-rules 为 user-invoked discipline skill.
 
-**成功 =** ## Language 5 词条 + ADR-0004 落盘; skill validator+driver 绿; marketplace/cache parity.
+**PASS =** ## Language 5 词条 + ADR-0004 落盘; skill validator+driver 绿; marketplace/cache parity.
 
 ---
 
@@ -440,7 +440,7 @@ Predictability / Invocation / Writing the description / Information hierarchy (�
 
 **未完成 (待 V)**: 无 deferred; 全量改动落盘. 若 V 要求 commit, 走 conventional commits.
 
-**成功 =** self-evolving.md live 0 副本; skill 三副本 dmi=true sha 一致; live 指针 grep 迭代痕迹 0 命中; ADR-0005 落盘 supersede dual-form; strip-and-routing 加 process-residue bullet 三副本 parity.
+**PASS =** self-evolving.md live 0 副本; skill 三副本 dmi=true sha 一致; live 指针 grep 迭代痕迹 0 命中; ADR-0005 落盘 supersede dual-form; strip-and-routing 加 process-residue bullet 三副本 parity.
 
 ---
 
