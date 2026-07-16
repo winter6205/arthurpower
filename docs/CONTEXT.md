@@ -415,3 +415,22 @@ Predictability / Invocation / Writing the description / Information hierarchy (�
 **成功 =** ## Language 5 词条 + ADR-0004 落盘; skill validator+driver 绿; marketplace/cache parity.
 
 ---
+
+### 2026-07-16 - self-evolving rule 归档为 skill-only + 迭代痕迹清理 (本 session)
+
+**动作**: operator 决定 self-evolving.md rule 形态全部归档 (全局 + data + 项目), 可执行入口仅 `arthurpower:self-evolving-rules` skill (user-invoked, dmi=true).
+
+**变更**:
+- `~/.claude/rules/self-evolving.md` + `data/rules/` + 项目 `.claude/rules/` + `claude-md-revision/` 的 rule 文件归档删除 (live 0 副本)
+- skill 三副本 parity: marketplace + cache installPath + `~/.claude/skills/self-evolving-rules/`, SKILL.md sha `68da9d05918a828ada9d286adabbbbbcc844f1729f9b6b37be96d40686bea43`, dmi=true
+- `~/.claude/CLAUDE.md` 指针改指 skill (去过程痕迹)
+- 项目 `.claude/rules/git.md` §9 + 全局/项目 `boundary-testing-protocol.md` References 改指 skill
+- 子代理清理 live 指针的迭代痕迹 ("rule 文件已归档; 仅 skill" 等); live grep 0 命中
+- 子代理给 `self-evolving-rules/references/strip-and-routing.md` 加 1 条 process/iteration residue bullet (archive/status 括号 / 双形态状态 / 非操作向迁移闲话); no-meta 未改 (skipped, skill strip 覆盖); 三副本 parity sha `6374640158164e438b66ca2669fa240977d9571fcac456b9775a11d392b858c3`
+- ADR-0005 新建 (supersede ADR-0004 dual-form 条款; ADR-0004 loading choice 不变)
+
+**未完成 (待 V)**: 无 deferred; 全量改动落盘. 若 V 要求 commit, 走 conventional commits.
+
+**成功 =** self-evolving.md live 0 副本; skill 三副本 dmi=true sha 一致; live 指针 grep 迭代痕迹 0 命中; ADR-0005 落盘 supersede dual-form; strip-and-routing 加 process-residue bullet 三副本 parity.
+
+---
