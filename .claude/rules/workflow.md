@@ -1,4 +1,5 @@
 # 强制工作流规则
+> 通用 4 步流程见 `@~/.claude/rules/agent-workflow.md`.
 
 ---
 
@@ -20,11 +21,11 @@
 | 改前先写测试 | `test-driven-development` |
 | 新功能 / 创意 / 模糊需求 | `brainstorming` |
 | 写 spec / 设计文档 | `spec-driven-development` |
-| 解 bug | `debugging-and-error-recovery` |
+| 解 bug | `arthurpower:systematic-debugging` |
 | 大改动 (>20 files) | `dispatching-parallel-agents` |
-| 完成前验收 / 多维 audit | `project-code-quality-audit` |
-| 文档 / ADR | `documentation-and-adrs` |
-| 跨多文件 / 多 hook / 多状态改动验 silent bug | `boundary-testing` (→ `.claude/rules/boundary-testing-protocol.md` 6 步 SOP) |
+| 完成前验收 / 多维 audit | `arthurpower:audit` |
+| 文档 / ADR | `arthurpower:domain-modeling` |
+| 跨多文件 / 多 hook / 多状态改动验 silent bug | `.claude/rules/boundary-testing-protocol.md` (6 步 SOP; no skill) |
 
 ---
 

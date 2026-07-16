@@ -42,7 +42,7 @@ Git 工作流:
 - 原则上只修改测试; 如必须修改生产代码, 先说明原因.
 - 运行相关测试 / race test / lint / typecheck / build.
 - 汇报每个模块修改前后的覆盖率.
-- 在独立分支完成, 创建 PR, 不直接修改主分支.
+- 通用 Git 工作流尾巴见 §0.
 ```
 
 ### 适用场景
@@ -91,7 +91,7 @@ Git 工作流:
 - 优先修复可能导致数据丢失 / 错误成功状态 / 安全问题的路径.
 - 保持现有错误处理风格, 避免无关重构.
 - 为每个修复增加失败场景测试.
-- 在独立分支完成并创建 PR, 等待审核合并.
+- 通用 Git 工作流尾巴见 §0.
 ```
 
 ### 适用场景
@@ -114,7 +114,7 @@ Git 工作流:
 - 避免循环依赖 / 错误的包层级 / 过度通用化.
 - 将原有测试迁移或补充到共享实现, 并验证所有调用方.
 - 运行相关测试 / lint / typecheck / build.
-- 在独立分支完成并创建 PR, 等待审核合并.
+- 通用 Git 工作流尾巴见 §0.
 ```
 
 ### 适用场景
@@ -145,7 +145,7 @@ Git 工作流:
 - 只修复确认的 Critical / High 问题, 避免无关重构.
 - 为安全修复增加回归测试, 运行 secret / SAST / 依赖扫描 / lint / build.
 - 输出完整审计报告, 记录已修复 / 未修复 / 未发现问题的类别.
-- 在独立分支完成并创建 PR, 等待审核合并.
+- 通用 Git 工作流尾巴见 §0.
 ```
 
 ### 适用场景
@@ -162,38 +162,7 @@ Git 工作流:
 
 **强制动作**: 走 `boundary-testing` skill 的 6 步流程, 不跳 driver-level smoke.
 
-**任务步骤**:
-
-1. **定义成功标准** (可机器断言):
-   - TP rate / FP rate / negation boundary / no-regression
-   - 例: `trigger_accuracy_min: 0.95`, `false_trigger_max: 0.05`
-
-2. **准备 10-30 样例** (5 类别 × 2-6 个):
-   - A 正向控制 / B 否定反向 / C 歧义多候选 / D 域外无匹配 / E 反向语义
-   - 每 case 含: 输入 + 期望结果 + 类别标签 + 一句话描述
-
-3. **子代理起草设计** (9 段结构, 见 `boundary-testing-protocol.md` §"9 段结构"):
-   - 任务定位 / 触发条件 / 检测算法 / 状态 schema / 失败模式 / 测试用例 / 风险评估 / 模块关系 / 严格约束
-
-4. **子代理 smoke** (仅 sanity, **不算验收**):
-   - 用理想化数据 (整数 mtime / 模拟磁盘)
-   - 报告"代码不立即崩溃"即可
-
-5. **主 agent driver smoke** (**必跑, 不可跳**):
-   - 真实 FS (`tempfile.TemporaryDirectory()` + `Path.stat()`)
-   - 真实 JSON 解析 (`json.loads()`, 不字符串匹配)
-   - 真实 cwd (`subprocess.run(..., cwd=tmpdir)`)
-   - 平台差异显式测 (Windows 路径 / mtime 精度 / line ending)
-   - 状态隔离 (每 case 独立 tmpdir 或独立 state key)
-
-6. **A/B gate** (Step 5 决策):
-   - 仅当候选提升目标指标 + 必需行为不退化 -> 采纳
-   - 否则拒绝, 回步骤 1
-
-7. **变更记录留档**:
-   - 写 changelog (文件/原因/改进)
-   - 每项独立标注状态 (`完成` / `进行中` / `deferred` / `infra-gap`)
-   - 禁止用 ✅ / "成功 = …" / "全 PASS" 包装 deferred 项
+**任务步骤**: 走 `@.claude/rules/boundary-testing-protocol.md` 的 6 步流程 (成功标准 → 样例 → 子代理 smoke → 主 agent driver smoke → A/B gate → 变更记录). 不跳 driver-level smoke.
 
 **关键约束**:
 - hook 文件零依赖 Node CJS (只用 `node:fs` / `node:path` / `node:os`)

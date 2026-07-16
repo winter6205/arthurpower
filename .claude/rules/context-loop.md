@@ -1,5 +1,7 @@
 # Context Loop Rules — 写入主权 + 读侧契约 + ADR 三条件闸门
 
+> 引用基础方法论见 `@~/.claude/rules/context-loop.md` (methodology); 本文件 = Arthurpower 项目落地 (implementation / hooks / 12 defect-to-hook table).
+
 > 引用: 本规则由 `domain-modeling` 与 `setup-arthurpower` 联合维护. 项目级 setup 走 `setup-arthurpower` (一次性).
 
 ---
