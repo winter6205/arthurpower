@@ -30,16 +30,7 @@ MUST:
 
 ## 可维护性 6 规范 (S1-S6)
 
-| 编号 | 规范 | Skill |
-|------|------|-------|
-| S1 | 限界上下文 | `bounded-context-guardian` |
-| S2 | 防御契约 | `defensive-contract-validator` |
-| S3 | 显式错误处理 | `error-handling-enforcer` |
-| S4 | 测试即规约 | `maintainability-reviewer`  |
-| S5 | 抗劣化简洁 | `complexity-anti-drift` |
-| S6 | 最小变更 + 依赖真实 | `minimal-change-verifier` |
-
-详细定义见全局规则: `~/.claude/rules/s{1-6}-*.md`。本项目评审走 subagent: `@~/.claude/agents/maintainability-reviewer.md`。
+详细定义见 @~/.claude/rules/s{1-6}-*.md。本项目评审走 subagent: `@~/.claude/agents/maintainability-reviewer.md`。
 
 ---
 
@@ -188,5 +179,5 @@ Risks / Notes:
 ### Task-end ritual (走 verification-before-completion 之后)
 
 - Q1 学到什么 → 追加 @docs/CONTEXT.md (新术语 + _Avoid_)
-- Q2 状态变了什么 → 走 `claude-md-management` 更新本文件
+- Q2 状态变了什么 → 走 `arthurpower:self-evolving-rules` 更新本文件
 - Q3 业务变更 → 追加 @docs/CHANGELOG.md + 新建 `docs/handoff/<date>.md`
