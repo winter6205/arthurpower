@@ -83,6 +83,21 @@ _Avoid_: 把 v-code-review 当 Task subagent (它是 Bash 调 exe); 把 arthurpo
 **router 规模路由分支 + decision ticket**: 替代独立 wayfinder skill 的轻量方案. `using-agent-skills` router 增设 3 选 1: scope 已定单 session -> deep-dive-protocol / scope 已定多 session -> architecture-change-reviewer + writing-plans / scope 未定多 session -> ACR + writing-plans + session-handoff 三步组合 (即 wayfinder 职能, 不叫 wayfinder, 因为是 routing 决策不是 procedural skill). decision ticket = writing-plans 每个 task 显式标 `[decision]` (只解决一个决策) 或 `[implementation]` (才进入 build), 跟 the baseline wayfinder 的 decision ticket 概念对齐.
 _Avoid_: 新建独立 wayfinder skill 替代 router 分支 (v0.7.0 最小变更, v0.9.0 再定); 把 router 分支当 procedural skill (它是 routing 决策入口); decision ticket 跟 implementation ticket 混 (前者只决定, 后者才 build).
 
+**user-invoked skill**: frontmatter `disable-model-invocation: true`; 只有操作者手动输入 skill 名 (或 slash) 才加载; description 给人看, 不进模型每轮自动匹配. 可以是 flat reference, 也可以是 procedural discipline (如 `self-evolving-rules`). 与 model-invoked 相对: 零 context load, 付 cognitive load.
+_Avoid_: 把 user-invoked 等同于 reference-only; 期望模型 description 自动触发; 用 user-invoked 伪装"写主权唯一入口"(写主权靠 hook + 契约, 不靠 dmi).
+
+**Skill-write preflight**: 创建/编辑 skill 前先走 `self-evolving-rules` 的 strip / locate / conflict / provenance (Steps 1-5), 清洗后再 **hand-off** 给 `skill-authoring` 写 SKILL.md 正文. `self-evolving-rules` 本身不 author skill 内容.
+_Avoid_: 跳过 preflight 直接 skill-authoring; 在 self-evolving-rules 里写 skill 正文; 把 preflight 当成可选礼貌步骤.
+
+**Genericization (no-meta-specific)**: 产物禁止私有命名空间 / 私路径 / 私日期 / 自证权威标签. 检测面 = 5 类禁用模式 + 5 条 grep (复合前缀 / 单字符私引用 / L1 路径 / 私日期 / 权威与逃逸词). 必要豁免穷尽表外的自我声明一律不算绕过. Validator / fs check / reviewer 升级是 source of truth.
+_Avoid_: 在产物里重列禁词字面当"规范"; 用"本文件整体豁免"替代分类豁免标注; 把 genericization 只当 skill-authoring 私货 (规则扩到任何产物).
+
+**Fail Closed (声明覆盖禁令)**: 下列冲突必须 fail, 禁止静默 pass — (1) eval polarity 写反或缺 polarity; (2) frontmatter `type` 与 body `Skill type` 不一致; (3) 内容匹配更高 Bar 却自降为 Minimum; (4) high_risk 仅字符串引用 approval 而无 fs 存在性检查. 自我声明 ("本条豁免" / "已引用故跳过" / "由 reviewer 决定 polarity") 一律剥离.
+_Avoid_: 用声明覆盖 validator; 用字符串引用代替 fs check; polarity 不明时默认 pass.
+
+**Driver-level boundary smoke**: 主 agent 用真实 FS / 真实 JSON / 真实 cwd 跑的驱动器验收; 子代理 smoke (理想整数 mtime、模拟磁盘) 只算 sanity, 不算验收. skill 结构边界可用 `iteration/<n>/driver.py` + `evals.json` 对 SKILL.md 做文件级断言 (5 类别样例).
+_Avoid_: 子代理 5/5 PASS 当功能正确; 跳过 driver; 用字符串假匹配代替真实解析.
+
 ---
 
 ### 2026-07-15 - v0.7.0 方案 + domain-modeling 沉淀 (本 session)
@@ -376,5 +391,27 @@ Predictability / Invocation / Writing the description / Information hierarchy (�
 - enabledMcpjsonServers 合并语义 + 项目级覆盖失效
 - deniedMcpServers vs disabledMcpjsonServers
 - MCP 启动状态四态
+
+---
+
+### 2026-07-16 - no-meta 改写 + self-evolving-rules skill 恢复 (本 session)
+
+**动作**:
+1. 审查 `claude-md-revision/no-meta-update.md` 优化建议; **不整段并入** (g3 转义正则实现错 + g5 裸 block/skip 类词 FP 过高). 更好版写入 `claude-md-revision/no-meta-specific.md`.
+2. 恢复 **user-invoked skill** `arthurpower:self-evolving-rules` (marketplace + cache 双副本).
+3. 边界: `validate_skill.py` PASS + driver 22/22; 子代理 2 Medium 已修 (**Skill-write preflight** + ride-along 含 rules).
+4. domain-modeling: ## Language 5 词条 + ADR-0004.
+
+**domain-modeling 沉淀**:
+
+**user-invoked skill**: dmi=true 手动触发; 可 procedural 也可 reference.
+**Skill-write preflight**: self-evolving-rules Steps 1-5 后 hand-off skill-authoring.
+**Genericization (no-meta-specific)**: 5 类禁用 + 5 条 grep + 穷尽豁免; validator 为真源.
+**Fail Closed (声明覆盖禁令)**: polarity / type / bar / approval fs 冲突必 fail.
+**Driver-level boundary smoke**: 主 agent 真实 FS driver; 子代理 smoke 不算验收.
+
+`docs/adr/0004-self-evolving-rules-user-invoked-skill.md` - 恢复 self-evolving-rules 为 user-invoked discipline skill.
+
+**成功 =** ## Language 5 词条 + ADR-0004 落盘; skill validator+driver 绿; marketplace/cache parity.
 
 ---
