@@ -191,7 +191,6 @@ Risks / Notes:
 3. docs/CONTEXT.md / handoff (业务领域语言 + 历史)
 4. CLAUDE.md (本文件, 跨项目规则)
 
-**无 L4 决定**: 不引入 `.serena/memories/` — 与 codebase-memory + CONTEXT.md 重叠, 实际无增量价值. 详见 `docs/CONTEXT.md` Flagged ambiguities "serena memories vs codebase-memory".
 
 ### Task-end ritual (走 verification-before-completion 之后)
 
