@@ -39,7 +39,7 @@ MUST:
 | S5 | 抗劣化简洁 | `complexity-anti-drift` |
 | S6 | 最小变更 + 依赖真实 | `minimal-change-verifier` |
 
-详细定义见全局规则: `~/.claude/rules/s{1-6}-*.md`。本项目评审走 subagent: `.claude/agents/maintainability-reviewer.md`。
+详细定义见全局规则: `~/.claude/rules/s{1-6}-*.md`。本项目评审走 subagent: `@~/.claude/agents/maintainability-reviewer.md`。
 
 ---
 
@@ -48,12 +48,9 @@ MUST:
 每次开始任务时按需读取：
 
 1. `README.md`
-2. `docs/architecture.md`
-3. `docs/git-workflow.md`
-4. `docs/testing.md`
-5. 当前任务相关目录下的 `CLAUDE.md`
-6. 当前任务相关代码 / 测试 / 配置文件
-7. `/memory` 中显示的项目记忆与自动记忆摘要
+2. 当前任务相关目录下的 `CLAUDE.md`
+3. 当前任务相关代码 / 测试 / 配置文件
+4. `/memory` 中显示的项目记忆与自动记忆摘要
 
 不要一次性读取所有文件。只读取与当前任务相关的文件，避免污染上下文。
 
@@ -138,10 +135,6 @@ Risks / Notes:
 - Memory 三层 + 写入准入 + 维护 → @.claude/rules/memory.md
 - 代码修改 + 测试 + 高风险区域 → @.claude/rules/code-quality.md
 - 权限 + 工具使用 + 安全与隐私 → @.claude/rules/security-boundaries.md
-- 项目架构 → @docs/architecture.md（待建）
-- Git 工作流细节 → @docs/git-workflow.md（待建）
-- 测试细节 → @docs/testing.md（待建）
-- 发布流程 → @docs/release.md（待建）
 
 ---
 
@@ -165,11 +158,11 @@ Risks / Notes:
 
 ### Eval (regression test for this template)
 
-- @.evals/README.md — eval framework 怎么用
-- @.evals/run.sh — bash runner
-- @.evals/tasks/*.yaml — task definitions
+- @evals/run_scenario_eval.py - 场景 eval runner (含 skill / hook / context 三类)
+- @evals/scenario_evals.json - 场景定义
+- @evals/v070_skill_evals.json - v0.7.0 skill eval 定义
 
-跑 baseline: `bash .evals/run.sh`
+跑 baseline: `python evals/run_scenario_eval.py`
 
 ### Domain docs (auto-load on session start)
 
