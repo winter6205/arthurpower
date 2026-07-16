@@ -89,14 +89,20 @@ _Avoid_: 把 user-invoked 等同于 reference-only; 期望模型 description 自
 **Skill-write preflight**: 创建/编辑 skill 前先走 `self-evolving-rules` 的 strip / locate / conflict / provenance (Steps 1-5), 清洗后再 **hand-off** 给 `skill-authoring` 写 SKILL.md 正文. `self-evolving-rules` 本身不 author skill 内容.
 _Avoid_: 跳过 preflight 直接 skill-authoring; 在 self-evolving-rules 里写 skill 正文; 把 preflight 当成可选礼貌步骤.
 
-**Genericization (no-meta-specific)**: 产物禁止私有命名空间 / 私路径 / 私日期 / 自证权威标签. 检测面 = 5 类禁用模式 + 5 条 grep (复合前缀 / 单字符私引用 / L1 路径 / 私日期 / 权威与逃逸词). 必要豁免穷尽表外的自我声明一律不算绕过. Validator / fs check / reviewer 升级是 source of truth.
-_Avoid_: 在产物里重列禁词字面当"规范"; 用"本文件整体豁免"替代分类豁免标注; 把 genericization 只当 skill-authoring 私货 (规则扩到任何产物).
+**Genericization (no-meta-specific)**: 产物禁止私有命名空间 / 私路径 / 私日期 / 自证权威标签. 检测面 = 5 类禁用模式 + **6** 条 grep (复合前缀 / 单字符私引用 / L1 路径 / 私日期 / 权威与逃逸词 / **中文歧义禁用复合词** `撞名|真因|切流|等价品|拍板`). 必要豁免穷尽表外的自我声明一律不算绕过. Validator / fs check / reviewer 升级是 source of truth.
+_Avoid_: 在产物里重列禁词字面当"规范"; 用"本文件整体豁免"替代分类豁免标注; 把 genericization 只当 skill-authoring 私货 (规则扩到任何产物); 把 11 准过词塞进 grep #6 (误报高).
 
 **Fail Closed (声明覆盖禁令)**: 下列冲突必须 fail, 禁止静默 pass — (1) eval polarity 写反或缺 polarity; (2) frontmatter `type` 与 body `Skill type` 不一致; (3) 内容匹配更高 Bar 却自降为 Minimum; (4) high_risk 仅字符串引用 approval 而无 fs 存在性检查. 自我声明 ("本条豁免" / "已引用故跳过" / "由 reviewer 决定 polarity") 一律剥离.
 _Avoid_: 用声明覆盖 validator; 用字符串引用代替 fs check; polarity 不明时默认 pass.
 
 **Driver-level boundary smoke**: 主 agent 用真实 FS / 真实 JSON / 真实 cwd 跑的驱动器验收; 子代理 smoke (理想整数 mtime、模拟磁盘) 只算 sanity, 不算验收. skill 结构边界可用 `iteration/<n>/driver.py` + `evals.json` 对 SKILL.md 做文件级断言 (5 类别样例).
 _Avoid_: 子代理 5/5 PASS 当功能正确; 跳过 driver; 用字符串假匹配代替真实解析.
+
+**machine-assertable**: 成功标准 / 边界指标必须能被程序直接检查 (exit code / rate / grep count / sha256), 不能是"看起来对". 流程规则里保留英文原词 `machine-assertable` (及 `assert` / `ground truth` / `pass` / `fail` 等工程 token); 中文可 gloss 一次, 判定用 token 保持英文. 禁止自造中文硬译 (calque), 以免字面日常义覆盖工程义. 落点: global `boundary-testing-protocol.md` Step 1 + Terminology 行.
+_Avoid_: 可机器断言 / 可断言的指标 等硬译当专名; 用自然语言"应该正确"代替 rate 阈值.
+
+**AMBIGUITY_RE (L5)**: `validate_skill.py` 对 SKILL.md 全文硬失败的中文歧义复合词检查, 正则 = `撞名|真因|切流|等价品|拍板` (与 no-meta grep #6 对齐). 命中 message = `chinese ambiguity banned compound at line N`. L5 不发明豁免语法; 政策 SSOT / handoff 豁免只作用于手动 grep 执行层. marketplace + cache `0.6.0` + `0.7.0` 三副本 R5 字节一致. 边界验收: `plans/l5-validator-driver.py` + `plans/l5-evals.json` (主 agent 真 FS, 非子代理 smoke).
+_Avoid_: 单字 `拍`/`撞` (FP); 11 准过词进 RE; 把 validator 当 hook D2; 把预存 section/type/bar exit=1 包装成 L5 回归.
 
 ---
 
@@ -432,5 +438,31 @@ Predictability / Invocation / Writing the description / Information hierarchy (�
 **未完成 (待 V)**: 无 deferred; 全量改动落盘. 若 V 要求 commit, 走 conventional commits.
 
 **成功 =** self-evolving.md live 0 副本; skill 三副本 dmi=true sha 一致; live 指针 grep 迭代痕迹 0 命中; ADR-0005 落盘 supersede dual-form; strip-and-routing 加 process-residue bullet 三副本 parity.
+
+---
+
+### 2026-07-17 - L5 AMBIGUITY_RE + machine-assertable 术语 (本 session)
+
+**动作**: 执行 handoff `docs/handoff/2026-07-17-l-scope-landing-remaining.md` 的 [NEXT] L5; 主脑编排 + 边界测试; 不重做 L1–L4.
+
+**domain-modeling 沉淀**:
+- ## Language: 更新 **Genericization** (5→6 grep); 新增 **machine-assertable**; 新增 **AMBIGUITY_RE (L5)**
+- ADR-0006: validator 加 AMBIGUITY_RE + 三副本 parity (见 `docs/adr/0006-validator-ambiguity-re-l5.md`)
+
+**项目 git**:
+- `3069fcd` — plans/ L5 plan + evals + driver + stage logs + verification + term-fix log
+
+**直接写 (不在 project git)**:
+- marketplace + cache 0.6.0 + 0.7.0 `validate_skill.py` sha `7ece198b…` (AMBIGUITY_RE)
+- global `boundary-testing-protocol.md`: machine-assertable 替换 + Terminology 引导 (L27/L37/L39)
+
+**验证**:
+- `python plans/l5-validator-driver.py plans/l5-evals.json` → exit 0; TP=9 FP=0 TN=10 FN=0 (marketplace + 两 cache 各一遍)
+- 6 active skill 禁词 re-grep = 0; amb 轴 7 skill = 0 命中
+- 4 skill 预存 validator exit=1 (section/type/bar/body-length) — 非 L5 回归
+
+**未进本 cycle**: workflow TDD transplant / <template-repo> sync / push / map frontmatter graduate / D2 hook / 11 准过词扩表
+
+**PASS =** L5 机器门绿 + CONTEXT 两词条 + ADR-0006; 下阶段 operator 自定整理任务.
 
 ---
