@@ -101,6 +101,9 @@ _Avoid_: 子代理 5/5 PASS 当功能正确; 跳过 driver; 用字符串假匹�
 **machine-assertable**: 成功标准 / 边界指标必须能被程序直接检查 (exit code / rate / grep count / sha256), 不能是"看起来对". 流程规则里保留英文原词 `machine-assertable` (及 `assert` / `ground truth` / `pass` / `fail` 等工程 token); 中文可 gloss 一次, 判定用 token 保持英文. 禁止自造中文硬译 (calque), 以免字面日常义覆盖工程义. 落点: global `boundary-testing-protocol.md` Step 1 + Terminology 行.
 _Avoid_: 可机器断言 / 可断言的指标 等硬译当专名; 用自然语言"应该正确"代替 rate 阈值.
 
+**Interview-engine substitution (Interpretation 2)**: 当 operator 说"把 A skill 与 B skill 替换"且 A 是多 session 编排 (map/ticket/fog/frontier)、B 是单 session 访谈写驱动时, 默认只换 A 体内的访谈原语调用链为 B (及 B 下游写主权 skill), **不**删 A 的编排壳、**不**让 B 吞掉 multi-session 职责. 本仓库落地: project-local `wayfinder` 内 `/grilling`+`/domain-modeling` → `arthurpower:deep-dive-protocol` (内部再调 domain-modeling). 证据: `plans/wayfinder-to-deep-dive.md` + `evals/run-wayfinder-swap.py`.
+_Avoid_: 字面整 skill 对删对换; 把 deep-dive 当 wayfinder 全职能替代; 在未 ADR 覆盖 v0.7 Round-7 前新建 plugin `arthurpower:wayfinder`.
+
 **AMBIGUITY_RE (L5)**: `validate_skill.py` 对 SKILL.md 全文硬失败的中文歧义复合词检查, 正则 = `撞名|真因|切流|等价品|拍板` (与 no-meta grep #6 对齐). 命中 message = `chinese ambiguity banned compound at line N`. L5 不发明豁免语法; 政策 SSOT / handoff 豁免只作用于手动 grep 执行层. marketplace + cache `0.6.0` + `0.7.0` 三副本 R5 字节一致. 边界验收: `plans/l5-validator-driver.py` + `plans/l5-evals.json` (主 agent 真 FS, 非子代理 smoke).
 _Avoid_: 单字 `拍`/`撞` (FP); 11 准过词进 RE; 把 validator 当 hook D2; 把预存 section/type/bar exit=1 包装成 L5 回归.
 
