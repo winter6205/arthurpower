@@ -170,7 +170,7 @@ Risks / Notes:
 | L3 | session context + `docs/` (CONTEXT.md / handoff / CHANGELOG) | 当前任务 + 项目知识 | inline + task-end 3 问 |
 
 **知识查询优先级** (高→低):
-1. 代码本身 (最终真值)
+1. 代码本身 (最终 ground truth)
 2. codebase-memory graph (结构性事实, 自动新鲜)
 3. docs/CONTEXT.md / handoff (业务领域语言 + 历史)
 4. CLAUDE.md (本文件, 跨项目规则)
