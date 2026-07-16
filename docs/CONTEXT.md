@@ -466,3 +466,13 @@ Predictability / Invocation / Writing the description / Information hierarchy (�
 **PASS =** L5 机器门绿 + CONTEXT 两词条 + ADR-0006; 下阶段 operator 自定整理任务.
 
 ---
+
+### 2026-07-17 - wayfinder interview engine swap (本 session)
+
+**动作**: 用 `arthurpower:deep-dive-protocol` 替换 project-local wayfinder 内 the baseline author `/grilling` + `/domain-modeling` 访谈调用.
+**Why**: operator 字面替换 + 关联链路完整适配; 保留 wayfinder 多 session map/ticket 编排能力, 只换访谈引擎 (Interpretation 2).
+**Files**: `.claude/skills/wayfinder/SKILL.md` (T2)
+**Validation**: T4 boundary smoke 5/5 PASS
+**Risk**: the baseline 上游若改写 interview primitive, 需手动同步.
+
+---
