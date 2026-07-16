@@ -328,4 +328,4 @@ E2:
 - R5 byte-level 编辑纪律：`D:/workspace/CLAUDE.md` §"AI 易错点"
 - skill-authoring 12 项硬约束：`~/.claude/plugins/arthurpower/skills/skill-authoring/SKILL.md`
 - 场景测试迭代流程：`D:/workspace/projects/SCENARIO_EVAL_REPORT.md` §"1. Goal"
-- self-evolving-rules：定位 `C:/Users/<user>/.claude/agent-skills/source-driven-development/SKILL.md`（待确认）
+- self-evolving-rules：`arthurpower:self-evolving-rules` (user-invoked; marketplace + cache under arthurpower-local; also `~/.claude/skills/self-evolving-rules/`)

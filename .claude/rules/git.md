@@ -314,8 +314,9 @@ git push origin :v0.2.4    # 远端删 (注意: 是 :refs/tags/v0.2.4 简写)
 ## 9. 规则沉淀 (跨引)
 
 沉淀经验类任务 (hook / skill / rules / settings.json 改动) **伴随工程实施**时,
-必走 `.claude/rules/self-evolving.md` 的 6 步流程, 不凭印象写 L1/L2 规则.
+必走 `arthurpower:self-evolving-rules` skill 的 6 步流程, 不凭印象写 L1/L2 规则.
+规则文件 `self-evolving.md` 已归档; 可执行 SSOT 仅 skill (user-invoked).
 
 触发词: "新增" / "合并" / "归档" / "重写" / "迁移" / "清理" / "配置同步" / "以后 X" / "规则是 X".
 
-Skill 调用: `Skill` 工具 invoke `self-evolving-rules` (现合并入 self-evolving.md 规则文件).
+Skill 调用: operator 手动 `Skill` 工具 invoke `arthurpower:self-evolving-rules` 或 `/self-evolving-rules` (`disable-model-invocation: true`).
