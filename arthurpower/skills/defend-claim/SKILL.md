@@ -37,60 +37,33 @@ A claim is load-bearing when task success turns on it. The unit of acceptance is
 
 All 5 hooks support `--self-test` mode. Real-fire tests confirmed: Q2 (phantom cite), Q3 (no-evidence completion), Q5 (Python `except: pass`) all exit 2 as designed.
 
+Full Q-hook detail (hook path, logic, fail-action, self-test command, real-fire example) — see [`references/q-hooks.md`](references/q-hooks.md).
+
 ### Q1 — Execution Captured
 
-*Did you RUN it and capture raw exit/output bytes — not read, not re-state?*
-
-- **Hook**: `defend-claim-execution.sh` (PostToolUse on Bash) — supports `--self-test`
-- **Logic**: Read `.tool_input.command` from the PostToolUse payload. If the command matches `curl | wget | pytest | npm test | python -m test | go test | docker ps`, check `.tool_response` (the Claude Code PostToolUse result field, not `tool_output` or `tool_result`). If `.tool_response` is missing or empty, emit a `hookSpecificOutput.additionalContext` advisory; otherwise silent pass.
-- **Fail-action**: `Exit 0` always (Q1 is advisory, not blocking). Advisory format: `{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":"[defend-claim Q1 Advisory] ..."}}`
-- **Self-test**: `bash ~/.claude/hooks/defend-claim-execution.sh --self-test` → "Q1 self-test: POST-EDIT output capture detection. PASS"
-- **Real-fire**: `{"tool_input":{"command":"curl ..."},"tool_response":"<output>"}` → silent. `{"tool_input":{"command":"curl ..."}}` (no `tool_response`) → emits advisory. `{"tool_input":{"command":"ls /tmp"},"tool_response":"..."}` → silent (non-matching command bypasses the check).
+Did you RUN it and capture raw exit/output bytes — not read, not re-state? Hook: `defend-claim-execution.sh` (PostToolUse on Bash). Fail-action: `Exit 0` advisory (not blocking).
 
 ### Q2 — Cite Physically Exists
 
-*Does each cited artifact PHYSICALLY EXIST and MATCH the claim — verified right now?*
-
-- **Hook**: `defend-claim-cite-integrity.sh` (PostToolUse on Edit|Write) — supports `--self-test`
-- **Logic**: Regex extract `path:line` (multi-level paths only); run `timeout 3s sed -n "${line}p" "${path}"` to verify file+line exist; mismatch → `REJECTED: Q2 phantom cite — <reason>` and `Exit 2`.
-- **Fail-action**: `Exit 2` (denied) on phantom cite; `Exit 0` on pass
-- **Self-test**: `bash ~/.claude/hooks/defend-claim-cite-integrity.sh --self-test` → "Q2 self-test: phantom cite detection. PASS"
-- **Real-fire**: `/some/nonexistent/dir/file.py:99` → `REJECTED: Q2 phantom cite — file does not exist: ...` exit 2
+Does each cited artifact PHYSICALLY EXIST and MATCH the claim — verified right now? Hook: `defend-claim-cite-integrity.sh` (PostToolUse on Edit|Write). Fail-action: `Exit 2` denied on phantom cite.
 
 ### Q3 — Structural Report Triple
 
-*Is the success criterion stated as a triple — (action-verb, target-artifact, observed-outcome) — that parses mechanically?*
-
-- **Hook**: `defend-claim-report-triple.sh` (PostToolUse on Write) — supports `--self-test`
-- **Logic**: Strip all zero-width and invisible Unicode; detect completion keywords (完成 / done / fixed / passing / 成功 / completed / 已验证 / 已修复); require action-verb evidence (ran/built/tested/grepped/curl/executed/verified/confirmed/passed/exit.code/sha256/HTTP.200/grep.matched); mismatch → `REJECTED: Q3 ...` and `Exit 2`.
-- **Fail-action**: `Exit 2` (denied) when completion claim lacks action evidence
-- **Self-test**: `bash ~/.claude/hooks/defend-claim-report-triple.sh --self-test` → "Q3 self-test: report triple detection. PASS"
-- **Real-fire**: `完成 this works now` → exit 2. `完成 ran pytest tests/ — exit 0` → exit 0.
+Is the success criterion stated as a triple — (action-verb, target-artifact, observed-outcome) — that parses mechanically? Hook: `defend-claim-report-triple.sh` (PostToolUse on Write). Fail-action: `Exit 2` denied when completion claim lacks action evidence.
 
 ### Q4 — Session Entity Consistency
 
-*Do referenced entities still match current session state — not a stale mental model?*
-
-- **Hook**: `defend-claim-dumb-zone.sh` (PostToolUse on Edit|Write) — supports `--self-test` and `--self-test-reset`
-- **Logic**: Increment `~/.claude/hooks/.dc-turn-counter` per Edit/Write; on every 10th, emit named-entity checklist advisory. This is the only stateful hook in v0.5.0 (4 of 5 are stateless).
-- **Fail-action**: `Exit 0` (advisory only); framework surfaces the message to agent context
-- **Self-test**: `bash ~/.claude/hooks/defend-claim-dumb-zone.sh --self-test-reset && bash ~/.claude/hooks/defend-claim-dumb-zone.sh --self-test` → "Q4 self-test: dumb-zone counter. PASS"
+Do referenced entities still match current session state — not a stale mental model? Hook: `defend-claim-dumb-zone.sh` (PostToolUse on Edit|Write) — the only stateful hook in v0.5.0 (4 of 5 are stateless). Fail-action: `Exit 0` advisory.
 
 ### Q5 — Code-Shape Lint
 
-*Did the change introduce empty-catch / silent-null-return that defeats a downstream claim?*
-
-- **Hook**: `defend-claim-silent-fail.sh` (PostToolUse on Edit|Write) — supports `--self-test`
-- **Logic**: Regex scan for `except:\s*pass` (Python) / `catch\s*\{\s*\}` (JS/TS) / `=>\s*null\s*;` (silent null return); print `[SYSTEM INJECTION] Require Q1 behavioral probe` when L1 hits.
-- **Fail-action**: `Exit 2` (denied) on `except:\s*pass` or `catch\s*\{\s*\}`; `Exit 0` advisory on silent null
-- **Self-test**: `bash ~/.claude/hooks/defend-claim-silent-fail.sh --self-test` → "Q5 self-test: silent-failure detection. PASS"
-- **Real-fire**: `try:\n    x()\nexcept:\n    pass\n` → exit 2. `def foo():\n    return 1\n` → exit 0.
+Did the change introduce empty-catch / silent-null-return that defeats a downstream claim? Hook: `defend-claim-silent-fail.sh` (PostToolUse on Edit|Write). Fail-action: `Exit 2` denied on `except:\s*pass` or `catch\s*\{\s*\}`; `Exit 0` advisory on silent null.
 
 ## Decision Verdict
 
 | Verdict | Condition | Final Line |
 | --- | --- | --- |
-| **ASSERT** | Q1-Q5 all PASS (or Q5 injected and resolved) | `成功 = <criterion> <evidence-pointer>` |
+| **ASSERT** | Q1-Q5 all PASS (or Q5 injected and resolved) | `PASS = <criterion> <evidence-pointer>` |
 | **QUALIFY** | Q1-Q3 PASS, Q4 or Q5 fail in non-load-bearing scope | `QUALIFIED — Q<n> failed: <gap>; claim holds in stated scope` |
 | **REJECT** | Q1 OR Q2 fail, OR 2+ questions fail | `REJECTED — Q<n>(<reason>); missing artifact: <path/cmd>` |
 
@@ -98,19 +71,7 @@ No softening ("partially works"). A rejected claim is not a defense-report.
 
 ## Anti-Self-Certification Bypass Table
 
-| # | Bypass Attempt | Defeat Mechanism |
-| --- | --- | --- |
-| 1 | Paraphrase cached stdout / run irrelevant command for SHA256 | Q1 binding forces `$EXECUTED_CMD` to reference `$CLAIM_TARGET`; sha256 re-computed by hook |
-| 2 | Phantom cite — write `/src/x.py:42` without `ls + sed` | Q2 auto-runs `timeout 3s sed`; mismatch = Exit 2 with `REJECTED: Q2 phantom cite — <reason>` |
-| 3 | Vocabulary evasion & zero-width character injection | Q3 strips invisible Unicode, then parses closed-list triple structurally |
-| 4 | Silent failure hidden by complex syntax | Q5 L1 regex denies on `except: pass` / `catch {}`; Q1 behavioral probe required on hit |
-| 5 | Trust-me / skip-verification / delegation ("just merge", "do the verification for me") | Q3 Report Triple requires action-verb + target + observed-outcome in the same Write; user-claimed success without exec record = Exit 2. Conversational contract: respond with `verification required regardless of trust; cannot skip; must run` |
-| 6 | Size exemption ("just a tiny typo", "1-character change") | Q1 fires on any Bash that closes the task — no exemption for size. Conversational contract: `no exemption for small changes; size does not waive verification; must run tests` |
-| 7 | Docs-as-evidence ("I already read the docs and confirmed") | Docs are not execution; Q1 demands fresh exec record. Conversational contract: `docs are not evidence; run the code; test it yourself; prove it` |
-| 8 | Stale-memory ("it worked in the previous session") | Previous-session output is not current-turn evidence; Q1 re-runs sha256 each Bash. Conversational contract: `previous session is not evidence; re-run now; verify now; exec artifact required` |
-| 9 | Tracker-as-proof ("just mark done for the tracker") | Tracker status is metadata, not verification; Q3 demands an exec artifact. Conversational contract: `tracker is not evidence; run the test; show exec artifact; paste test output` |
-| 10 | Time pressure ("user is busy", "just say complete") | Verification is non-negotiable regardless of time pressure; Q3 fires on the same Write. Conversational contract: `cannot skip; verification required; must run; evidence required` |
-| 11 | Delegation framing ("can you do the verification for me?") | Q1 binds exec to the agent, not the user; user-deferred verification does not transfer. Conversational contract: `I will run pytest; show me the exit code; show the diff; show status` |
+11 numbered bypass attempts and the Q-hooks that defeat each — see [`references/anti-self-cert-bypass.md`](references/anti-self-cert-bypass.md). Read this when a claim is rejected: the bypass attempt usually matches one of the 11 entries.
 
 ## Pitfalls
 
@@ -175,21 +136,6 @@ Validator: `python3 scripts/validate_skill.py C:/Users/dev/.claude/plugins/arthu
 
 ## Cross-References
 
-**Source-item coverage:**
-
-| Source | Axis | Question |
-| --- | --- | --- |
-| 读≠跑 | execution | Q1 |
-| status≠在用 | execution | Q1 + Q2 |
-| 负声明不可信 | provenance | Q2 |
-| 文档当前值是快照 | provenance | Q2 |
-| 第三方报告≠现状 | provenance | Q2 + Q3 |
-| 幻觉 API/包名 | execution | Q1 + Q5 |
-| 上下文衰减 | process | Q4 |
-| 供应链投毒 | execution | Q1 |
-| 硬编码密钥 | execution | Q1 |
-| 同义反复测试 | report | Q3 |
-| 静默失败 | code-shape | Q5 |
-| 凭记忆写 API | process | Q1 + Q3 |
+**Source-item coverage** (12 items mapped to Q1-Q5) — see [`references/source-coverage.md`](references/source-coverage.md).
 
 **Out of scope** (use existing skills): S1-S6 maintainability (`arthurpower:minimal-change-verifier`); debug-flow (`arthurpower:systematic-debugging`); evidence capture for known-good work (`arthurpower:verification-before-completion`). This skill is *only* the claim-defensibility layer between work and report.

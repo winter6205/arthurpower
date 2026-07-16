@@ -5,7 +5,7 @@ description: Use when 2+ independent tasks can run without shared mutable state,
 
 # Dispatching Parallel Agents
 
-## When to Use
+## When to use
 
 - **2+ 真正独立的任务** (无共享文件 / 共享 DB / 共享 config)
 - **单 agent context 爆炸** (调查 6 个 test 文件失败 = 拆分)
@@ -13,7 +13,7 @@ description: Use when 2+ independent tasks can run without shared mutable state,
 - **独立探索陌生代码** (摸 3 个未熟悉的 module, 各派 1 个 subagent)
 - **批量修复 N 个同类 bug** (N 个独立 file, N 个 subagent 并行)
 
-## When NOT to Use
+## When not to use
 
 - **任务间有依赖** (task B 读 task A 的输出 → 必须 sequence, 不是 parallel)
 - **单 trivial 任务** (subagent setup cost > 任务本身)
@@ -42,7 +42,7 @@ PERMISSION:  <allowed tools + read/write/edit scopes>
 REFERENCE:   <paths / docs / runnable commands the subagent must read first>
 CONSTRAINTS: <anti-patterns to avoid, e.g. no scope creep, no premature optimization>
 DELIVERABLE: <concrete artifact: test pass, file diff, structured report>
-OUTPUT:      <format + return-path: file location, JSON shape, verbatim string>
+OUTPUT:      <format + return-path: file location, JSON shape, exact token string>
 ```
 
 **关键**: ROLE / SCOPE / PERMISSION 三项缺失任意一项 = subagent 必失败或 scope 漂移。CONSTRAINTS 缺失 = 顺手优化反模式。
@@ -62,6 +62,11 @@ See [`references/example.md`](references/example.md) for a full 6-step walkthrou
 
 ## Verification
 
+```
+Skill type: discipline
+Bar level:  discipline
+```
+
 Inline smoke check:
 
 ```bash
@@ -70,7 +75,7 @@ git diff --stat HEAD && pytest tests/ -q --co | tail -5
 
 Then run the manual cross-check table (scope creep / file conflict / commit atomicity / test exit code) per [`references/verification.md`](references/verification.md).
 
-**Acceptance command**: `echo "成功 = N subagents dispatched, N results synthesized, 0 conflicts"`
+**Acceptance command**: `echo "PASS = N subagents dispatched, N results synthesized, 0 conflicts"`
 
 ## Rationalization Table
 
@@ -99,4 +104,4 @@ Then run the manual cross-check table (scope creep / file conflict / commit atom
 
 **Zero tolerance** — subagent scope = 1 文件 or 1 逻辑任务, parallel 仅当真正独立, cross-check 在 integration 前。
 
-VERIFICATION = "成功 = N subagents dispatched, N results synthesized, 0 conflicts, 全部 subagent ≤ 500 行 scope, 主代理 cross-check 通过"
+VERIFICATION = "PASS = N subagents dispatched, N results synthesized, 0 conflicts, 全部 subagent ≤ 500 行 scope, 主代理 cross-check 通过"

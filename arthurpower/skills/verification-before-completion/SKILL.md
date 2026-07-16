@@ -16,7 +16,7 @@ When the success criterion touches context-loop artifacts, this skill MUST addit
 
 These checks run alongside the standard verification procedure (§Procedure below).
 
-## When to Use
+## When to use
 
 - About to claim "完成" / "done" / "fixed" / "passing" / "ready to ship" in chat or report
 - Marking a task complete in TaskList / todo
@@ -24,7 +24,7 @@ These checks run alongside the standard verification procedure (§Procedure belo
 - Before declaring success in any user-facing message
 - After subagent returns "success" — verify independently before trusting
 
-## When NOT to Use
+## When not to use
 
 - Trivial edits (typo fix in comment, single-line rename with no logic change) — user waived verification by context
 - Design discussion / brainstorming before any implementation exists
@@ -37,7 +37,7 @@ These checks run alongside the standard verification procedure (§Procedure belo
 3. **Capture the actual output** — paste it in full into your report (or save to file). Don't paraphrase "it works". 实测输出 > 主观描述.
 4. **Compare output against the criterion** — does the captured output match the binary predicate from step 1? If yes, evidence = present. If no, claim = forbidden.
 5. **If mismatch: stop, fix, re-run** — do not rationalize ("应该可以", "看起来对"). Re-run from step 2 with corrected code.
-6. **Report with the success format**: `成功 = <criterion> <actual evidence>` (一行, 表格 + 行号 + 实测值). 不写 "完成" without 实测输出.
+6. **Report with the success format**: `PASS = <criterion> <actual evidence>` (一行, 表格 + 行号 + 实测值). 不写 "完成" without 实测输出.
 
 ## Acceptance Criteria
 
@@ -45,11 +45,18 @@ These checks run alongside the standard verification procedure (§Procedure belo
 - [ ] Actual output captured (paste / file), not summarized or paraphrased
 - [ ] Output matches the success criterion (binary check)
 - [ ] If mismatch surfaced, code was fixed and re-run, not rationalized
-- [ ] Report contains `成功 = ...` 一行 with concrete evidence (exit code, line count, screenshot path)
+- [ ] Report contains `PASS = ...` 一行 with concrete evidence (exit code, line count, screenshot path)
 
 A worked example covering all 6 procedure steps is in [`references/example.md`](references/example.md).
 
-## Verification (runnable)
+## Verification
+
+```
+Skill type: discipline
+Bar level:  discipline
+```
+
+**Verification commands** (runnable):
 
 ```bash
 # 1. Test exit code
@@ -61,8 +68,8 @@ pnpm test 2>&1 | tail -30; echo "EXIT=$?"
 # 3. Diff scope matches task (no creep)
 git diff --stat HEAD~1
 
-# 4. Report line check (must contain 成功 = ...)
-grep -E "^成功 =" reports/latest.md
+# 4. Report line check (must contain PASS = ...)
+grep -E "^PASS =" reports/latest.md
 ```
 
 ## Rationalization Table
@@ -72,7 +79,7 @@ grep -E "^成功 =" reports/latest.md
 | "It works on my machine" | Test in the runtime user uses. User on Windows → test on Windows. Cross-platform handwave ≠ verification. |
 | "I'm confident" | Confidence is not evidence. Run the command. |
 | "Tests are slow, skip" | Slow tests still pass or fail. Skip = no signal = can't claim done. |
-| "I manually tested" | Manual is not automated, not reproducible. 实测输出 = 唯一真值. |
+| "I manually tested" | Manual is not automated, not reproducible. 实测输出 = the only ground truth. |
 | "The change is trivial" | Trivial changes still have bugs. 30-second test catches them. |
 | "I'll add tests in next commit" | Next commit ≠ this commit. Don't split verification across commits. |
 | "Agent said success" | Agent report ≠ user verification. Re-run independently. |

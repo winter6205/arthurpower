@@ -1,6 +1,6 @@
 ---
 name: setup-arthurpower
-description: "Arthurpower 结构声明入口 - 一次性 setup. Auto-detects project mode (fresh / old-repo / intermediate) and runs the matching flow. User-invoked: only fires when the operator explicitly runs this skill; the model does NOT auto-trigger it. Registers 5 context-闭环 hooks + pre-fs-guard WITH dedup detection against the user-level settings."
+description: "Use when bootstrapping an Arthurpower project for the first time, migrating an existing repo onto Arthurpower (preserving prior content), gap-filling against a partial setup, or switching a multi-context project to CONTEXT-MAP.md mode. User-invoked: operator triggers explicitly; model does NOT auto-fire. Registers 5 context-闭环 hooks + pre-fs-guard WITH dedup detection."
 disable-model-invocation: true
 version: 3.0.0
 tags: [Setup, Bootstrap, ContextMap, Contract, OneShot, Hooks, Dedupe, Migration, GithubPull]
@@ -109,7 +109,7 @@ mkdir -p docs/agents docs/adr
 
 ### Step 4: 写入占位 CONTEXT.md 或 CONTEXT-MAP.md
 
-单语境占位 (H1 标题用 operator 拍板的项目名, **不要事后通过 Edit 改 H1**, 那会被 pre-context-write-guard 拦截):
+单语境占位 (H1 标题用 operator decide 的项目名, **不要事后通过 Edit 改 H1**, 那会被 pre-context-write-guard 拦截):
 
 ```markdown
 # <项目名> - 领域词汇表
@@ -244,7 +244,7 @@ bash scripts/update.sh --from-git <owner>/<repo> --force
 - [ ] **hook 注册按需** (Step 5b 三分支)
 - [ ] `domain-modeling` 在 `.claude/skills/` (模板自带); `deep-dive-protocol` + `self-evolving-rules` 由 plugin 全局供给 (fresh 模式不必复制到 `.claude/skills/`, plugin 装上即有)
 - [ ] `.claude/rules/context-loop.md` 存在
-- [ ] `.claude/rules/boundary-testing-protocol.md` 存在 (跨多文件/多 hook 改动必走 6 步流程)
+- [ ] `.claude/rules/boundary-testing-protocol.md` 存在 (跨多文件/多 hook 改动按 6 步流程)
 - [ ] `.claude/rules/self-evolving.md` 存在 (规则沉淀 6 步流程)
 - [ ] `scripts/bootstrap.sh` + `scripts/update.sh` 存在 + 可执行
 - [ ] `.evals/run.sh --all` 10/10 PASS
@@ -262,7 +262,7 @@ bash scripts/update.sh --from-git <owner>/<repo> --force
 
 ### Setup 完成语义
 
-成功 = fresh 模式跑过 `.evals/run.sh --all` 10/10 + 6 hook 全在; old-repo 模式现有文件零改动 + 缺的资产通过 update.sh 增量补齐 + dedup 决策正确执行.
+PASS = fresh 模式跑过 `.evals/run.sh --all` 10/10 + 6 hook 全在; old-repo 模式现有文件零改动 + 缺的资产通过 update.sh 增量补齐 + dedup 决策正确执行.
 
 ## References
 
