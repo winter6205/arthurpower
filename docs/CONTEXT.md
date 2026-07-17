@@ -128,6 +128,18 @@ _Avoid_: 在 commit message body / PR body / handoff 文件中贴含 `grep -r` /
 **driver smoke vs subagent smoke asymmetry 复发形态**: 即使实现了 driver-level smoke, 当 hook 因 lib 缺失 fail-open, **driver 也只能看到 exit 0**, 与 subagent smoke 表现相同. 真正能区分的是 fault-injection: 故意删 lib 文件, 重跑 driver, 验证 hook 此时不应再 exit 0 (或应显式 noise stderr). 落点: boundary-testing-protocol §"Case 1" 已记录 1 个版本; 本 entry 补 1 个复发形态 (lib dep 缺失导致 driver 与 subagent 同样盲).
 _Avoid_: 把 driver smoke 5/5 PASS 当 ground truth; 不做 fault-injection; lib dep 不在 driver 测试覆盖范围.
 
+**tracer bullet**: 一个 writing-plans plan 中的最小可交付条目, 窄且完整的 vertical slice (schema / API / UI / tests 一条竖线), demoable end-to-end, 装进单个 fresh context window, 必须挂恰好一个 `[decision]` 或 `[implementation]` tag, 对应恰好 1 commit. leading word 归 writing-plans 单一所有, ACR / code-review / 任何其它 skill 都不拆票, 只消费或引用. 词源: the baseline author `the baseline skills repo` 的 to-tickets. 落地: `arthurpower/skills/writing-plans/SKILL.md` 4 处贯穿 (Overview / Procedure / Acceptance / Red Flags) + 配套 plan-format.md / acceptance-criteria.md / example-plan.md.
+_Avoid_: 在 ACR 或其它 skill body 拆票 (那是 writing-plans 职责); 把 horizontal split (一层一个 ticket) 当 tracer bullet; 把 wide mechanical refactor 硬塞单个 bullet.
+
+**expand-contract 例外**: tracer bullet 主轴的唯一例外, 处理 blast radius 跨整个仓库的 mechanical refactor (rename column / retype shared symbol 等). 序列 = expand (新形式并列旧形式, 不断绿) → migrate (按 batch 拆多个 tracer bullet, 每批一票) → contract (旧形式 0 caller 后删, 独立一票). expand / contract 本身不是 tracer bullet, 是让中间批次能独立绿的 rails.
+_Avoid_: 把整库 refactor 硬塞单 bullet (中间状态一定 break); migrate batch 之间不按 blast radius 拆 (粒度过粗或过细); contract 跟最后一 migrate 合成 1 commit (丢回滚粒度).
+
+**ACR gate-only**: `architecture-change-reviewer` skill 的职能收敛, 只产 5-line verdict block (bounded-context-guardian / defensive-contract-validator / error-handling-enforcer / complexity-anti-drift / minimal-change-verifier, 各 yes / no / unclear + 一句话 reason), 改前放行 / 拦下. 不拆票, 不写 ordered task list, 不写 acceptance criterion — 全部下交 writing-plans. 体现: Procedure Step 6 改为 1 行 handoff pointer; 当 NOT to use 加 "Decomposing a feature into ordered vertical-slice tickets — that is writing-plans". 时间点严格改前 (ADR-0002 + ADR-0007); 跟 post-impl code-review 不重叠.
+_Avoid_: ACR 拆票 / ACR 写 acceptance / ACR 改后审查 (越界到 code-review 时段) / 把 ACR 当 planning skill.
+
+**verdict SSOT = plans/<feature>.md**: ACR 5-line verdict block 的唯一 canonical 落点. Verification grep 只扫 `plans/<feature>.md`, 不扫 PR description. 历史漂移 (PR.md vs plans/*.md) 由 ADR-0007 锁定收敛. 配套: `writing-plans/references/handoff-acr.md` §4 写明 "Both artifacts land in `plans/<feature>.md` (SSOT)".
+_Avoid_: verdict 落 PR description (跟 writing-plans "PR description afterthought 不算 plan" 冲突); verdict 只在 chat (Verification grep 不到); verdict 在 PR + plan 双份但 Acceptance 仍要单点证据.
+
 ---
 
 **arthurpower-afk**: Independent GitHub repo `winter6205/arthurpower-afk`, plugin id `arthurpower-afk`, marketplace id `arthurpower-afk-local`. Product duty per S1 verdict (locked 2026-07-17): closed-map batch execution + configurable auto-merge + full Q1/Q2/Q3 ritual via event-driven post-push hook. Hard non-overlap: does NOT reopen map destination, does NOT write planning tickets, does NOT decide ADRs for the operator.
