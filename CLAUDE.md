@@ -6,6 +6,12 @@
 
 ---
 
+## 执行偏好 
+
+Send explorers first if needed, and use as many subagents and tokens as necessary.
+
+---
+
 ## 不变量 (NEVER / MUST)
 
 NEVER:
@@ -59,9 +65,6 @@ MUST:
 6. 是否需要锁文件更新？
 
 不得无理由升级大版本依赖。不得混用包管理器。
-
-- 项目使用 `pnpm-lock.yaml` → 不得运行 `npm install` 生成 `package-lock.json`
-- 项目使用 `package-lock.json` → 不得生成 `pnpm-lock.yaml` 或 `yarn.lock`
 
 ---
 

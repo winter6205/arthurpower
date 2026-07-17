@@ -46,7 +46,7 @@ Review implemented Git changes with the local `v-code-review` CLI, then interpre
 
 ## Review-stage placement
 
-- Before change: `architecture-change-reviewer` decides the implementation plan.
+- Before change: `architecture-change-reviewer` gates the plan via 5-verdict; writing-plans authors the ordered task list.
 - After change: `code-review` checks the Git diff; `arthurpower-audit-agent` independently checks the plugin's governance scope.
 - Before merge: `maintainability-reviewer` performs the third-stage S1-S6 decision.
 
