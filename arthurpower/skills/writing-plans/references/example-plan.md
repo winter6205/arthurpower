@@ -12,6 +12,8 @@ A complete Plan Format fill-in showing the full template in action — Goal / Ar
 
 ## Tasks (ordered by dependency)
 
+Each numbered item is one tracer bullet: vertical slice, one tag, one commit, binary acceptance.
+
 1. **DB migration: add columns** — affects: `migrations/versions/abc_add_profile_fields.py`
    - Acceptance: `alembic upgrade head` exit 0; `\d users` shows new columns; `alembic downgrade -1` exit 0
    - Commit: 1 commit = this 1 task
@@ -39,6 +41,6 @@ A complete Plan Format fill-in showing the full template in action — Goal / Ar
 
 ## Cross-references
 - architecture-change-reviewer verdict: yes per all 5 Core Skills (bounded-context OK / contract 5-class / error typed / complexity ≤ 30 lines / 1 commit per task)
-- affected S1-S6 skills: S2 (defensive-contract for API + form), S6 (1 commit per task, no refactor mixed)
+- affected S1-S6 skills: S2 (defensive-contract for API + form), S6 (1 commit per task, no refactor mixed) (each commit = one tracer bullet)
 - parallelization surface: T3 + T4 are truly parallel (different files, no shared state)
 ```
