@@ -151,8 +151,8 @@ Risks / Notes:
 
 | 阶段 | Agent | 用途 |
 |---|---|---|
-| Pre-merge S1-S6 第三段 | `maintainability-reviewer` | spec + code-quality 都过后的最后一道 S1-S6 审计 |
-| Flash lint / 快速正确性 | `quick-reviewer` | 小 diff 闪审 + lint 风格正确性, 不重做 spec/code-quality 阶段 |
+| Pre-merge S1-S6 第三段 | [maintainability-reviewer](~/.claude/agents/maintainability-reviewer.md) | spec + code-quality 都过后的最后一道 S1-S6 审计 |
+| Flash lint / 快速正确性 | [quick-reviewer](~/.claude/agents/quick-reviewer.md) | 小 diff 闪审 + lint 风格正确性, 不重做 spec/code-quality 阶段 |
 
 Multi-reviewer order (ACR → code-review + audit-agent → maintainability): see `arthurpower/docs/agents/harness-map.md` §4.
 
