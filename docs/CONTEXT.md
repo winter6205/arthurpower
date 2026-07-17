@@ -74,8 +74,8 @@ _Avoid_: 用 disabledMcpjsonServers (bug 字段); 用字符串数组格式给 de
 **MCP 启动状态四态**: /mcp 显示 server 状态有 4 种: ✔ connected (定义+批准+启动成功), ◯ connecting… (启动中, npx 首次下载/OAuth 远程认证会慢, 非错误), ✘ Failed to connect (启动失败, 如 OAuth 未授权 / 命令不存在 / 网络不通), ⏸ Pending approval (有定义但未批准, untrusted folder 中 enabledMcpjsonServers 被 ignore). 用 `claude mcp get <name>` 看单 server 真状态 (含 Scope + Status + 错误原因), 比 /mcp TUI 详细.
 _Avoid_: 把 connecting… 当错误 (npx 首次启动正常慢); 不区分 Failed to connect (启动失败) 跟 Pending approval (未批准).
 
-**三体 S1-S6 决策位置分工**: arthurpower 体系里 3 个资产都审 S1-S6, 靠**时点 + 作用域**分工不合并. (1) 改前 plan gate = `arthurpower:architecture-change-reviewer` skill (5 verdict: S1-S3+S5+S6); (2) 改后预 commit 通用审查 = `arthurpower:code-review` skill (调 v-code-review CLI, 双维度 + Fowler smell, 通用 Git diff); (3) 改后预 commit arthurpower 自身审计 = `arthurpower-audit-agent` agent (S1-S6 6 规范, 限 plugin 自身); (4) pre-merge 第三段 = `maintainability-reviewer` user agent (S1-S6 6 规范, 通用项目). 同职能跨 harness 层靠作用域区分.
-_Avoid_: 三体合并成一个 skill; 把 audit-agent 当通用项目审查 (它限 arthurpower 自身); 把 code-review 当 S1-S6 审计 (它是双维度 + smell, 不是规范审计).
+**三体 S1-S6 决策位置分工**: S1–S6 由时点 + 作用域分工：改前 ACR gate、改后预 commit code-review / audit-agent、pre-merge maintainability-reviewer，不合并成一体。详见 `docs/adr/0002` + `docs/adr/0007`。
+_Avoid_: 三体合并成一个 skill; 把 audit-agent 当通用项目审查; 把 code-review 当 S1-S6 规范审计.
 
 **独立智能体 CLI vs Task subagent**: 两种不同机制. 独立智能体 CLI = 调本地 exe 的 Bash 流程 (如 `v-code-review` skill 调 `OCR_BIN` exe, OpenCodeReview fork, 内部 AI 审查, 分类 High/Medium), 主 Claude 自己跑 Bash. Task subagent = Task tool + subagent_type 字段 spawn 隔离 Claude 实例 (如 `arthurpower-audit-agent`, 独立 context + 独立 tool 权限). 触发词区分: "审代码/审 PR/review changes" 走 CLI; "audit/S1-S6/审计" 走 subagent.
 _Avoid_: 把 v-code-review 当 Task subagent (它是 Bash 调 exe); 把 arthurpower-audit-agent 当 CLI (它是 Task subagent); 混淆两者触发词.
@@ -104,8 +104,8 @@ _Avoid_: 可机器断言 / 可断言的指标 等硬译当专名; 用自然语�
 **Interview-engine substitution (Interpretation 2)**: 当 operator 说"把 A skill 与 B skill 替换"且 A 是多 session 编排 (map/ticket/fog/frontier)、B 是单 session 访谈写驱动时, 默认只换 A 体内的访谈原语调用链为 B (及 B 下游写主权 skill), **不**删 A 的编排壳、**不**让 B 吞掉 multi-session 职责. 本仓库落地: project-local `wayfinder` 内 `/grilling`+`/domain-modeling` → `arthurpower:deep-dive-protocol` (内部再调 domain-modeling). 证据: `plans/wayfinder-to-deep-dive.md` + `evals/run-wayfinder-swap.py`.
 _Avoid_: 字面整 skill 对删对换; 把 deep-dive 当 wayfinder 全职能替代; 在未 ADR 覆盖 v0.7 Round-7 前新建 plugin `arthurpower:wayfinder`.
 
-**AMBIGUITY_RE (L5)**: `validate_skill.py` 对 SKILL.md 全文硬失败的中文歧义复合词检查, 正则 = `撞名|真因|切流|等价品|拍板` (与 no-meta grep #6 对齐). 命中 message = `chinese ambiguity banned compound at line N`. L5 不发明豁免语法; 政策 SSOT / handoff 豁免只作用于手动 grep 执行层. marketplace + cache `0.6.0` + `0.7.0` 三副本 R5 字节一致. 边界验收: `plans/l5-validator-driver.py` + `plans/l5-evals.json` (主 agent 真 FS, 非子代理 smoke).
-_Avoid_: 单字 `拍`/`撞` (FP); 11 准过词进 RE; 把 validator 当 hook D2; 把预存 section/type/bar exit=1 包装成 L5 回归.
+**AMBIGUITY_RE (L5)**: `validate_skill.py` 对 SKILL.md 硬失败的中文歧义复合词检查（`撞名|真因|切流|等价品|拍板`），与 no-meta grep #6 对齐。详见 `docs/adr/0006`。
+_Avoid_: 单字 `拍`/`撞` (FP); 11 准过词进 RE; 把 validator 当 hook D2.
 
 **PR review thread loop**: 评审者的反馈可能多轮收敛 ("drop @" → "需要 link 但不要 @" → markdown link 接受). 每轮 = 1 个 atomic commit + reply + resolve, 不允许 squash 轮次; 每轮 reviewer 迭代是独立 atomic task, 跨轮 commit 必须保持可逐 round revert. 落地证据: PR #4 三轮 review 走完 CLAUDE.md L154-155 row; merge commit `991d144` 保留 13 个 atomic 历史.
 _Avoid_: 把多轮 review 折成一个 "fix" commit (丢失 reviewer 决策链); resolve 线程前不 reply; reply 后忘记 push (reviewer 看不到新 commit).
@@ -128,17 +128,17 @@ _Avoid_: 在 commit message body / PR body / handoff 文件中贴含 `grep -r` /
 **driver smoke vs subagent smoke asymmetry 复发形态**: 即使实现了 driver-level smoke, 当 hook 因 lib 缺失 fail-open, **driver 也只能看到 exit 0**, 与 subagent smoke 表现相同. 真正能区分的是 fault-injection: 故意删 lib 文件, 重跑 driver, 验证 hook 此时不应再 exit 0 (或应显式 noise stderr). 落点: boundary-testing-protocol §"Case 1" 已记录 1 个版本; 本 entry 补 1 个复发形态 (lib dep 缺失导致 driver 与 subagent 同样盲).
 _Avoid_: 把 driver smoke 5/5 PASS 当 ground truth; 不做 fault-injection; lib dep 不在 driver 测试覆盖范围.
 
-**tracer bullet**: 一个 writing-plans plan 中的最小可交付条目, 窄且完整的 vertical slice (schema / API / UI / tests 一条竖线), demoable end-to-end, 装进单个 fresh context window, 必须挂恰好一个 `[decision]` 或 `[implementation]` tag, 对应恰好 1 commit. leading word 归 writing-plans 单一所有, ACR / code-review / 任何其它 skill 都不拆票, 只消费或引用. 词源: the baseline author `the baseline skills repo` 的 to-tickets. 落地: `arthurpower/skills/writing-plans/SKILL.md` 4 处贯穿 (Overview / Procedure / Acceptance / Red Flags) + 配套 plan-format.md / acceptance-criteria.md / example-plan.md.
-_Avoid_: 在 ACR 或其它 skill body 拆票 (那是 writing-plans 职责); 把 horizontal split (一层一个 ticket) 当 tracer bullet; 把 wide mechanical refactor 硬塞单个 bullet.
+**tracer bullet**: writing-plans 拥有的最小垂直可交付条目（1 tag + 1 commit + 端到端 demoable），其它 skill 只消费不拆票。详见 `docs/adr/0007`。
+_Avoid_: 在 ACR 或其它 skill body 拆票; 把 horizontal split 当 tracer bullet; 把 wide mechanical refactor 硬塞单个 bullet.
 
 **expand-contract 例外**: tracer bullet 主轴的唯一例外, 处理 blast radius 跨整个仓库的 mechanical refactor (rename column / retype shared symbol 等). 序列 = expand (新形式并列旧形式, 不断绿) → migrate (按 batch 拆多个 tracer bullet, 每批一票) → contract (旧形式 0 caller 后删, 独立一票). expand / contract 本身不是 tracer bullet, 是让中间批次能独立绿的 rails.
 _Avoid_: 把整库 refactor 硬塞单 bullet (中间状态一定 break); migrate batch 之间不按 blast radius 拆 (粒度过粗或过细); contract 跟最后一 migrate 合成 1 commit (丢回滚粒度).
 
-**ACR gate-only**: `architecture-change-reviewer` skill 的职能收敛, 只产 5-line verdict block (bounded-context-guardian / defensive-contract-validator / error-handling-enforcer / complexity-anti-drift / minimal-change-verifier, 各 yes / no / unclear + 一句话 reason), 改前放行 / 拦下. 不拆票, 不写 ordered task list, 不写 acceptance criterion — 全部下交 writing-plans. 体现: Procedure Step 6 改为 1 行 handoff pointer; 当 NOT to use 加 "Decomposing a feature into ordered vertical-slice tickets — that is writing-plans". 时间点严格改前 (ADR-0002 + ADR-0007); 跟 post-impl code-review 不重叠.
-_Avoid_: ACR 拆票 / ACR 写 acceptance / ACR 改后审查 (越界到 code-review 时段) / 把 ACR 当 planning skill.
+**ACR gate-only**: `architecture-change-reviewer` 只产改前 5-line verdict（放行/拦下），不拆票、不写 acceptance——拆票归 writing-plans。详见 `docs/adr/0002` + `docs/adr/0007`。
+_Avoid_: ACR 拆票 / ACR 写 acceptance / ACR 改后审查 / 把 ACR 当 planning skill.
 
-**verdict SSOT = plans/<feature>.md**: ACR 5-line verdict block 的唯一 canonical 落点. Verification grep 只扫 `plans/<feature>.md`, 不扫 PR description. 历史漂移 (PR.md vs plans/*.md) 由 ADR-0007 锁定收敛. 配套: `writing-plans/references/handoff-acr.md` §4 写明 "Both artifacts land in `plans/<feature>.md` (SSOT)".
-_Avoid_: verdict 落 PR description (跟 writing-plans "PR description afterthought 不算 plan" 冲突); verdict 只在 chat (Verification grep 不到); verdict 在 PR + plan 双份但 Acceptance 仍要单点证据.
+**verdict SSOT = plans/<feature>.md**: ACR 5-line verdict 的唯一 canonical 落点是 `plans/<feature>.md`（Verification 不扫 PR description）。详见 `docs/adr/0007`。
+_Avoid_: verdict 落 PR description; verdict 只在 chat; PR + plan 双份却无单点证据.
 
 ---
 
@@ -147,6 +147,18 @@ _Avoid_: writing AFK product plans into arthurpower `plans/`; treating AFK ops (
 
 **auto-template**: Historical operator phrasing for the full-auto template repository creation and scaffolding task; in this project that task resolved to the `arthurpower-afk` scaffold (see S2/S3 verdicts and the AFK-owned plan formerly named auto-template.md). New sessions that see the literal `auto-template` in handoffs or auto-memory must map it to `arthurpower-afk` and must NOT open a second greenfield template-repo workstream under arthurpower.
 _Avoid_: treating auto-template as a distinct product name; re-creating an auto-template plan under arthurpower `plans/`; treating a stale "next = auto-template" memory pointer as an open main task after AFK scaffold delivery.
+
+**always-on load**: Claude Code 每个 session 自动注入的指令集合（system prompt + 全局/项目 CLAUDE.md + @import rules + auto-loaded CONTEXT）；frontier 经验约 150-200 条指令可稳定遵循，本仓库 Arthurpower session 实测 always-on 在数千指令量级。
+_Avoid_: 把 skill body / on-demand Read 算进 always-on；只用行数代替指令条数当预算。
+
+**progressive disclosure**: CLAUDE.md 只放全任务通用的 WHY/WHAT/HOW 与细节文件指针，任务形指令放独立 md 由模型按需 Read；prefer `file:line` 指针，不贴易过期代码片段。
+_Avoid_: 把全部规范塞进 CLAUDE.md；把 @import 当 markdown link（@import 真注入，link 不注入）。
+
+**linter-as-LLM**: 用 CLAUDE.md / rules 散文让模型记住格式、风格、提交约定，而不是用 hook / formatter / secret-scan 做确定性门禁（never send an LLM to do a linter's job）。
+_Avoid_: 把语义判断（高风险区域、是否无关重构）硬塞进 hook。
+
+**instruction budget**: 模型在单次上下文里能稳定遵循的指令条数上限；超预算后遵循质量整体下降，不是只忽略尾部新指令。
+_Avoid_: 只砍新加指令不审既有 always-on；把 system prompt ~50 条排除在预算外。
 
 ---
 
