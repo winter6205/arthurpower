@@ -507,3 +507,27 @@ Predictability / Invocation / Writing the description / Information hierarchy (�
 **PASS =** cleanup cycle 5/7 PASS + T6 BLOCKED 实证入档 + L5 不退化 + validator sha 锁 + 8 commits 推 origin.
 
 ---
+
+### 2026-07-17 - cleanup v2 residual + T6 product rejection (本 session)
+
+**动作**: 接手 cleanup 残留 (harness 被删 / CONTEXT residual success-marker 回潮 / T6 仍 BLOCKED). 先 explorer 盘点, 再按 operator 授权实施 S1 restore harness + S2 CONTEXT 修 + 尝试 T6 P4 warnings-first; operator 纠正 11 普通技术词不是歧义词后, 回滚 validator 三副本到 L5 锁, revert 红测试, 再显式授权 push.
+
+**Why**: cycle 1 handoff 的 T6 仍是工程 BLOCK; 本 session 将结论升级为产品 REJECT — L5 只保留五词歧义 hard-fail (`撞名|真因|切流|等价品|拍板`), 不把 `失败/错误/返回/触发/实测/已验证/真值/迁移/决定/指令/方向` 纳入 warning 或 hard-fail.
+
+**落地**:
+- S1: restore `.evals/tasks/001–004` from `44a7675` (`fc74d8a`)
+- S2: CONTEXT Operational Log residual marker rewrite (`4c6cd1a`); success-marker count = 0
+- T6 red suite briefly landed (`64d2cae`) then reverted (`808093a`) after product rejection
+- external `validate_skill.py` marketplace + cache 0.6.0 + 0.7.0 restored to sha `7ece198b…` (no EXTENSION channel)
+- project push authorized later: origin/master = `808093a`
+- <template-repo> remain local-only (D3 keep-local)
+
+**Lessons**:
+- BLOCKED (regression evidence) ≠ REJECTED (wrong product object)
+- warnings-first is still wrong if the word class is not ambiguity
+- push authorization does not carry across cycles automatically
+- parallel implementers must `git add <exact-path>`
+
+**PASS =** residual harness + CONTEXT fixed; L5 lock intact; 11-word expansion REJECTED and runtime residue removed; project tip `808093a` synced to origin.
+
+---
