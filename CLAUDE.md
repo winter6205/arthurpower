@@ -147,6 +147,15 @@ Risks / Notes:
 | 跨 session 记忆 / 规则迭代 | `self-evolving-rules` (7 步流程) |
 | Skill 创建 / 优化 | `arthurpower:skill-authoring` / `SkillOpt` |
 
+### Agents (Task subagent, pre-merge 阶段)
+
+| 阶段 | Agent | 用途 |
+|---|---|---|
+| Pre-merge S1-S6 第三段 | [maintainability-reviewer](~/.claude/agents/maintainability-reviewer.md) | spec + code-quality 都过后的最后一道 S1-S6 审计 |
+| Flash lint / 快速正确性 | [quick-reviewer](~/.claude/agents/quick-reviewer.md) | 小 diff 闪审 + lint 风格正确性, 不重做 spec/code-quality 阶段 |
+
+Multi-reviewer order (ACR → code-review + audit-agent → maintainability): see `arthurpower/docs/agents/harness-map.md` §4.
+
 ### Eval (regression test for this template)
 
 按需 Read：
@@ -161,9 +170,9 @@ Risks / Notes:
 
 | path | load-policy | rationale |
 |------|-------------|-----------|
-| `docs/CONTEXT.md` | `auto` | 项目领域语言 + Flagged ambiguities |
-| `docs/CHANGELOG.md` | `auto` | 版本变更记录 |
-| `docs/handoff/<date>.md` | `on-demand` | session 交接；由 V 主动注入上下文，不自动载入 |
+| @docs/CONTEXT.md | `auto` | 项目领域语言 + Flagged ambiguities |
+| `docs/CHANGELOG.md` | `on-demand` | 版本变更记录；由 V 主动注入 |
+| `docs/handoff/<date>.md` | `on-demand` | session 交接；由 V 主动注入 |
 
 ### 3 层记忆模型 (where to write)
 

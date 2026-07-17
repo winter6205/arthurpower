@@ -3,26 +3,6 @@
   "description": "Arthurpower project-local guard rails — context-write authority + fs anti-leak",
   "hooks": {
     "PreToolUse": [
-      {
-        "matcher": "Write|Edit|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node .claude/hooks/pre-context-write-guard.cjs",
-            "timeout": 5
-          }
-        ]
-      },
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node .claude/hooks/pre-fs-guard.cjs",
-            "timeout": 5
-          }
-        ]
-      }
     ]
   }
 

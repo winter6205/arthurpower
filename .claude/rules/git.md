@@ -36,7 +36,7 @@ git diff --stat
 除非用户明确授权且已说明风险，否则不得执行：
 
 ```bash
-git push
+git push  # 默认 / 受保护分支 / force / tag / release / production 仍需用户显式授权 (见 §推送流程)
 git push --force
 git push --force-with-lease
 git reset --hard
@@ -159,8 +159,8 @@ git diff --check
 
 - ✅ 完成 1 个垂直切片 (vertical slice, 非 mega commit)
 - ✅ 跑过 `bash .evals/run.sh` (项目级 eval baseline 通过)
-- ✅ task-end ritual 3 问已答 (Q1 CONTEXT / Q2 CLAUDE.md / Q3 CHANGELOG+handoff)
-- ✅ 用户**显式要求** push (`git push` 从不被 agent 主动跑)
+- ✅ task-end ritual 3 问已答 (Q1 CONTEXT / Q2 CLAUDE.md / Q3 CHANGELOG+handoff) — 走 session skill (verification-before-completion / session-handoff)，事件 hook 在 AFK 仓接住 (见 split-scope-map S1)
+- ✅ **非默认 / 非受保护** feature 分支，agent 可主动 push；默认分支 / force / tag / release / production 仍需用户显式授权
 - ❌ 跨项目敏感信息 (凭据 / token / 生产数据) — 永远不推
 
 **怎么推**:
@@ -172,17 +172,16 @@ git push origin <branch-name>
 # 2. 推前确认目标分支正确 (避免推到 main)
 git branch --show-current
 
-# 3. 推后确认 hook 触发
-# ~/.claude/hooks/post-push-task-end.sh 会在 stderr 输出 3 问提示
-# 必须答: Q1 学到什么 / Q2 状态变了 / Q3 业务变更
+# 3. 推后 ritual (半自动侧)
+# session 内走 verification-before-completion / session-handoff 触发 Q1/Q2/Q3。
+# 事件驱动 post-push-task-end 3 问 hook 在 arthurpower-afk 仓接住 (split-scope-map S1)。
 ```
 
-**post-push-task-end.sh 触发**:
+**post-push ritual (半自动侧)**:
 
-push 成功后, hook 自动:
-- 写 `.claude/scratchpad/post-push.log`
-- 强制 agent 答 3 问 (exit 2 → stderr 进 Claude context)
-- 不需要 agent 主动想起 ritual — **系统强制**
+push 成功后，半自动 session 走 session-skill ritual：
+- 触发 `verification-before-completion` / `session-handoff` skill，在主会话内答 3 问
+- 事件驱动自动 3 问 hook 仍存在但**仅在 AFK plugin 注册**接住（见 arthurpower-afk-scaffold-map）
 
 ---
 

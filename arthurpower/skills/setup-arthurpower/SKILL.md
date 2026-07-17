@@ -62,7 +62,6 @@ related_skills: [domain-modeling, deep-dive-protocol, boundary-testing, self-evo
 declare -a REQUIRED=(
   ".claude/rules/context-loop.md"
   ".claude/rules/boundary-testing-protocol.md"
-  ".claude/rules/self-evolving.md"
   ".claude/hooks/pre-context-write-guard.cjs"
   ".claude/hooks/pre-stale-read.cjs"
   ".claude/hooks/pre-read-contract.cjs"
@@ -245,7 +244,7 @@ bash scripts/update.sh --from-git <owner>/<repo> --force
 - [ ] `domain-modeling` 在 `.claude/skills/` (模板自带); `deep-dive-protocol` + `self-evolving-rules` 由 plugin 全局供给 (fresh 模式不必复制到 `.claude/skills/`, plugin 装上即有)
 - [ ] `.claude/rules/context-loop.md` 存在
 - [ ] `.claude/rules/boundary-testing-protocol.md` 存在 (跨多文件/多 hook 改动按 6 步流程)
-- [ ] `.claude/rules/self-evolving.md` 存在 (规则沉淀 6 步流程)
+- [ ] `arthurpower:self-evolving-rules` skill 可用 (user-invoked, 规则沉淀 6 步流程)
 - [ ] `scripts/bootstrap.sh` + `scripts/update.sh` 存在 + 可执行
 - [ ] `.evals/run.sh --all` 10/10 PASS
 
