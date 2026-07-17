@@ -479,3 +479,31 @@ Predictability / Invocation / Writing the description / Information hierarchy (�
 **Risk**: the baseline 上游若改写 interview primitive, 需手动同步.
 
 ---
+
+### 2026-07-17 - cleanup cycle (T1-T9 整理)
+
+**动作**: operator 字面授权"按顺序全做"7 项 deferred + 立即 push, 主脑派 explorers + 4 implementers 并行. 走 boundary-testing 6 步门禁 + `plans/l5-validator-driver.py plans/l5-evals.json` 不退化门.
+
+**Why**: L5 handoff `2026-07-17-l5-complete-session-end.md` §"Other deferred" 7 项 + 新发现 `929774b` unpushed commit 全是 operator-gated. 主脑先派 explorer 实证, 再 AskUserQuestion 取 operator 拍板, 避免越权 invent scope (违反 ADR-0006 + handoff §[NEXT]).
+
+**T2/T3/T4/T5/T7 PASS**:
+- T2: feat(skills) transplant test-driven-development (`d470348`) — 4-way sha parity + validator exit 0 + workflow.md L21 引 `arthurpower:test-driven-development`.
+- T3: docs(plans) <template-repo> M6 shell sync log (`375487b`) + tpl repo `ebdbb469` 独立 commit (本地未推) — residual grep 0; bootstrap smoke 10/10.
+- T4: docs(tickets) L-scope + three-assets + L4 maps L5 graduate (`c6445b9`).
+- T5: fix(skills) validator exit=1 on 4 skills → 0 (`ecd1e67`) — validator sha `7ece198b…` 三副本不变.
+- T7: CONTEXT.md 5 行 `成功 =` → `PASS =` (并入 `c6445b9`).
+
+**T6 BLOCKED** (subagent empirical): 11 词 AMBIGUITY_RE 扩展产生 21 命中, 破坏 4/7 active skill 的 L5 `no_required_behavior_regression` 门. ADR-0006 Option C 显式 rejected for this cycle; L4 §不在本 ticket; 主脑**接受 BLOCK** 不 override, validator byte 未改. 4 unblock paths 记 `docs/handoff/2026-07-17-cleanup-implementation-complete.md` §T6.
+
+**Push**: `690271b..420e931 master -> master` (3 次 push: T1+929774b / 0829011 / c8a02c9 / 420e931). 8 commits 全数推 origin.
+
+**Lessons** (记 handoff):
+- **Subagent BLOCKED stance**: 主脑接受 subagent empirical BLOCK; 不 override. 不重试同 scope.
+- **Parallel commit hygiene**: 共享 `git add .` 跨并行 implementer 会 collide (T4+T7 → `c6445b9` 混装 6 文件). 下次 fan-out 强制 `git add <exact-path>`.
+- **T8b 节奏**: "等 T3 一起推" 优于 "立即 push 后再推一次" (避免 commit-then-push 间 peer 工作面冲突).
+
+**Project git**: T1 `690271b` + 7 implementation commits + final handoff `420e931`.
+
+**PASS =** cleanup cycle 5/7 PASS + T6 BLOCKED 实证入档 + L5 不退化 + validator sha 锁 + 8 commits 推 origin.
+
+---
