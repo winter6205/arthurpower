@@ -44,11 +44,11 @@ _Avoid_: 移植当蒸馏 (假装重写实际抄), 蒸馏当移植 (假装抄实�
 
 **reference skill**: disable-model-invocation: true 的 skill, 主体是 flat reference (术语 / 概念 / 规则), 不是 procedural 指令. the baseline author writing-great-skills 是典型 reference skill. validator 对 reference skill 豁免 procedure 段必填 (When to use / Procedure / Acceptance Criteria / Verification) 和 Skill type / Bar level 声明.
 _Avoid_: reference skill 强必填 procedure 段, reference skill 当 discipline skill 验.
-**plugin 三段注册机制**: Claude Code 2.1.206 启动时按 `known_marketplaces.json` -> `installed_plugins.json` -> `settings.json enabledPlugins` 三段判定 plugin 是否加载. 缺任一段 -> plugin 静默忽略, Skill tool 返回 Unknown. 已启用 plugin 物理文件在 `cache/<marketplace>/<plugin>/<version>/` 下 (installPath 指向 cache), 但 framework 校验 plugin.json 读的是 `marketplaces/<marketplace>/plugins/<plugin>/.claude-plugin/plugin.json` -- 两处副本都得合规.
-_Avoid_: 只改 settings.json enabledPlugins 就期望 plugin work; 只改 cache 副本忘了 marketplaces 副本 (校验读的是后者).
+**plugin 三段注册机制**: Claude Code 2.1.206 启动按 `known_marketplaces.json` → `installed_plugins.json` → `settings.json enabledPlugins` 三段判定加载。框架校验读 `marketplaces/<marketplace>/plugins/<plugin>/.claude-plugin/plugin.json`，cache 是 installPath，二者都得合规。
+_Avoid_: 只改 settings.json enabledPlugins 就期望 plugin work; 只改 cache 副本忘了 marketplaces 副本.
 
-**plugin skills 字段路径格式**: plugin.json 的 `skills` 字段接受**相对目录路径**字符串数组. 合法格式分两阶段: 平铺阶段 = `./skills/<skill-name>`; 分桶阶段 = `./skills/<bucket>/<skill-name>`. 不接受裸 skill 名或不含 `./` 的路径, 这两种写法会被 framework 报 `Validation errors: skills: Invalid input` + `Path not found` 并让整个 plugin failed to load. 删字段后 framework 回退目录扫描也 work, 但若分桶后要排除 in-progress / deprecated 桶, 必须用显式数组做 curated allowlist.
-_Avoid_: 在 plugin.json 写裸 skill 名 (如 `"bounded-context-guardian"`); 写不含 `./` 的相对路径 (如 `"skills/<name>"`); 看到 "删 `skills` 字段后 plugin work" 就总结 "数组 schema 不支持" (实际是路径格式错, 数组本身合法).
+**plugin skills 字段路径格式**: `plugin.json` `skills` 字段接受 `./skills/<name>` 平铺或 `./skills/<bucket>/<name>` 分桶两种相对目录路径。裸名 / 不含 `./` 写法 → framework `Validation errors: skills: Invalid input` + plugin failed to load。
+_Avoid_: 写裸 skill 名或不含 `./` 的相对路径; 把"删字段后能 work"误读为"数组 schema 不支持".
 
 **plugin load error 可观测性**: `/reload-plugins` 和 TUI `/plugin` 只显示 "1 error during load" 计数, 不显示错误详情 (TUI 输出空). 但 CLI `claude plugin list` 输出每个 plugin 的 Status + Error 字段 (含 manifest 路径和 `Validation errors: <field>: <reason>`), 是排查 plugin failed to load 的唯一可靠入口.
 _Avoid_: 在 TUI 里反复 `/plugin` 找错误详情 (空输出); 看到 "/reload-plugins: 1 error" 就猜根因不跑 `claude plugin list`.
@@ -59,17 +59,17 @@ _Avoid_: 改了 manifest 就期望 framework 自动重新加载, 不检查 `.orp
 **marketplace.json source 字段双格式**: 官方 marketplace.json 里远程 plugin 用对象格式 `{source: "git-subdir", url, path, ref, sha}`, 本地 plugin 用字符串格式 `"./plugins/<name>"` (跟 agent-sdk-dev 一致). 两种格式 framework 都认. known_marketplaces.json 的 marketplace-level source 用 `{source: "directory", path: "..."}` (绝对路径), 用 `"local"` 会让 CLI 启动挂死 (issue #25693).
 _Avoid_: 用 `source: "local"` (挂死 bug); marketplace.json 本地 plugin 用对象格式.
 
-**MCP 三层定义 + 审批分离**: MCP server 配置分定义层和审批层, 两层文件不同. (1) 定义层: `~/.claude.json.mcpServers` (user scope, 所有项目共享) + `~/.claude.json.projects.<path>.mcpServers` (local scope, 按项目路径隔离) + `<project>/.claude/.mcp.json` (project scope, git 共享). (2) 审批层: settings.json 系列的 `enabledMcpjsonServers` (白名单 approve). 定义和审批不在同一文件 - 定义在 .claude.json/.mcp.json, 审批在 settings.json. 一个 server 有定义但无审批 = Pending approval (不启).
-_Avoid_: 把 enabledMcpjsonServers 写进 .mcp.json 或 .claude.json.mcpServers (字段不属于那); 以为 .mcp.json 定义了就自动启 (还得 enabledMcpjsonServers approve).
+**MCP 三层定义 + 审批分离**: MCP 配置分定义层（`~/.claude.json.mcpServers` / `.mcp.json`）与审批层（settings.json `enabledMcpjsonServers`）；定义 ≠ 审批，有定义无审批 = Pending approval 不启。
+_Avoid_: 把 enabledMcpjsonServers 写进 .mcp.json 或 .claude.json.mcpServers; 以为 .mcp.json 定义了就自动启.
 
-**MCP server 三 scope 存储位置**: 官方 MCP 文档 scope 表: User scope (所有项目共享) 存 `~/.claude.json` 顶层 mcpServers; Local scope (当前项目, 私有) 存 `~/.claude.json.projects.<path>.mcpServers` (按项目路径嵌套, Local scope 也写在 ~/.claude.json 不是项目目录); Project scope (git 共享) 存 `<project>/.mcp.json`. "local" 一词歧义: MCP local scope 在 ~/.claude.json (home 目录), 通用 local settings 在 .claude/settings.local.json (项目目录), 两者不同文件.
-_Avoid_: 把 Local scope MCP 写到 .claude/settings.local.json (那是 settings 不是 mcpServers); 混淆 MCP local scope 跟 settings local scope.
+**MCP server 三 scope 存储位置**: User scope → `~/.claude.json.mcpServers`；Local scope → `~/.claude.json.projects.<path>.mcpServers`；Project scope → `<project>/.mcp.json`。注意 "local" 在 MCP scope（home 目录）跟 settings local scope（项目目录 .claude/settings.local.json）是两个不同文件。
+_Avoid_: 把 Local scope MCP 写到 .claude/settings.local.json; 混淆 MCP local scope 跟 settings local scope.
 
-**enabledMcpjsonServers 合并语义 + 项目级覆盖失效**: settings.json 系列的 `enabledMcpjsonServers` 数组在多 scope 间是**合并**不是替换 (官方 settings 文档: "Arrays are merged across all settings scopes"). 后果: 用户级 settings.json enabledMcpjsonServers=[A,B,C] + 项目级 settings.local.json enabledMcpjsonServers=[D] -> 合并 = [A,B,C,D]. 项目级无法用 enabledMcpjsonServers "取消" 用户级已 approve 的 server (合并只会加不会减). 想在项目内禁用全局已启的 server, 只能用 `deniedMcpServers` (denylist, 优先于 allowlist).
-_Avoid_: 试图用项目级 enabledMcpjsonServers=[] 或不列某 server 来禁用它 (合并语义下无效); 试图用 `disabledMcpjsonServers` (v2.1.206 bug 字段, issue #58874, closed as not planned, 不生效).
+**enabledMcpjsonServers 合并语义**: `enabledMcpjsonServers` 在多 scope 间**合并**而非替换（官方："Arrays are merged across all settings scopes"）。项目级无法用 `enabledMcpjsonServers=[]` 取消全局已启 server；项目内禁用只能走 `deniedMcpServers`（denylist，优先于 allowlist）。
+_Avoid_: 用项目级 enabledMcpjsonServers=[] 或省略某 server 来禁用它; 用 `disabledMcpjsonServers`（v2.1.206 bug 字段，issue #58874 closed as not planned，不生效）.
 
-**deniedMcpServers vs disabledMcpjsonServers**: 两个易混字段, 格式和效力完全不同. `disabledMcpjsonServers` = 字符串数组 `["X"]`, 官方说 "reject from .mcp.json", 但 v2.1.206 实测不生效 (issue #58874 bug, closed as not planned). `deniedMcpServers` = **对象数组** `[{ "serverName": "X" }]`, 官方 managed-mcp 文档承诺 "denylist always merges from every source" + "Nothing overrides a denylist match" + 优先于 allowlist. 格式错 (字符串 vs 对象) 或选错字段都会让禁用静默失效. 项目内禁全局已启 server 必须用 deniedMcpServers (对象数组).
-_Avoid_: 用 disabledMcpjsonServers (bug 字段); 用字符串数组格式给 deniedMcpServers (必须对象数组); 以为 disabledMcpjsonServers 跟 deniedMcpServers 等价.
+**deniedMcpServers vs disabledMcpjsonServers**: `disabledMcpjsonServers` 是 bug 字段（v2.1.206 实测不生效，issue #58874 closed as not planned）。`deniedMcpServers` 是**对象数组** `[{ "serverName": "X" }]`，denylist 优先于 allowlist。项目内禁全局 server 必须用 `deniedMcpServers` 对象数组格式。
+_Avoid_: 用 disabledMcpjsonServers (bug 字段); 给 deniedMcpServers 用字符串数组; 把两者视为等价.
 
 **MCP 启动状态四态**: /mcp 显示 server 状态有 4 种: ✔ connected (定义+批准+启动成功), ◯ connecting… (启动中, npx 首次下载/OAuth 远程认证会慢, 非错误), ✘ Failed to connect (启动失败, 如 OAuth 未授权 / 命令不存在 / 网络不通), ⏸ Pending approval (有定义但未批准, untrusted folder 中 enabledMcpjsonServers 被 ignore). 用 `claude mcp get <name>` 看单 server 真状态 (含 Scope + Status + 错误原因), 比 /mcp TUI 详细.
 _Avoid_: 把 connecting… 当错误 (npx 首次启动正常慢); 不区分 Failed to connect (启动失败) 跟 Pending approval (未批准).
@@ -80,8 +80,8 @@ _Avoid_: 三体合并成一个 skill; 把 audit-agent 当通用项目审查; 把
 **独立智能体 CLI vs Task subagent**: 两种不同机制. 独立智能体 CLI = 调本地 exe 的 Bash 流程 (如 `v-code-review` skill 调 `OCR_BIN` exe, OpenCodeReview fork, 内部 AI 审查, 分类 High/Medium), 主 Claude 自己跑 Bash. Task subagent = Task tool + subagent_type 字段 spawn 隔离 Claude 实例 (如 `arthurpower-audit-agent`, 独立 context + 独立 tool 权限). 触发词区分: "审代码/审 PR/review changes" 走 CLI; "audit/S1-S6/审计" 走 subagent.
 _Avoid_: 把 v-code-review 当 Task subagent (它是 Bash 调 exe); 把 arthurpower-audit-agent 当 CLI (它是 Task subagent); 混淆两者触发词.
 
-**router 规模路由分支 + decision ticket**: 替代独立 wayfinder skill 的轻量方案. `using-agent-skills` router 增设 3 选 1: scope 已定单 session -> deep-dive-protocol / scope 已定多 session -> architecture-change-reviewer + writing-plans / scope 未定多 session -> ACR + writing-plans + session-handoff 三步组合 (即 wayfinder 职能, 不叫 wayfinder, 因为是 routing 决策不是 procedural skill). decision ticket = writing-plans 每个 task 显式标 `[decision]` (只解决一个决策) 或 `[implementation]` (才进入 build), 跟 the baseline wayfinder 的 decision ticket 概念对齐.
-_Avoid_: 新建独立 wayfinder skill 替代 router 分支 (v0.7.0 最小变更, v0.9.0 再定); 把 router 分支当 procedural skill (它是 routing 决策入口); decision ticket 跟 implementation ticket 混 (前者只决定, 后者才 build).
+**router 规模路由分支 + decision ticket**: `using-agent-skills` router 增设 3 选 1：scope 已定单 session → deep-dive-protocol；scope 已定多 session → ACR + writing-plans；scope 未定多 session → 三步组合（即 wayfinder 职能，不叫 wayfinder，因为是 routing 决策不是 procedural skill）。详见 ADR-0007。
+_Avoid_: 新建独立 wayfinder skill 替代 router 分支 (v0.7.0 最小变更); 把 router 分支当 procedural skill; decision ticket 跟 implementation ticket 混.
 
 **user-invoked skill**: frontmatter `disable-model-invocation: true`; 只有操作者手动输入 skill 名 (或 slash) 才加载; description 给人看, 不进模型每轮自动匹配. 可以是 flat reference, 也可以是 procedural discipline (如 `self-evolving-rules`). 与 model-invoked 相对: 零 context load, 付 cognitive load.
 _Avoid_: 把 user-invoked 等同于 reference-only; 期望模型 description 自动触发; 用 user-invoked 伪装"写主权唯一入口"(写主权靠 hook + 契约, 不靠 dmi).
@@ -101,8 +101,8 @@ _Avoid_: 子代理 5/5 PASS 当功能正确; 跳过 driver; 用字符串假匹�
 **machine-assertable**: 成功标准 / 边界指标必须能被程序直接检查 (exit code / rate / grep count / sha256), 不能是"看起来对". 流程规则里保留英文原词 `machine-assertable` (及 `assert` / `ground truth` / `pass` / `fail` 等工程 token); 中文可 gloss 一次, 判定用 token 保持英文. 禁止自造中文硬译 (calque), 以免字面日常义覆盖工程义. 落点: global `boundary-testing-protocol.md` Step 1 + Terminology 行.
 _Avoid_: 可机器断言 / 可断言的指标 等硬译当专名; 用自然语言"应该正确"代替 rate 阈值.
 
-**Interview-engine substitution (Interpretation 2)**: 当 operator 说"把 A skill 与 B skill 替换"且 A 是多 session 编排 (map/ticket/fog/frontier)、B 是单 session 访谈写驱动时, 默认只换 A 体内的访谈原语调用链为 B (及 B 下游写主权 skill), **不**删 A 的编排壳、**不**让 B 吞掉 multi-session 职责. 本仓库落地: project-local `wayfinder` 内 `/grilling`+`/domain-modeling` → `arthurpower:deep-dive-protocol` (内部再调 domain-modeling). 证据: `plans/wayfinder-to-deep-dive.md` + `evals/run-wayfinder-swap.py`.
-_Avoid_: 字面整 skill 对删对换; 把 deep-dive 当 wayfinder 全职能替代; 在未 ADR 覆盖 v0.7 Round-7 前新建 plugin `arthurpower:wayfinder`.
+**Interview-engine substitution (Interpretation 2)**: operator 说"把 A 与 B 替换"且 A 是多 session 编排（map/ticket/fog/frontier）、B 是单 session 访谈写驱动时，默认只换 A 体内的访谈原语调用链，**不**删 A 的编排壳、**不**让 B 吞掉 multi-session 职责。证据：`plans/wayfinder-to-deep-dive.md` + `evals/run-wayfinder-swap.py`。
+_Avoid_: 字面整 skill 对删对换; 把 deep-dive 当 wayfinder 全职能替代; 未 ADR 覆盖前新建 plugin `arthurpower:wayfinder`.
 
 **AMBIGUITY_RE (L5)**: `validate_skill.py` 对 SKILL.md 硬失败的中文歧义复合词检查（`撞名|真因|切流|等价品|拍板`），与 no-meta grep #6 对齐。详见 `docs/adr/0006`。
 _Avoid_: 单字 `拍`/`撞` (FP); 11 准过词进 RE; 把 validator 当 hook D2.
@@ -110,7 +110,7 @@ _Avoid_: 单字 `拍`/`撞` (FP); 11 准过词进 RE; 把 validator 当 hook D2.
 **PR review thread loop**: 评审者的反馈可能多轮收敛 ("drop @" → "需要 link 但不要 @" → markdown link 接受). 每轮 = 1 个 atomic commit + reply + resolve, 不允许 squash 轮次; 每轮 reviewer 迭代是独立 atomic task, 跨轮 commit 必须保持可逐 round revert. 落地证据: PR #4 三轮 review 走完 CLAUDE.md L154-155 row; merge commit `991d144` 保留 13 个 atomic 历史.
 _Avoid_: 把多轮 review 折成一个 "fix" commit (丢失 reviewer 决策链); resolve 线程前不 reply; reply 后忘记 push (reviewer 看不到新 commit).
 
-**hook lib dep as silent enabler**: 当一个 hook 内部 `require('./lib/<dep>.cjs')` 而 `<dep>` 文件不存在时, 顶层 try/catch fail-open 把 crash 吞掉, 看起来 hook "跑过", 实际所有下游逻辑 (含 identity check / schema check) **从未执行**. 表现: 子代理 smoke 报 PASS, 主 agent driver boundary smoke 因同样 fail-open exit 0 也看不出区别; 真要识别需要 fault-injection (删 lib, 重跑 driver). 修复: copy lib 依赖文件 + 在 driver 里加 "no-state + missing-lib" 反向 case 校验 fail-open 链路可见.
+**hook lib dep as silent enabler**: hook 内部 `require('./lib/<dep>.cjs')` 而 `<dep>` 不存在时，顶层 try/catch fail-open 吞 crash，子代理 + driver 都只看 exit 0；识别靠 fault-injection（删 lib 重跑）。修复：copy lib 依赖文件 + driver 加 "no-state + missing-lib" 反向 case。
 _Avoid_: 把 "fail-open exit 0" 当 PASS 信号; 不验 hook 的 lib 依赖是否真的存在; 子代理 + driver 都看不到 lib 缺失时仍标完成.
 
 **markdown link vs @ import**: `[name](~/.claude/agents/<name>.md)` 是 markdown 超链, 编辑器可点击 + CLI 可读 + **不**把文件内容注入到每次 Read 的 context. `@~/.claude/agents/<name>.md` (CLAUDE.md 内 @import 语法) 会**真**把文件内容拉进 context, 每次 Read 都付 import 开销. 评审者想要 link 但不要 import → markdown link 是答案. 表格 cell / 列表项 / 内联引用 → 用 markdown link; 真正的 "本规则依赖此文件全部内容" → 用 @import.
@@ -142,11 +142,11 @@ _Avoid_: verdict 落 PR description; verdict 只在 chat; PR + plan 双份却无
 
 ---
 
-**arthurpower-afk**: Independent GitHub repo `winter6205/arthurpower-afk`, plugin id `arthurpower-afk`, marketplace id `arthurpower-afk-local`. Product duty per S1 verdict (locked 2026-07-17): closed-map batch execution + configurable auto-merge + full Q1/Q2/Q3 ritual via event-driven post-push hook. Hard non-overlap: does NOT reopen map destination, does NOT write planning tickets, does NOT decide ADRs for the operator.
-_Avoid_: writing AFK product plans into arthurpower `plans/`; treating AFK ops (CI, ubuntu-portable evals, AFK `.evals/run.sh`) as arthurpower open work; conflating AFK with semi-auto session ritual.
+**arthurpower-afk**: 独立仓 `winter6205/arthurpower-afk`（plugin id `arthurpower-afk`）。产品职责（S1 verdict 2026-07-17 锁定）：closed-map 批执行 + 可配 auto-merge + 事件驱动 post-push hook 全套 Q1/Q2/Q3 ritual。Hard non-overlap：不重开 map 目的地，不写 planning tickets，不替 operator 决策 ADR。
+_Avoid_: 把 AFK 产品计划写进 arthurpower `plans/`; 把 AFK ops（CI / ubuntu-portable evals / AFK `.evals/run.sh`）当成 arthurpower open work; 混淆 AFK 与半自动 session ritual.
 
-**auto-template**: Historical operator phrasing for the full-auto template repository creation and scaffolding task; in this project that task resolved to the `arthurpower-afk` scaffold (see S2/S3 verdicts and the AFK-owned plan formerly named auto-template.md). New sessions that see the literal `auto-template` in handoffs or auto-memory must map it to `arthurpower-afk` and must NOT open a second greenfield template-repo workstream under arthurpower.
-_Avoid_: treating auto-template as a distinct product name; re-creating an auto-template plan under arthurpower `plans/`; treating a stale "next = auto-template" memory pointer as an open main task after AFK scaffold delivery.
+**auto-template**: 历史别名，本任务实际交付 = 独立仓 `arthurpower-afk`（S2/S3 verdict 锁定，见原 plan `auto-template.md`）。新 session 在 handoff / auto-memory 看到 `auto-template` 字样必须映射到 `arthurpower-afk`，不重开 greenfield workstream。
+_Avoid_: 当成独立产品名; 在 arthurpower `plans/` 重写 auto-template 计划; AFK 交付后把"next = auto-template"记忆指针当 open main task.
 
 **always-on load**: Claude Code 每个 session 自动注入的指令集合（system prompt + 全局/项目 CLAUDE.md + @import rules + auto-loaded CONTEXT）；frontier 经验约 150-200 条指令可稳定遵循，本仓库 Arthurpower session 实测 always-on 在数千指令量级。
 _Avoid_: 把 skill body / on-demand Read 算进 always-on；只用行数代替指令条数当预算。
