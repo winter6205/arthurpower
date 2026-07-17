@@ -110,6 +110,93 @@ function fail(reason) {
   process.exit(2);
 }
 
+// 2026-07-17 Fix (T9 active-skill identity check):
+// White-list enforcement on top of structural validation. The structural
+// validation above remains intact - this layer is purely ADDITIVE and can
+// only make denials stricter, never weaker (per S6 + boundary-testing hard
+// rule "additive"). White-list per ADR-0005: domain-modeling is the only
+// writer for CONTEXT.md / CONTEXT-MAP.md / team-glossary.md / docs/adr/*.md.
+// Escape hatch: setup-arthurpower may write during template bootstrap (ADR
+// seeding) only when docs/adr/ does not yet contain any ADR (i.e. the
+// canonical-file-set is being created). This prevents first-run setup from
+// being blocked when the lifecycle router has not yet recorded
+// domain-modeling as the active skill.
+function failIdentity(activeSkill, filePath) {
+  process.stderr.write(JSON.stringify({
+    systemMessage:
+      'BLOCKED: pre-context-write-guard - active skill "' + activeSkill +
+      '" is not authorized to write ' + filePath +
+      ' (write authority per ADR-0005 belongs to domain-modeling). Run \`domain-modeling\` first.',
+  }) + '\n');
+  process.exit(2);
+}
+
+const AUTHORIZED_SKILLS = new Set(['domain-modeling', 'setup-arthurpower']);
+
+// Escape-hatch condition for setup-arthurpower: only allowed when docs/adr/
+// does not yet contain any ADR (template bootstrap). Once any ADR exists,
+// setup-arthurpower is treated as untrusted and must defer to domain-modeling.
+function isSetupBootstrapAllowed(filePath) {
+  try {
+    const fs = require('node:fs');
+    const path = require('node:path');
+    // The target file is one of:
+    //   <root>/docs/CONTEXT.md / CONTEXT-MAP.md / team-glossary.md
+    //   <root>/docs/adr/NNNN-*.md
+    // The docs/adr/ sibling is at <root>/docs/adr/.
+    //
+    // Two cases for dirname(filePath):
+    //   A) filePath = "<root>/docs/CONTEXT.md"          -> dirname = "<root>/docs"
+    //      -> sibling "adr" at "<root>/docs/adr" is found via path.join(dir,'adr')
+    //   B) filePath = "<root>/docs/adr/NNNN-foo.md"     -> dirname = "<root>/docs/adr"
+    //      -> the directory itself IS docs/adr/, so check it directly.
+    //
+    // Strategy: walk up from dirname(filePath). At each level, check both
+    // "<current>/adr" (case A) and the current directory itself if it ends in
+    // "adr" (case B). On first hit, return whether any NNNN-*.md file exists.
+    let dir = path.dirname(filePath);
+    for (let i = 0; i < 8; i++) {
+      // Case B: current dir IS docs/adr/ (ends in /adr).
+      const base = path.basename(dir).toLowerCase();
+      if (base === 'adr' && fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
+        const entries = fs.readdirSync(dir);
+        return entries.filter((e) => /^\d{4}-.+\.md$/.test(e)).length === 0;
+      }
+      // Case A: sibling "adr" under current dir.
+      const sibling = path.join(dir, 'adr');
+      if (fs.existsSync(sibling) && fs.statSync(sibling).isDirectory()) {
+        const entries = fs.readdirSync(sibling);
+        return entries.filter((e) => /^\d{4}-.+\.md$/.test(e)).length === 0;
+      }
+      const parent = path.dirname(dir);
+      if (parent === dir) break;
+      dir = parent;
+    }
+    // No docs/adr/ found anywhere up the tree -> bootstrap scenario (first-run).
+    return true;
+  } catch (_) {
+    // Fail-open: if filesystem is unreadable, do not block setup.
+    return true;
+  }
+}
+
+function readActiveSkill() {
+  // Read the lifecycle router's state file. Fail-open on any error.
+  // Expected shape (per session-start evaluator contract):
+  //   { schemaVersion, id, skill, phase, timestamp, signature }
+  try {
+    const fs = require('node:fs');
+    const path = require('node:path');
+    const os = require('node:os');
+    const statePath = path.join(os.homedir(), '.claude', '.routing-state.json');
+    const raw = fs.readFileSync(statePath, 'utf8');
+    const state = JSON.parse(raw);
+    return (state && typeof state.skill === 'string') ? state.skill : null;
+  } catch (_) {
+    return null;
+  }
+}
+
 function hasHeading(content, re) {
   return content.split(/\r?\n/).some((line) => re.test(line.trim()));
 }
@@ -220,6 +307,60 @@ function checkAdrUniqueness(filePath, expectedNumber) {
 
   if (!TOOLS.has(toolName)) {
     process.exit(0);
+  }
+
+  // 2026-07-17 Fix (T9 active-skill identity check): read the lifecycle router
+  // state file BEFORE path matching so we can apply the white-list uniformly to
+  // Write/Edit/MultiEdit/Bash. Fail-open semantics: if state file is missing,
+  // unreadable, malformed, or skill field is missing/empty -> skip identity
+  // check entirely (structural validation below still runs).
+  const activeSkill = readActiveSkill();
+  const identityCheckDisabled = activeSkill === null;
+
+  // Resolve the targeted file path for the identity check. For Bash tool we
+  // treat the entire bashCommand as the "intent surface" - if the command
+  // contains a guarded-path token, we hold it accountable regardless of which
+  // file_path the harness supplies (Bash's tool_input.file_path is empty).
+  function pathGuarded(p) {
+    if (typeof p !== 'string' || !p) return null;
+    if (CONTEXT_RE.test(p)) return 'CONTEXT';
+    if (ADR_RE.test(p)) return 'ADR';
+    return null;
+  }
+
+  function bashPathFromCommand(cmd) {
+    if (!cmd) return null;
+    if (BASH_REDIRECT_RE.test(cmd)) return 'CONTEXT';
+    if (BASH_KEYWORD_RE.test(cmd)) return 'CONTEXT';
+    if (BASH_SED_RE.test(cmd)) return 'CONTEXT';
+    return null;
+  }
+
+  // Apply identity check: if a guarded file is targeted AND we know the active
+  // skill AND that skill is not in the white-list -> block. setup-arthurpower
+  // has an escape hatch only when docs/adr/ is empty (template bootstrap).
+  if (!identityCheckDisabled) {
+    if (toolName === 'Bash') {
+      const guardedKind = bashPathFromCommand(bashCommand);
+      if (guardedKind && !AUTHORIZED_SKILLS.has(activeSkill)) {
+        failIdentity(activeSkill, 'docs/CONTEXT*.md | docs/team-glossary.md | docs/adr/*.md (via Bash)');
+      }
+      if (guardedKind && activeSkill === 'setup-arthurpower' && !isSetupBootstrapAllowed(process.cwd())) {
+        failIdentity(activeSkill, 'docs/CONTEXT*.md | docs/team-glossary.md | docs/adr/*.md (via Bash; bootstrap already done)');
+      }
+    } else if (typeof filePath === 'string' && filePath) {
+      const guardedKind = pathGuarded(filePath);
+      if (guardedKind) {
+        if (!AUTHORIZED_SKILLS.has(activeSkill)) {
+          failIdentity(activeSkill, filePath);
+        } else if (activeSkill === 'setup-arthurpower' && !isSetupBootstrapAllowed(filePath)) {
+          failIdentity(activeSkill, filePath + ' (bootstrap already done)');
+        }
+      }
+    }
+  } else {
+    // Fail-open visibility: one-line stderr hint when routing-state is missing.
+    process.stderr.write('[guard] routing-state unreadable; identity check skipped\n');
   }
 
   // Bash path: detect write/destroy redirection to context-guarded files.
