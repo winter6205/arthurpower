@@ -180,7 +180,7 @@ Multi-reviewer order (ACR → code-review + audit-agent → maintainability): se
 |---|---|---|---|
 | L1 | `~/.claude/CLAUDE.md` + `~/.claude/rules/*.md` | 跨项目通用规则 | 3+ 项目同模式 / 显式升级 |
 | L2 | auto memory (session 内) | session learnings | 自动 (L3 compaction) |
-| L3 | session context + `docs/` (CONTEXT.md / handoff / CHANGELOG) | 当前任务 + 项目知识 | inline + task-end 3 问 |
+| L3 | session context + `docs/` (CONTEXT.md / handoff / CHANGELOG) | 当前任务 + 项目知识 | inline |
 
 **知识查询优先级** (高→低):
 1. 代码本身 (最终 ground truth)
@@ -188,9 +188,6 @@ Multi-reviewer order (ACR → code-review + audit-agent → maintainability): se
 3. docs/CONTEXT.md / handoff (业务领域语言 + 历史)
 4. CLAUDE.md (本文件, 跨项目规则)
 
+### Handoff 写入主权
 
-### Task-end ritual (走 verification-before-completion 之后)
-
-- Q1 学到什么 → 追加 @docs/CONTEXT.md (新术语 + _Avoid_)
-- Q2 状态变了什么 → 走 `arthurpower:self-evolving-rules` 更新本文件
-- Q3 业务变更 → 追加 @docs/CHANGELOG.md + 新建 `docs/handoff/<date>.md`
+`docs/handoff/*.md` 仅由 operator 手动触发（`/session-handoff` 或 `/wayfinder`）时生成；main agent cycle 收尾不自产。
