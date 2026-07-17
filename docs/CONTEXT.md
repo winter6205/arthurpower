@@ -491,7 +491,7 @@ Predictability / Invocation / Writing the description / Information hierarchy (�
 - T3: docs(plans) <template-repo> M6 shell sync log (`375487b`) + tpl repo `ebdbb469` 独立 commit (本地未推) — residual grep 0; bootstrap smoke 10/10.
 - T4: docs(tickets) L-scope + three-assets + L4 maps L5 graduate (`c6445b9`).
 - T5: fix(skills) validator exit=1 on 4 skills → 0 (`ecd1e67`) — validator sha `7ece198b…` 三副本不变.
-- T7: CONTEXT.md 5 行 `成功 =` → `PASS =` (并入 `c6445b9`).
+- T7: CONTEXT.md 5 行 historical marker rewrite to `PASS =` (并入 `c6445b9`).
 
 **T6 BLOCKED** (subagent empirical): 11 词 AMBIGUITY_RE 扩展产生 21 命中, 破坏 4/7 active skill 的 L5 `no_required_behavior_regression` 门. ADR-0006 Option C 显式 rejected for this cycle; L4 §不在本 ticket; 主脑**接受 BLOCK** 不 override, validator byte 未改. 4 unblock paths 记 `docs/handoff/2026-07-17-cleanup-implementation-complete.md` §T6.
 
