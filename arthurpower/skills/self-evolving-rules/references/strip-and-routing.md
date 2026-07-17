@@ -33,8 +33,12 @@ Also strip:
 | Project-shared durable rule | project `./CLAUDE.md` **or** `./.claude/rules/<topic>.md` |
 | Session / pattern note | auto memory (MEMORY.md index pointer + topic file) |
 | One-shot process | do not store as memory — prefer hook / slash command / scoped rule |
+| Task-shaped SOP / case library / vendor pitfall | **on-demand** rules or skill `references/` + one-line always-on pointer (not full always-on body) |
+| Deterministic gate (branch name, secret pattern, forbidden path) | registered hook / pre-commit — document only after the gate exists |
 
 Never write secrets (API keys, tokens, passwords) into any layer. Cite env var names only.
+
+When the write target is always-on (L1 CLAUDE.md or `@import`-ed rules), also run the instruction-budget checklist in [`always-on-hygiene.md`](always-on-hygiene.md).
 
 ## Conflict priority (high → low)
 
