@@ -161,9 +161,9 @@ Risks / Notes:
 
 | path | load-policy | rationale |
 |------|-------------|-----------|
-| `docs/CONTEXT.md` | `auto` | 项目领域语言 + Flagged ambiguities |
-| `docs/CHANGELOG.md` | `auto` | 版本变更记录 |
-| `docs/handoff/<date>.md` | `on-demand` | session 交接；由 V 主动注入上下文，不自动载入 |
+| @docs/CONTEXT.md | `auto` | 项目领域语言 + Flagged ambiguities |
+| `docs/CHANGELOG.md` | `on-demand` | 版本变更记录；由 V 主动注入 |
+| `docs/handoff/<date>.md` | `on-demand` | session 交接；由 V 主动注入 |
 
 ### 3 层记忆模型 (where to write)
 
