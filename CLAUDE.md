@@ -149,11 +149,13 @@ Risks / Notes:
 
 ### Eval (regression test for this template)
 
-- @evals/run_scenario_eval.py - 场景 eval runner (含 skill / hook / context 三类)
-- @evals/scenario_evals.json - 场景定义
-- @evals/v070_skill_evals.json - v0.7.0 skill eval 定义
+Eval 驱动是 Python 脚本，不是 Claude 文档；不要 `@` 进 auto-load。Baseline 入口按需 Read：
 
-跑 baseline: `python evals/run_scenario_eval.py`
+- `evals/run_scenario_eval.py` — 场景 eval runner (含 skill / hook / context 三类)
+- `evals/scenario_evals.json` — 场景定义
+- `evals/v070_skill_evals.json` — v0.7.0 skill eval 定义
+
+跑 baseline: `python evals/run_scenario_eval.py [evals.json] [--matcher current|v5|improved]`
 
 ### Domain docs (auto-load on session start)
 
