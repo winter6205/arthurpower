@@ -147,6 +147,15 @@ Risks / Notes:
 | 跨 session 记忆 / 规则迭代 | `self-evolving-rules` (7 步流程) |
 | Skill 创建 / 优化 | `arthurpower:skill-authoring` / `SkillOpt` |
 
+### Agents (Task subagent, pre-merge 阶段)
+
+| 阶段 | Agent | 用途 |
+|---|---|---|
+| Pre-merge S1-S6 第三段 | `maintainability-reviewer` (`@~/.claude/agents/maintainability-reviewer.md`) | spec + code-quality 都过后的最后一道 S1-S6 审计 |
+| Flash lint / 快速正确性 | `quick-reviewer` (`@~/.claude/agents/quick-reviewer.md`) | 小 diff 闪审 + lint 风格正确性, 不重做 spec/code-quality 阶段 |
+
+Multi-reviewer order (ACR → code-review + audit-agent → maintainability): see `arthurpower/docs/agents/harness-map.md` §4.
+
 ### Eval (regression test for this template)
 
 按需 Read：
