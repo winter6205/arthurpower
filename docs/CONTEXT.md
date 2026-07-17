@@ -130,10 +130,19 @@ _Avoid_: 把 driver smoke 5/5 PASS 当 ground truth; 不做 fault-injection; lib
 
 ---
 
+**arthurpower-afk**: Independent GitHub repo `winter6205/arthurpower-afk`, plugin id `arthurpower-afk`, marketplace id `arthurpower-afk-local`. Product duty per S1 verdict (locked 2026-07-17): closed-map batch execution + configurable auto-merge + full Q1/Q2/Q3 ritual via event-driven post-push hook. Hard non-overlap: does NOT reopen map destination, does NOT write planning tickets, does NOT decide ADRs for the operator.
+_Avoid_: writing AFK product plans into arthurpower `plans/`; treating AFK ops (CI, ubuntu-portable evals, AFK `.evals/run.sh`) as arthurpower open work; conflating AFK with semi-auto session ritual.
+
+**auto-template**: Historical operator phrasing for the full-auto template repository creation and scaffolding task; in this project that task resolved to the `arthurpower-afk` scaffold (see S2/S3 verdicts and the AFK-owned plan formerly named auto-template.md). New sessions that see the literal `auto-template` in handoffs or auto-memory must map it to `arthurpower-afk` and must NOT open a second greenfield template-repo workstream under arthurpower.
+_Avoid_: treating auto-template as a distinct product name; re-creating an auto-template plan under arthurpower `plans/`; treating a stale "next = auto-template" memory pointer as an open main task after AFK scaffold delivery.
+
+---
+
 ## Flagged ambiguities
 
 - **"通用型 / 任务型" 分类**: V 提的 the baseline author 工程师观点. 本 session 找到原文 = the baseline author `the baseline skills repo` 仓库 `skills/productivity/writing-great-skills/SKILL.md` + GLOSSARY.md. the baseline 用 **model-invoked vs user-invoked** (context load vs cognitive load trade-off) 分类, 不是"通用型/任务型". 决议: resolved, 用 the baseline 的 invocation 分类替代之前的"通用型/任务型"猜测.
 - **"官方 Skill 编写 vs 自研 skill-authoring"**: V 字面拍板 = 用 the baseline author writing-great-skills 整套移植替换 arthurpower 老 skill-authoring (改 name + author 加署名, 主体不改), 加 Eval System 段. 决议: resolved, 不再双轨, 直接用 the baseline 基线 + arthurpower Eval System.
+- **auto-template vs arthurpower-afk**: 早期 handoff 把 "全自动模板仓库创建并编写" 任务命名为 auto-template; S2/S3 verdict 锁定实际交付 = 独立仓 `arthurpower-afk`. 决议: resolved, auto-template 是 arthurpower-afk 的历史别名, 不作 SSOT 名.
 
 ---
 
