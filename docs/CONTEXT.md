@@ -107,6 +107,27 @@ _Avoid_: 字面整 skill 对删对换; 把 deep-dive 当 wayfinder 全职能替�
 **AMBIGUITY_RE (L5)**: `validate_skill.py` 对 SKILL.md 全文硬失败的中文歧义复合词检查, 正则 = `撞名|真因|切流|等价品|拍板` (与 no-meta grep #6 对齐). 命中 message = `chinese ambiguity banned compound at line N`. L5 不发明豁免语法; 政策 SSOT / handoff 豁免只作用于手动 grep 执行层. marketplace + cache `0.6.0` + `0.7.0` 三副本 R5 字节一致. 边界验收: `plans/l5-validator-driver.py` + `plans/l5-evals.json` (主 agent 真 FS, 非子代理 smoke).
 _Avoid_: 单字 `拍`/`撞` (FP); 11 准过词进 RE; 把 validator 当 hook D2; 把预存 section/type/bar exit=1 包装成 L5 回归.
 
+**PR review thread loop**: 评审者的反馈可能多轮收敛 ("drop @" → "需要 link 但不要 @" → markdown link 接受). 每轮 = 1 个 atomic commit + reply + resolve, 不允许 squash 轮次; 每轮 reviewer 迭代是独立 atomic task, 跨轮 commit 必须保持可逐 round revert. 落地证据: PR #4 三轮 review 走完 CLAUDE.md L154-155 row; merge commit `991d144` 保留 13 个 atomic 历史.
+_Avoid_: 把多轮 review 折成一个 "fix" commit (丢失 reviewer 决策链); resolve 线程前不 reply; reply 后忘记 push (reviewer 看不到新 commit).
+
+**hook lib dep as silent enabler**: 当一个 hook 内部 `require('./lib/<dep>.cjs')` 而 `<dep>` 文件不存在时, 顶层 try/catch fail-open 把 crash 吞掉, 看起来 hook "跑过", 实际所有下游逻辑 (含 identity check / schema check) **从未执行**. 表现: 子代理 smoke 报 PASS, 主 agent driver boundary smoke 因同样 fail-open exit 0 也看不出区别; 真要识别需要 fault-injection (删 lib, 重跑 driver). 修复: copy lib 依赖文件 + 在 driver 里加 "no-state + missing-lib" 反向 case 校验 fail-open 链路可见.
+_Avoid_: 把 "fail-open exit 0" 当 PASS 信号; 不验 hook 的 lib 依赖是否真的存在; 子代理 + driver 都看不到 lib 缺失时仍标完成.
+
+**markdown link vs @ import**: `[name](~/.claude/agents/<name>.md)` 是 markdown 超链, 编辑器可点击 + CLI 可读 + **不**把文件内容注入到每次 Read 的 context. `@~/.claude/agents/<name>.md` (CLAUDE.md 内 @import 语法) 会**真**把文件内容拉进 context, 每次 Read 都付 import 开销. 评审者想要 link 但不要 import → markdown link 是答案. 表格 cell / 列表项 / 内联引用 → 用 markdown link; 真正的 "本规则依赖此文件全部内容" → 用 @import.
+_Avoid_: 把 markdown link 跟 @import 语法混淆; 表格里塞 @import (每次 Read 都付全文件 import 成本); 想要 click 时用裸名 (丢路径).
+
+**atomic-commit ordering for lib + consumer**: 当一个 commit 修复 consumer (e.g. hook), 但 consumer 依赖另一个文件 (e.g. lib dep), 必须先 commit dep (lib restore), 再 commit consumer fix. squash-reorder 在中间状态 (consumer 已 commit, dep 未 commit) 会让 consumer crash. 跨 commit 依赖必须在 PR body "Rollback" 段写明 ("#1 → #2 order matters; do not squash-reorder").
+_Avoid_: 把 dep + consumer 合成 1 个 commit (丢回滚粒度); 反向顺序提交 (中间状态 break); PR body 不写 rollback 顺序 (reviewer 不知道哪两个 commit 是耦合的).
+
+**runtime artifact gitignore 两步走**: runtime artifact (hook 生成的 dedup / state 文件) 要从 git 历史移除, 需 2 个 commit: (a) `.gitignore` 加 entry (只影响新文件), (b) `git rm --cached <file>` (解除已 tracked 文件). 单 commit 只做 gitignore 等于 "没做", 因为已经 tracked 的文件 gitignore 不会自动 untrack.
+_Avoid_: 只改 `.gitignore` 不 `git rm --cached`; 把两件事合成 1 commit (rollback 粒度变粗, 一半无效).
+
+**pre-fs-guard heredoc false-positive**: `pre-fs-guard.cjs` 这类 PreToolUse hook 如果 regex 在整条 Bash command 文本里扫, heredoc / quoted string 内的字面量也会触发匹配 (e.g. commit message body 含 "grep -r ... /" 字样时, hook 当真 grep 拦). 修复方向: hook 应剥离 heredoc / string literal 内容再做 pattern 匹配, 或锚定在命令 token 位置 (首个 `&&` / `;` / `|` 后) 而非文本任意位置. 临时缓解: 写 commit message 避开触发 pattern 的字面短语.
+_Avoid_: 在 commit message body / PR body / handoff 文件中贴含 `grep -r` / `rm -rf /` / `cat | curl` 等字面短语; 把 hook 触发当 "真问题" 而不查 hook 匹配位置.
+
+**driver smoke vs subagent smoke asymmetry 复发形态**: 即使实现了 driver-level smoke, 当 hook 因 lib 缺失 fail-open, **driver 也只能看到 exit 0**, 与 subagent smoke 表现相同. 真正能区分的是 fault-injection: 故意删 lib 文件, 重跑 driver, 验证 hook 此时不应再 exit 0 (或应显式 noise stderr). 落点: boundary-testing-protocol §"Case 1" 已记录 1 个版本; 本 entry 补 1 个复发形态 (lib dep 缺失导致 driver 与 subagent 同样盲).
+_Avoid_: 把 driver smoke 5/5 PASS 当 ground truth; 不做 fault-injection; lib dep 不在 driver 测试覆盖范围.
+
 ---
 
 ## Flagged ambiguities
