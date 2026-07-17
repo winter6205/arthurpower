@@ -6,12 +6,6 @@
 
 ---
 
-## 执行偏好 
-
-Send explorers first if needed, and use as many subagents and tokens as necessary.
-
----
-
 ## 不变量 (NEVER / MUST)
 
 NEVER:
@@ -174,7 +168,6 @@ Multi-reviewer order (ACR → code-review + audit-agent → maintainability): se
 | path | load-policy | rationale |
 |------|-------------|-----------|
 | @docs/CONTEXT.md | `auto` | 项目领域语言 + Flagged ambiguities |
-| `docs/CHANGELOG.md` | `on-demand` | 版本变更记录；由 V 主动注入 |
 | `docs/handoff/<date>.md` | `on-demand` | session 交接；由 V 主动注入 |
 
 ### 3 层记忆模型 (where to write)

@@ -7,6 +7,9 @@
 *.pyc
 __pycache__/
 
+# --- operator-private CLAUDE.local.md (per CLAUDE.md memory rules) ---
+CLAUDE.local.md
+
 # --- plugin source: stray backup from upstream copy ---
 arthurpower/.claude-plugin/plugin.json.bak.2026-07-14-<local-project>
 arthurpower/skills/skill-authoring/scripts/__pycache__/
