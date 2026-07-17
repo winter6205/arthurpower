@@ -157,11 +157,13 @@ Risks / Notes:
 
 跑 baseline: `python evals/run_scenario_eval.py [evals.json] [--matcher current|v5|improved]`
 
-### Domain docs (auto-load on session start)
+### Domain docs
 
-- @docs/CONTEXT.md — 项目领域语言 + Flagged ambiguities
-- @docs/handoff/<latest>.md — 最近 session 交接
-- @docs/CHANGELOG.md — 版本变更记录
+| path | load-policy | rationale |
+|------|-------------|-----------|
+| `docs/CONTEXT.md` | `auto` | 项目领域语言 + Flagged ambiguities |
+| `docs/CHANGELOG.md` | `auto` | 版本变更记录 |
+| `docs/handoff/<date>.md` | `on-demand` | session 交接；由 V 主动注入上下文，不自动载入 |
 
 ### 3 层记忆模型 (where to write)
 
