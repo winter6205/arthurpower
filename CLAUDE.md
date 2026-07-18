@@ -139,12 +139,20 @@ Risks / Notes:
 |---|---|
 | 接手陌生项目 / 摸架构 | `codebase-memory` (get_architecture + search_graph) |
 | 改前摸调用链 | `serena` (find_referencing_symbols) |
-| 改前写测试 / S2 边界 | `defensive-contract-validator` |
-| Bug 修复 | `systematic-debugging` (含 Phase 1 红线: 先建反馈循环) |
+| 跨 session 任务路由 / 不确定走哪条 | `using-agent-skills` (router) |
+| 首次 setup 整个项目闭环 | `setup-arthurpower` (D1–D12 一次性) |
+| 改前摸调用链 / 范围未定的深挖 | `deep-dive-protocol` |
+| 改前架构评审 gate | `architecture-change-reviewer` (ACR gate-only) |
+| 多文件规划 (vertical slice) | `writing-plans` (tracer bullet, ACR 之后) |
+| 改前写测试 / S2 边界 | `arthurpower:test-driven-development` (红测试先) |
+| 改前写测试 / S2 边界 | `defensive-contract-validator` (5 类边界) |
+| Bug 修复 | `arthurpower:systematic-debugging` (Phase 1 红线: 先建反馈循环) |
 | 写 spec / 设计 | `spec-driven-development` |
-| 多文件规划 | `writing-plans` |
-| 完成前验收 | `verification-before-completion` |
-| 跨 session 记忆 / 规则迭代 | `self-evolving-rules` (7 步流程) |
+| 多 skill 并行 (无共享可变状态) | `dispatching-parallel-agents` |
+| 审代码 / 审 PR / 审 commit | `arthurpower:code-review` (v-code-review CLI) |
+| 完成前验收 / 防包装 | `arthurpower:verification-before-completion` (4 项 FAIL 闸门) |
+| 防御性主张 / 守住一句话 | `defend-claim` |
+| 跨 session 记忆 / 规则迭代 | `self-evolving-rules` (6 强制 + 1 可选) |
 | Skill 创建 / 优化 | `arthurpower:skill-authoring` / `SkillOpt` |
 
 ### Agents (Task subagent, pre-merge 阶段)
