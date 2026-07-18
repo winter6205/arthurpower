@@ -23,8 +23,15 @@
 
 | Phase | Skill | Trigger |
 |-------|-------|---------|
-| Plan | architecture-change-reviewer | "加个新功能", "multi-file change" |
 | Plan | writing-plans | After ACR verdict:yes |
+
+## Model-invoked gates
+
+`disable-model-invocation: false` — model-invoked skills; the model auto-matches on the description. ACR is model-invoked under ADR-0010; the 5-line verdict still blocks on no/unclear.
+
+| Phase | Skill | Trigger |
+|-------|-------|---------|
+| Plan | architecture-change-reviewer | "multi-file change", "new module", "cross-module refactor" |
 
 ## Restricted
 

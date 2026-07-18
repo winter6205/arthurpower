@@ -1,6 +1,7 @@
 ---
 name: architecture-change-reviewer
-disable-model-invocation: true
+description: Use before multi-file changes (>3 files) or cross-module work — emits a 5-line verdict (bounded-context-guardian / defensive-contract-validator / error-handling-enforcer / complexity-anti-drift / minimal-change-verifier) and blocks on no / unclear. Triggers on multi-file change, new module, cross-module refactor, plan before implementation.
+disable-model-invocation: false
 ---
 
 # Architecture Change Reviewer
@@ -64,7 +65,7 @@ Tracer-bullet tickets and the [decision] / [implementation] tags live in writing
 ## Acceptance Criteria
 - [ ] Plan has >= 3 affected files
 - [ ] Each Core Skill has a written verdict (one line)
-- [ ] All 5 verdicts are "yes" or "N/A with reason" (no "probably", no "should")
+- [ ] All 5 verdicts are "yes", "N/A with reason", or trigger "no"/"unclear" → block. "no" or "unclear" = mandatory block, no override. (no "probably", no "should")
 - [ ] No Core Skill conflict unresolved
 - [ ] Implementation does not begin before this review is satisfied
 - [ ] Architecture review verdict is committed in plans/<feature>.md (the SSOT)
@@ -72,7 +73,7 @@ Tracer-bullet tickets and the [decision] / [implementation] tags live in writing
 ## Verification
 - `grep -c "bounded-context-guardian:" plans/<feature>.md` ≥ 1 (verdict block present)
 - `grep -c "minimal-change-verifier:" plans/<feature>.md` ≥ 1 (all 5 verdicts in plans/<feature>.md)
-- `git diff --stat | wc -l` matches planned file list (no scope creep)
+- `diff <(grep -E "^\s*affects:" plans/<feature>.md | awk '{print $2}' | sort -u) <(git diff --name-only | sort -u)` produces no output (planned file list == actual diff scope, no scope creep)
 - Each of the 5 verdict lines is present in plans/<feature>.md
 
 ## Example

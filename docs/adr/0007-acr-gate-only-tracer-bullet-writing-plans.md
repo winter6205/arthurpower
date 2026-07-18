@@ -1,7 +1,7 @@
 # 0007. ACR gate-only; tracer bullet owned by writing-plans; verdict SSOT = plans file
 
 Date: 2026-07-18
-Status: accepted
+Status: accepted; superseded-by ADR-0010 §Decision 4 only
 
 ## Context
 

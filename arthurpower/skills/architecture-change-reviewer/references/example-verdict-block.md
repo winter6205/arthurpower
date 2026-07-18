@@ -16,6 +16,7 @@ defensive-contract-validator: yes — place_order() covers empty cart (raise), n
 error-handling-enforcer: yes — typed exception OrderPlacementError with code: INSUFFICIENT_STOCK, no empty catch, // EXIT: stock not reserved, return error to caller comment on early-return.
 complexity-anti-drift: yes — place_order() ≤ 30 lines (uses 3 extracted helpers: validate_cart / reserve_stock / persist_order), nesting ≤ 4, params ≤ 3.
 minimal-change-verifier: yes — 1 logical task (add order endpoint), 1 commit, no refactor mixed with feature.
+minimal-change-verifier: no — diff scope touches 3 unrelated files; tracer-bullet split required → block implementation, return to writing-plans for re-decomposition.
 
 ## 3. Task Decomposition → see writing-plans
 
@@ -23,4 +24,4 @@ Tracer-bullet tickets and `[decision]` / `[implementation]` tags are owned by wr
 See `writing-plans/references/handoff-acr.md`.
 ```
 
-**Annotation**: The example above shows how to land when all 5 verdicts are yes — each verdict is one line plus a one-sentence reason. On failure (any verdict = no), go back to §Procedure Step 3 and do not hand off to writing-plans.
+**Annotation**: The example above shows how to land when all 5 verdicts are yes — each verdict is one line plus a one-sentence reason. On failure (any verdict = no), that verdict is a mandatory block: go back to §Procedure Step 3 and do not hand off to writing-plans.

@@ -101,6 +101,16 @@ Risks / Notes:
 
 如果没有运行测试，必须明确说明原因，不得省略。
 
+### Task-end commit ritual（`~/.claude/` 数据仓）
+
+任务结束前必跑下列命令把 `~/.claude/` 工作树落盘，否则改动不会进入数据仓 SSOT：
+
+```bash
+git -C ~/.claude add -A && git -C ~/.claude commit -m "<conventional commit subject>"
+```
+
+push 永远手动（CLAUDE.md NEVER #1 = operator-authorized only）。本规则为 reminder，详细 procedure 见 [docs/operations/claude-sync-procedure.md](docs/operations/claude-sync-procedure.md)。
+
 ---
 
 ## 5. 规范变更流程
@@ -198,3 +208,11 @@ Multi-reviewer order (ACR → code-review + audit-agent → maintainability): se
 ### Handoff 写入主权
 
 `docs/handoff/*.md` 仅由 operator 手动触发（`/session-handoff` 或 `/wayfinder`）时生成；main agent cycle 收尾不自产。
+
+---
+
+## 8. ~/.claude/ sync procedure
+
+Procedure for syncing global config to/from project `.claude/` lives at [docs/operations/claude-sync-procedure.md](docs/operations/claude-sync-procedure.md). Manual cp; no script; project-local consumer with independent evolution.
+
+Cross-repo SOP for 4 sync scenarios (data-repo push/pull + plugin 3-layer broadcast) lives at [docs/operations/claude-sync-methodology.md](docs/operations/claude-sync-methodology.md).
