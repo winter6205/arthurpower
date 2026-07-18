@@ -18,6 +18,7 @@
 | **B. 跨平台精度差** | Python `int(st_mtime * 1000)` vs JS `fs.statSync().mtimeMs` 浮点 vs NTFS 100ns → 比较 `>` 误判 | 10ms 容差或单位对齐 |
 | **C. 状态 key 不对齐** | driver 在 tmpdir 跑测试，state JSON key 是 "D:/test"，但 hook 用 `process.cwd()` 算 tmpdir 路径 → 不匹配 | driver 注入 tmp_root 重写 state |
 | **D. 整文件重写带 secret 配置文件（历史案例）** | 早期曾记录：Edit 工具对含 secret 字段的配置文件做整文件重写，可能引入非预期副作用 | 优先走外科式 insert / patch（如行内追加 / 行级 replace），避免整文件重写 |
+| **E. detector 出口码语义反**（2026-07-18） | detector 拿到当前 ground-truth 漂移本应 exit 1，但被写为 exit 0 + warning → operator 无信号，drift 静默 | detector 必须用进程 exit code 而非 stdout 表示状态：当前状态有真漂移 → exit 1；无漂移 → exit 0 |
 
 ---
 
@@ -58,6 +59,7 @@
 - [ ] 子代理实施 + 子代理 smoke（仅 sanity）
 - [ ] **主 agent 驱动器级 smoke 必跑**（真实 FS、真实 JSON、真实 cwd）
 - [ ] 跨平台差异显式测（Windows / Linux 至少各 1 个 case）
+- [ ] **detector 出口码 contract**：当前 ground-truth 有漂移 → detector 进程 exit 1；无漂移 → exit 0。exit 0 + stdout warning = 反例，重写 detector。子代理 smoke 5/5 PASS 但 detector 实际是 exit 0 + warning，不算通过。
 
 执行后：
 - [ ] A/B 对比 baseline vs 候选
@@ -94,6 +96,8 @@
 > **完成性声明不能"包装"未完成**：禁止在变更报告 / changelog 中用 ✅ / "成功 = …" / "全 PASS" 等措辞包装 deferred 项、infra-gap 或"目标达成"声明。每一项独立标注 `状态 ∈ {完成, 进行中, deferred, infra-gap}`，deferred 项必标理由与下次 review 触发条件。**完成与否由用户判断，不由主 agent 自评**。
 
 > **已完成 ≠ 全做完**：当前 cycle 的边界测试 PASS 只能证明"本 cycle 改动未引入回归"，不能证明"整个体系无问题"。**逐项列举未完成/未触达项**（含 deferred、infra-gap、未做修复的 bug），而非合并为"成功 = ..." 的一句话总结。
+
+> **detector 出口码是 ground truth，不是 stdout**：first-run detector 在 ground-truth 有漂移时 exit 1 + 列出 `[FAIL] <skill>:<check> <path>` = 正常 detection signal，是 valid acceptance，不是 FAIL。如果子代理 smoke 报 5/5 PASS、detector 实际却 exit 0 + stdout warning，那个 smoke 是 silent FAIL——detector 必须重写。exit code capture 必须用 `python <driver>; echo exit=$?` 直接跑，不能 `python <driver> | tail`（pipe 会丢真 exit code）。
 
 ---
 
