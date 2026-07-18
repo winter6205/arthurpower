@@ -17,7 +17,7 @@
 | 改前摸调用链 / 找引用 | `serena` (find_symbol / find_referencing_symbols) |
 | 全局检索 / 多跳依赖 / 死代码 | `codebase-memory` (trace_path / query_graph / search_graph max_degree=0) |
 | 改代码 / 重构 / LSP 精准编辑 | `serena` (replace_symbol_body / insert_* / rename_symbol) |
-| 查库 / 框架 / SDK / API 文档 | `context7` (resolve-library-id + query-docs) |
+| 查库 / 框架 / SDK / API 文档 | web MCP tools already enabled (`exa` EN / `minimax-search` CN); cite retrieved snippets; do not invent version-pinned APIs from memory alone |
 | 改前先写测试 | `arthurpower:test-driven-development` (transplanted T2; SKILL.md + 5 references in arthurpower skill tree) |
 | 新功能 / 创意 / 模糊需求 | `brainstorming` |
 | 写 spec / 设计文档 | `spec-driven-development` |
@@ -62,5 +62,19 @@
 
 - 项目入口: `CLAUDE.md`
 - 全局规则: `~/.claude/rules/*.md` (用户级规则, 跨项目生效)
+
+## When to Read 其他项目规则 (on-demand 提示)
+
+本文件已 always-on 加载；下列项目规则只在使用到对应任务形状时 Read：
+
+- **`git.md`** — 任何 commit / push / PR / merge / tag 操作前；pre-commit / commit-msg hook 报错时
+- **`code-quality.md`** — 改业务代码 / 加测试 / 错误处理 / 重构前；Code Review 触发"高风险区域"判断时
+- **`memory.md`** — 写 L1（CLAUDE.md / rules）或 L2（auto memory）前；更新项目记忆前
+- **`task-templates.md`** — 接 test-coverage / pr-review / error-handling-fix / refactor-dedup / security-audit / context-loop-upgrade 六类任务时
+- **`boundary-testing-protocol.md`** — 跨多文件 / 多 hook / 多状态改动前；T6 driver-level smoke 写时
+- **`context-loop.md`** — 涉及 docs/CONTEXT.md 或 docs/adr/*.md 时；domain-modeling 写入时
+
+> 跨引设计：这些是 markdown 链接而非 `@import`——点开才注入内容，节省 always-on 指令条数（ADR-0008）。
+
 - Serena 工具文档: 触发 Skill `serena`
 - Codebase Memory 工具文档: 触发 Skill `codebase-memory`

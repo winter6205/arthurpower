@@ -288,17 +288,21 @@ git push origin :v0.2.4    # 远端删 (注意: 是 :refs/tags/v0.2.4 简写)
 
 ## Hooks 集成
 
-项目用 3 层 hook 配合 git workflow:
+项目用 3 层 hook 配合 git workflow. **每一行下面的路径必须是真实存在并注册的**——文档不写虚的。
 
 | 层 | 触发时机 | 作用 |
 |---|---|---|
-| `.githooks/s4-red-test-first.sh` | commit-msg (client) | feat:/fix: commit 必带 test (S4 红测试门禁) |
-| `.github/workflows/s4-red-test-first.yml` | push (CI) | CI 端同样检查 (informational, 可硬强制) |
-| `~/.claude/hooks/commit-msg-refactor.sh` | commit-msg (global) | refactor: commit 不含 feat/fix/perf (1 commit = 1 逻辑任务) |
-| `~/.claude/hooks/pre-tool-guard.sh` | PreToolUse Bash | 阻断危险 git 命令 (见上方"禁止的 Git 行为") |
-| `~/.claude/hooks/post-push-task-end.sh` | PostToolUse Bash (push 成功) | **task-end ritual 强制触发** (3 问 → CONTEXT/CLAUDE.md/CHANGELOG+handoff) |
+| `.claude/hooks/pre-fs-guard.cjs` | PreToolUse Bash | 阻断危险 FS pattern（裸 `find /` / `grep -r /` / 孤立 `&`）|
+| `.claude/hooks/pre-tool-guard.sh` | PreToolUse Bash | 反篡改（hooks / pre-commit / lint-staged）+ 允许 `rm -rf /tmp` |
+| `.claude/hooks/pre-context-write-guard.cjs` | PreToolUse Write/Edit/MultiEdit/Bash | 写入 `CONTEXT.md` / `CONTEXT-MAP.md` / `docs/adr/*.md` 仅允许 `domain-modeling` |
+| `.claude/hooks/pre-stale-read.cjs` | PreToolUse Write/Edit/MultiEdit/Bash | `src/` 写前若 `CONTEXT.md` 自上次读后被改 → advisory |
+| `.claude/hooks/pre-read-contract.cjs` | PreToolUse Write/Edit/MultiEdit/NotebookEdit/Bash | `src/` 写前若 session 未读 `CONTEXT.md` → advisory |
+| `.claude/hooks/post-ssot-priority.cjs` | PostToolUse Write/Edit/MultiEdit/Bash | 三层 SSOT 优先级 + 合法 override marker |
+| `.claude/hooks/post-conflict-annotation.cjs` | PostToolUse Write/Edit/MultiEdit/Bash | ADR 冲突标注护栏（须显式 `> Contradicts ADR-NNNN`）|
 
-**hook 必须 hook, 不能 alias / 脚本 / 环境变量绕过**. 违反这条 = S6 最小变更原则失守 + 严守规则的失守.
+注册载体：`settings.json` `hooks.PreToolUse` + `hooks.PostToolUse`（TB2 锁定）。
+
+**CI 端 S4 红测试门禁当前未启用**（无 .githooks / 无 GitHub Actions workflow 文件）——缺位时不要把它当存在的 gate；本 plan 不新建该 CI。
 
 ---
 

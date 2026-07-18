@@ -94,7 +94,8 @@ Bar level:  discipline
 ```bash
 test -f docs/handoff/YYYY-MM-DD-<slug>.md && echo "OK: handoff present"
 grep -c "\[NEXT\]" docs/handoff/YYYY-MM-DD-<slug>.md | grep -q "^1$" && echo "OK: one next step"
-grep -Eiq "(api[_-]?key|token|password|secret|credential|bearer)" docs/handoff/YYYY-MM-DD-<slug>.md && echo "FAIL: secret found" || echo "OK: no secret"
+# value-shape; extend pattern list when new token types observed
+grep -Eiq "(=[A-Za-z0-9_\-\.=]{16,}|Bearer\s+[A-Za-z0-9_\-\.=]+|ghp_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9]{16,}|xox[bp]-[A-Za-z0-9\-]{10,}|sk-ant-[A-Za-z0-9_\-]{20,}|AIza[A-Za-z0-9_\-]{30,})" docs/handoff/YYYY-MM-DD-<slug>.md && echo "FAIL: secret found" || echo "OK: no secret"
 ```
 
 ### Rationalization Table

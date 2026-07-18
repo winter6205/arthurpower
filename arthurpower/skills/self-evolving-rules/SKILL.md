@@ -1,9 +1,9 @@
 ---
 name: self-evolving-rules
-description: "Use when the operator manually runs memory or rule evolution — \"add a memory\", \"merge memories\", \"archive\", \"rewrite the rule\", \"move across layers\", \"clean stale memory\", or \"sync L1 + rules\" — and needs the 6-step strip-and-route process plus optional Step 7 extraction."
+description: "Use when the operator manually runs memory or rule evolution — \"add a memory\", \"merge memories\", \"archive\", \"rewrite the rule\", \"move across layers\", \"clean stale memory\", \"sync L1 + rules\", or trims always-on instruction load / CLAUDE.md length / rules dump — and needs the 6-step strip-and-route process plus optional Step 7 extraction."
 disable-model-invocation: true
-version: 2.0.0
-tags: [memory, rules, self-evolving, strip, routing, L1, L2, archive, merge]
+version: 2.1.0
+tags: [memory, rules, self-evolving, strip, routing, L1, L2, archive, merge, always-on, instruction-budget, progressive-disclosure]
 author: arthurpower-team
 related_skills: [skill-authoring, session-handoff, verification-before-completion, using-agent-skills]
 type: discipline
@@ -84,6 +84,8 @@ Tighten wording. Prefer leading words already in the operator's vocabulary. No n
 
 **Done when:** wording is shorter or equal length and meaning unchanged.
 
+**Instruction budget check (always-on rules only).** When the routed layer is global L1, project `CLAUDE.md`, or any `@import`-ed rules file: each new imperative unit increases the always-on instruction load. Confirm universal applicability (must fire on >50% of sessions for the same project), prefer `file:line` or markdown link over `@import` when the new rule is task-shaped, and reject duplicate rewording of existing bullets. Done when the touched file still has fewer imperative units than before, or the additions are universally-applicable.
+
 ### Step 6 — Route and write
 
 Write only the target layer from the routing table in [`references/strip-and-routing.md`](references/strip-and-routing.md).
@@ -154,6 +156,7 @@ bash .evals/run.sh; echo EXIT=$?
 | "Accept every high-looking candidate" | Subagent sounded confident | Project-specific junk becomes L1 | Filter by scope + rating |
 | "Regression tests can wait" | Eval suite is slow | Rule change can break routing | Run `.evals/run.sh` when present |
 | "Docs-only; skip boundary testing" | Hook text is not product code | Silent bugs ship as discipline | Follow boundary-testing when shipping with code |
+| "Always-on: add one more IMPORTANT, it's harmless" | Single line feels negligible | Decay is uniform, not additive; perimeter bias amplifies tails | Confirm universal applicability + count imperative units before adding |
 
 ### Red Flags — STOP
 
@@ -166,12 +169,14 @@ bash .evals/run.sh; echo EXIT=$?
 - Claiming done without post-iteration eval when `.evals/` exists
 - Skipping strip/route preflight and jumping straight to skill-authoring when the skill change carries new durable rules or wrappers
 - Authoring skill content inside this skill instead of handing off to skill-authoring
+- Adding imperative units to always-on layers without universal-applicability check or instruction-budget review
 
 ## References
 
 - Step 7 details: [`references/step-7-extraction.md`](references/step-7-extraction.md)
 - Strip + routing + priority: [`references/strip-and-routing.md`](references/strip-and-routing.md)
+- Always-on / instruction budget hygiene: [`references/always-on-hygiene.md`](references/always-on-hygiene.md)
 - Extra rationalization copy: [`references/rationalization-red-flags.md`](references/rationalization-red-flags.md)
 - Genericization rule: project / user `no-meta-specific` rule file
 - New skill creation: `arthurpower:skill-authoring`
-- Project rule source (non-skill form): `./.claude/rules/self-evolving.md`
+- Project decision SSOT when always-on layout is locked: `docs/adr/0008-always-on-progressive-disclosure.md` (if present)

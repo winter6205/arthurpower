@@ -1,11 +1,15 @@
 # --- Backup / temp / cache files (not part of the work) ---
 *.bak
 *.bak.*
+docs/archive/scenario-test-*-bak-*/
 *.tmp
 *.log
 *~
 *.pyc
 __pycache__/
+
+# --- operator-private CLAUDE.local.md (per CLAUDE.md memory rules) ---
+CLAUDE.local.md
 
 # --- plugin source: stray backup from upstream copy ---
 arthurpower/.claude-plugin/plugin.json.bak.2026-07-14-<local-project>
@@ -25,3 +29,4 @@ arthurpower/.serena/
 # which belong in PR after core setup-arthurpower v3 work lands)
 project-reports/
 docs/handoff
+docs/SKILL.md

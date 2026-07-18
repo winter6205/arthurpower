@@ -4,7 +4,7 @@
 >
 > **触发词**：边界测试 / boundary test / 跨文件改动 / 跨 hook 状态 / 子代理报告 / 钩子边界 / hook boundary / 实施前验证 / 端到端验证 / E2E boundary
 >
-> **不适用**：单行 typo fix / 用户明确说"就改这一处" / 已通过 R5 byte-level 验证的单字段修改
+> **不适用**：单行 typo fix / 用户明确说"就改这一处" / 单字段插入式修改（已在外科式 edit 范畴内）
 
 ---
 
@@ -17,7 +17,8 @@
 | **A. 子代理 smoke 不充分** | 子代理报告 5/5 PASS，但用整数 mtime 测，未触发 NTFS 100ns 精度 bug | 主 agent 驱动器级 FS smoke |
 | **B. 跨平台精度差** | Python `int(st_mtime * 1000)` vs JS `fs.statSync().mtimeMs` 浮点 vs NTFS 100ns → 比较 `>` 误判 | 10ms 容差或单位对齐 |
 | **C. 状态 key 不对齐** | driver 在 tmpdir 跑测试，state JSON key 是 "D:/test"，但 hook 用 `process.cwd()` 算 tmpdir 路径 → 不匹配 | driver 注入 tmp_root 重写 state |
-| **D. byte-level settings 编辑破坏 secret** | Edit 工具重写整个文件，GITHUB_TOKEN sha256 改变 → silent auth 失效 | byte-level `rb + regex + wb` + sha256 baseline |
+| **D. 整文件重写带 secret 配置文件（历史案例）** | 早期曾记录：Edit 工具对含 secret 字段的配置文件做整文件重写，可能引入非预期副作用 | 优先走外科式 insert / patch（如行内追加 / 行级 replace），避免整文件重写 |
+| **E. detector 出口码语义反**（2026-07-18） | detector 拿到当前 ground-truth 漂移本应 exit 1，但被写为 exit 0 + warning → operator 无信号，drift 静默 | detector 必须用进程 exit code 而非 stdout 表示状态：当前状态有真漂移 → exit 1；无漂移 → exit 0 |
 
 ---
 
@@ -26,18 +27,24 @@
 ## 通用 SOP (跨引全局)
 
 通用 6 步流程 + 5 类别样例模板 + Case 1/2 见 `@~/.claude/rules/boundary-testing-protocol.md`。
-本文件只保留 **项目特定增量**: 漏洞类别 D (byte-level settings) + Case 3 (GITHUB_TOKEN sha256) + R5 引用。
+本文件只保留 **项目特定增量**: 漏洞类别 D（历史案例）+ 通用外科式 edit 纪律。
 
-## 3 个踩坑案例（来自 2026-07-13 D/F hook 实施）
-### Case 3: byte-level settings.json 编辑破坏 GITHUB_TOKEN
+## 历史案例（已退役 standing 硬门禁；保留为踩坑记录，不作为现行 gate）
 
-**症状**：用 Edit 工具改 settings.json 添加 hook entry，结果 GITHUB_TOKEN sha256 改变，下一次 push 走 GitHub 失败。
+### Case 3（2026-07-13 时期）：settings.json 编辑副作用的历史教训
 
-**根因**：Edit 工具会用新内容重写整个文件，破坏字节级一致性。
+**历史记录**：早期曾用 Edit 工具对含 secret 字段的 settings.json 做整文件重写，产生过非预期副作用（例如影响下游 auth 凭据）。该案例当年的缓解方式是 byte-level `rb + regex + wb` + 凭据字段 sha256 baseline。
 
-**修复**：用 Python byte-level：`rb + regex + wb`。改前 baseline sha256，改后必一致。**绝不用 json.dump / Edit / Write 整文件**。
+**当前状态（2026-07-18 更新）**：operator 已不在每次 settings edit 前后强制 GITHUB_TOKEN（或其他凭据）sha256 对照。通用纪律仍有效——见 §“通用外科式 edit 纪律”。
 
-**教训**：任何包含 secret 字段的配置文件（settings.json、*.env.json、credentials.json），**只能 byte-level 编辑**。Pre-edit sha256 baseline + post-edit 校验必做。
+### 通用外科式 edit 纪律
+
+涉及 secret-bearing 配置文件（settings.json / *.env.json / credentials.json）时：
+
+- 优先**外科式**插入 / 删除（行级 patch / 行内追加），不整文件重写。
+- 不要把凭据值（含 token、key、cookie、password）当 chat / 日志 / commit message / 测试快照 内容。
+- 不要把 `tb` / `wb` / json.dump 等整文件改写工具默认设成 secret-bearing 配置的改动方式。
+- 是否需要 pre/post sha 比对 = 由 operator 选择；不是项目 always-on 硬门禁。
 
 ---
 
@@ -52,6 +59,7 @@
 - [ ] 子代理实施 + 子代理 smoke（仅 sanity）
 - [ ] **主 agent 驱动器级 smoke 必跑**（真实 FS、真实 JSON、真实 cwd）
 - [ ] 跨平台差异显式测（Windows / Linux 至少各 1 个 case）
+- [ ] **detector 出口码 contract**：当前 ground-truth 有漂移 → detector 进程 exit 1；无漂移 → exit 0。exit 0 + stdout warning = 反例，重写 detector。子代理 smoke 5/5 PASS 但 detector 实际是 exit 0 + warning，不算通过。
 
 执行后：
 - [ ] A/B 对比 baseline vs 候选
@@ -65,7 +73,7 @@
 | 流程 | 关系 |
 |------|------|
 | **场景测试迭代流程**（Skill routing） | 边界测试是**通用版**，场景测试是其**skill 层应用** |
-| **R5 byte-level 编辑纪律** | 边界测试 settings.json 时必走 R5 |
+| **外科式 edit 纪律** | secret-bearing 配置改动优先行级 patch，避免整文件重写 |
 | **Step 5 gate** | 边界测试改动的采纳门槛 |
 | **subagent smoke** | 边界测试的快速 sanity 阶段 |
 | **driver-level smoke** | 边界测试的严格验收阶段（**必跑，不可跳**） |
@@ -81,13 +89,15 @@
 
 > **state 文件 key 重写是 driver 的责任**：当 hook 用 `process.cwd()` 算 key，driver 在 tmpdir 跑测试时，必须在 case 开始前重写 state 的顶层 key。否则 hook 找不到 record，silent FAIL。
 
-> **byte-level 是 byte-level**：Edit / Write 工具改 settings.json 这种带 secret 的文件会破坏字节级一致性。Pre/post sha256 校验是唯一的护栏。**绝不用 json.dump**。
+> **secret-bearing 配置改写走外科式**：Edit / Write 整文件改 settings.json / *.env.json / credentials.json 这种带 secret 的文件，在该类文件上倾向引入副作用。优先行级 patch 或行内追加；是否再叠 pre/post 字节比对由 operator 决定，不作为本项目 always-on 硬门禁。
 
 > **变更记录是可追溯性的核心**：3 个月后看 changelog，应能立即知道"为什么改 / 改了什么 / 哪些样例变好"。变更记录不是文档任务，是工程纪律。
 
 > **完成性声明不能"包装"未完成**：禁止在变更报告 / changelog 中用 ✅ / "成功 = …" / "全 PASS" 等措辞包装 deferred 项、infra-gap 或"目标达成"声明。每一项独立标注 `状态 ∈ {完成, 进行中, deferred, infra-gap}`，deferred 项必标理由与下次 review 触发条件。**完成与否由用户判断，不由主 agent 自评**。
 
 > **已完成 ≠ 全做完**：当前 cycle 的边界测试 PASS 只能证明"本 cycle 改动未引入回归"，不能证明"整个体系无问题"。**逐项列举未完成/未触达项**（含 deferred、infra-gap、未做修复的 bug），而非合并为"成功 = ..." 的一句话总结。
+
+> **detector 出口码是 ground truth，不是 stdout**：first-run detector 在 ground-truth 有漂移时 exit 1 + 列出 `[FAIL] <skill>:<check> <path>` = 正常 detection signal，是 valid acceptance，不是 FAIL。如果子代理 smoke 报 5/5 PASS、detector 实际却 exit 0 + stdout warning，那个 smoke 是 silent FAIL——detector 必须重写。exit code capture 必须用 `python <driver>; echo exit=$?` 直接跑，不能 `python <driver> | tail`（pipe 会丢真 exit code）。
 
 ---
 
@@ -119,7 +129,7 @@
 
 ## References
 
-- R5 byte-level 编辑纪律：`@~/.claude/CLAUDE.md` §"AI 易错点"
+- 外科式 edit 纪律：本文件 §"通用外科式 edit 纪律"
 - skill-authoring 12 项硬约束：`arthurpower:skill-authoring`
 - 场景测试迭代流程：`D:/workspace/projects/SCENARIO_EVAL_REPORT.md` §"1. Goal"
 - self-evolving-rules：`arthurpower:self-evolving-rules` (user-invoked; marketplace + cache under arthurpower-local)

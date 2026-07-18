@@ -194,7 +194,7 @@ plugin 里的 skill 自动加 plugin 名前缀:
 |-------|------|---------|
 | **dispatching-parallel-agents** | M | 2+ 独立任务无共享可变状态/要上下文隔离/批量审多文件时 reach。派并行子代理 |
 
-### 4.5 工程学科族 (5 个, v0.3.0 晋升)
+### 4.5 工程学科族 (4 个, v0.3.0 晋升)
 
 | Skill | 触发 | 使用方法 |
 |-------|------|---------|
@@ -202,7 +202,6 @@ plugin 里的 skill 自动加 plugin 名前缀:
 | **frontend-ui-engineering** | M | 建组件/页面/UI/改布局状态/加键盘焦点 a11y 时 reach。生产 UI + 无障碍 |
 | **performance-optimization** | M | 优化页面速度/API 延迟/Core Web Vitals 时 reach。LCP/INP/CLS + bundle size |
 | **security-and-hardening** | M | 加 endpoint/handler/auth/文件上传/第三方 API 时 reach。3 层边界防御 |
-| **context7-lookup** | M | 答 library/framework/SDK/API/CLI 工具时 reach。context7 MCP 拉 version-pinned 文档 |
 
 ### 4.6 上下文工程族 (4 个)
 
@@ -345,7 +344,6 @@ plugin 里的 skill 自动加 plugin 名前缀:
 | 并行跑多个检查 | /fanout | 人输入 `/fanout a; b; c` |
 | 写新 skill | skill-authoring | **人输入 `/arthurpower:skill-authoring`** (唯一 user-invoked) |
 | session 交接 | session-handoff | 模型自动 reach |
-| 查 library 文档 | context7-lookup | 模型自动 reach |
 | 派隔离代理审计 | arthurpower-audit-agent | 让 Claude "用 audit agent" |
 
 ### 8.2 常见违规 -> hook 怎么拦
@@ -439,8 +437,8 @@ plugin 里的 skill 自动加 plugin 名前缀:
 
 ## 附录: 文件清单 (v0.6.0)
 
-### Skill (26)
-architecture-change-reviewer / bounded-context-guardian / codebase-onboarding / commit-revert-protocol / complexity-anti-drift / context7-lookup / deep-dive-protocol / defend-claim / defensive-contract-validator / dispatching-parallel-agents / domain-modeling / error-handling-enforcer / frontend-ui-engineering / intent-inference / issue-triage-validator / minimal-change-verifier / performance-optimization / security-and-hardening / session-handoff / skill-authoring (U) / spec-driven-development / systematic-debugging / team-glossary-sync / using-agent-skills / verification-before-completion / writing-plans
+### Skill (25)
+architecture-change-reviewer / bounded-context-guardian / codebase-onboarding / commit-revert-protocol / complexity-anti-drift / deep-dive-protocol / defend-claim / defensive-contract-validator / dispatching-parallel-agents / domain-modeling / error-handling-enforcer / frontend-ui-engineering / intent-inference / issue-triage-validator / minimal-change-verifier / performance-optimization / security-and-hardening / session-handoff / skill-authoring (U) / spec-driven-development / systematic-debugging / team-glossary-sync / using-agent-skills / verification-before-completion / writing-plans
 
 ### Agent (2)
 arthurpower-audit-agent / arthurpower-dispatcher

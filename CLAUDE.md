@@ -6,12 +6,6 @@
 
 ---
 
-## 执行偏好 
-
-Send explorers first if needed, and use as many subagents and tokens as necessary.
-
----
-
 ## 不变量 (NEVER / MUST)
 
 NEVER:
@@ -122,13 +116,16 @@ Risks / Notes:
 
 ## 6. 引用 — 拆分规则
 
-详细规则下沉到 `.claude/rules/`，本文件通过 `@path` 引用：
+详细规则下沉到 `.claude/rules/`。Always-on `@import` 仅 2 个，其余走 markdown link（不注入，仅可点击 / Read 时才拉）：
 
 - **任务前技能检查 + 工具路由 + 熔断** → @.claude/rules/workflow.md（**最元，所有任务先看**）
-- Git workflow + commit + pre-commit → @.claude/rules/git.md
-- Memory 三层 + 写入准入 + 维护 → @.claude/rules/memory.md
-- 代码修改 + 测试 + 高风险区域 → @.claude/rules/code-quality.md
 - 权限 + 工具使用 + 安全与隐私 → @.claude/rules/security-boundaries.md
+- Git workflow + commit + pre-commit → [`.claude/rules/git.md`](.claude/rules/git.md)（commit / push / tag 时按需 Read）
+- Memory 三层 + 写入准入 + 维护 → [`.claude/rules/memory.md`](.claude/rules/memory.md)（写 L1/L2/auto memory 时 Read）
+- 代码修改 + 测试 + 高风险区域 → [`.claude/rules/code-quality.md`](.claude/rules/code-quality.md)（改业务代码 / 加测试 / 错误处理时 Read）
+- 任务模板尾巴 → [`.claude/rules/task-templates.md`](.claude/rules/task-templates.md)（跑 1-5 类任务时 Read）
+- 边界测试 SOP（跨 hook / 多状态）→ [`.claude/rules/boundary-testing-protocol.md`](.claude/rules/boundary-testing-protocol.md)（含 Case 3 byte-level）
+- 上下文闭环 → [`.claude/rules/context-loop.md`](.claude/rules/context-loop.md)（涉及 CONTEXT / ADR 时 Read）
 
 ---
 
@@ -142,12 +139,20 @@ Risks / Notes:
 |---|---|
 | 接手陌生项目 / 摸架构 | `codebase-memory` (get_architecture + search_graph) |
 | 改前摸调用链 | `serena` (find_referencing_symbols) |
-| 改前写测试 / S2 边界 | `defensive-contract-validator` |
-| Bug 修复 | `systematic-debugging` (含 Phase 1 红线: 先建反馈循环) |
+| 跨 session 任务路由 / 不确定走哪条 | `using-agent-skills` (router) |
+| 首次 setup 整个项目闭环 | `setup-arthurpower` (D1–D12 一次性) |
+| 改前摸调用链 / 范围未定的深挖 | `deep-dive-protocol` |
+| 改前架构评审 gate | `architecture-change-reviewer` (ACR gate-only) |
+| 多文件规划 (vertical slice) | `writing-plans` (tracer bullet, ACR 之后) |
+| 改前写测试 / S2 边界 | `arthurpower:test-driven-development` (红测试先) |
+| 改前写测试 / S2 边界 | `defensive-contract-validator` (5 类边界) |
+| Bug 修复 | `arthurpower:systematic-debugging` (Phase 1 红线: 先建反馈循环) |
 | 写 spec / 设计 | `spec-driven-development` |
-| 多文件规划 | `writing-plans` |
-| 完成前验收 | `verification-before-completion` |
-| 跨 session 记忆 / 规则迭代 | `self-evolving-rules` (7 步流程) |
+| 多 skill 并行 (无共享可变状态) | `dispatching-parallel-agents` |
+| 审代码 / 审 PR / 审 commit | `arthurpower:code-review` (v-code-review CLI) |
+| 完成前验收 / 防包装 | `arthurpower:verification-before-completion` (4 项 FAIL 闸门) |
+| 防御性主张 / 守住一句话 | `defend-claim` |
+| 跨 session 记忆 / 规则迭代 | `self-evolving-rules` (6 强制 + 1 可选) |
 | Skill 创建 / 优化 | `arthurpower:skill-authoring` / `SkillOpt` |
 
 ### Agents (Task subagent, pre-merge 阶段)
@@ -174,7 +179,6 @@ Multi-reviewer order (ACR → code-review + audit-agent → maintainability): se
 | path | load-policy | rationale |
 |------|-------------|-----------|
 | @docs/CONTEXT.md | `auto` | 项目领域语言 + Flagged ambiguities |
-| `docs/CHANGELOG.md` | `on-demand` | 版本变更记录；由 V 主动注入 |
 | `docs/handoff/<date>.md` | `on-demand` | session 交接；由 V 主动注入 |
 
 ### 3 层记忆模型 (where to write)
