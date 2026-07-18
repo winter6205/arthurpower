@@ -43,3 +43,7 @@ Task arrives
     ├── Self-evolving rules ───────────→ self-evolving-rules
     └── Parallel sub-agent dispatch ───→ dispatching-parallel-agents
 ```
+
+---
+
+**Note (2026-07-18)**: `architecture-change-reviewer` is now model-invoked under [ADR-0010](../../adr/0010-acr-model-invoked.md) (Path B). The 5-line verdict still blocks on `no` / `unclear`. `writing-plans` remains user-invoked.
