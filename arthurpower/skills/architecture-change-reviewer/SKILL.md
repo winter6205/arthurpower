@@ -1,6 +1,7 @@
 ---
 name: architecture-change-reviewer
-disable-model-invocation: true
+description: Use before multi-file changes (>3 files) or cross-module work — emits a 5-line verdict (bounded-context-guardian / defensive-contract-validator / error-handling-enforcer / complexity-anti-drift / minimal-change-verifier) and blocks on no / unclear. Triggers on multi-file change, new module, cross-module refactor, plan before implementation.
+disable-model-invocation: false
 ---
 
 # Architecture Change Reviewer
