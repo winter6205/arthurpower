@@ -1,6 +1,7 @@
 # --- Backup / temp / cache files (not part of the work) ---
 *.bak
 *.bak.*
+docs/archive/scenario-test-*-bak-*/
 *.tmp
 *.log
 *~
