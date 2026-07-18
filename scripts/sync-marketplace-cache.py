@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import os
 import shutil
 import sys
@@ -39,6 +40,70 @@ def resolve_path(value: str, base: Path) -> Path:
 
 def env_or_default(primary: str, alternate: str, fallback: Path) -> str:
     return os.environ.get(primary) or os.environ.get(alternate) or str(fallback)
+
+
+PLUGIN_ID = "arthurpower@arthurpower-local"
+
+
+def _discover_cache_path() -> Path | None:
+    config_path = Path("~/.claude/plugins/installed_plugins.json").expanduser()
+    try:
+        data = json.loads(config_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, json.JSONDecodeError):
+        return None
+    entries = data.get("plugins", {}).get(PLUGIN_ID)
+    if not isinstance(entries, list) or not entries:
+        return None
+    chosen = None
+    for entry in entries:
+        if isinstance(entry, dict) and entry.get("scope") == "user":
+            chosen = entry
+            break
+    if chosen is None:
+        for entry in entries:
+            if isinstance(entry, dict):
+                chosen = entry
+                break
+    if chosen is None:
+        return None
+    install_path = chosen.get("installPath")
+    if not install_path:
+        return None
+    return Path(install_path)
+
+
+def _discover_installed_version() -> str | None:
+    config_path = Path("~/.claude/plugins/installed_plugins.json").expanduser()
+    try:
+        data = json.loads(config_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, json.JSONDecodeError):
+        return None
+    entries = data.get("plugins", {}).get(PLUGIN_ID)
+    if not isinstance(entries, list) or not entries:
+        return None
+    for entry in entries:
+        if isinstance(entry, dict) and entry.get("scope") == "user":
+            version = entry.get("version")
+            if isinstance(version, str):
+                return version
+            return None
+    for entry in entries:
+        if isinstance(entry, dict):
+            version = entry.get("version")
+            if isinstance(version, str):
+                return version
+            return None
+    return None
+
+
+def _read_plugin_json_version(path: Path) -> str | None:
+    candidate = path / ".claude-plugin" / "plugin.json"
+    try:
+        data = json.loads(candidate.read_text(encoding="utf-8"))
+    except (OSError, ValueError, json.JSONDecodeError):
+        return None
+    version = data.get("version")
+    return version if isinstance(version, str) else None
 
 
 def collect_layer(root: Path) -> dict[str, Path]:
@@ -112,7 +177,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--src", default=env_or_default("SYNC_SRC", "SRC", DEFAULTS["src"]))
     parser.add_argument("--mkt", default=env_or_default("SYNC_MKT", "MKT", DEFAULTS["mkt"]))
     parser.add_argument(
-        "--cache", default=env_or_default("SYNC_CACHE", "CACHE", DEFAULTS["cache"])
+        "--cache",
+        default=env_or_default(
+            "SYNC_CACHE",
+            "CACHE",
+            _discover_cache_path() or DEFAULTS["cache"],
+        ),
     )
     return parser
 
@@ -132,6 +202,18 @@ def main(argv: list[str] | None = None) -> int:
     except OSError as error:
         print(f"[ERROR] {error}", file=sys.stderr)
         return USAGE_OR_IO_ERROR
+    src_version = _read_plugin_json_version(layers.src)
+    installed_version = _discover_installed_version()
+    if src_version is not None and installed_version is not None and src_version != installed_version:
+        print(
+            f"[WARN] plugin.json={src_version} but installed={installed_version}",
+            file=sys.stderr,
+        )
+    elif src_version is not None and installed_version is None:
+        print(
+            f"[WARN] plugin.json={src_version} but installed=<unknown>",
+            file=sys.stderr,
+        )
     return DRIFT_FOUND if drifted else AUDIT_OK
 
 
