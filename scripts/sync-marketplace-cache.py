@@ -17,7 +17,7 @@ DRIFT_FOUND = 1
 USAGE_OR_IO_ERROR = 2
 SCOPES = ("skills", ".claude-plugin", "agents", "commands", "hooks")
 ROOT_FILES = ("SKILL.md", "CHANGELOG.md")
-EXCLUDED_SEGMENTS = {".serena", "scripts", "node_modules", ".git"}
+EXCLUDED_SEGMENTS = {".serena", "scripts", "node_modules", ".git", "iteration"}
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULTS = {
     "src": PROJECT_ROOT / "arthurpower",
