@@ -214,3 +214,5 @@ Multi-reviewer order (ACR → code-review + audit-agent → maintainability): se
 ## 8. ~/.claude/ sync procedure
 
 Procedure for syncing global config to/from project `.claude/` lives at [docs/operations/claude-sync-procedure.md](docs/operations/claude-sync-procedure.md). Manual cp; no script; project-local consumer with independent evolution.
+
+Cross-repo SOP for 4 sync scenarios (data-repo push/pull + plugin 3-layer broadcast) lives at [docs/operations/claude-sync-methodology.md](docs/operations/claude-sync-methodology.md).
