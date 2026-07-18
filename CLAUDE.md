@@ -208,3 +208,9 @@ Multi-reviewer order (ACR → code-review + audit-agent → maintainability): se
 ### Handoff 写入主权
 
 `docs/handoff/*.md` 仅由 operator 手动触发（`/session-handoff` 或 `/wayfinder`）时生成；main agent cycle 收尾不自产。
+
+---
+
+## 8. ~/.claude/ sync procedure
+
+Procedure for syncing global config to/from project `.claude/` lives at [docs/operations/claude-sync-procedure.md](docs/operations/claude-sync-procedure.md). Manual cp; no script; project-local consumer with independent evolution.
