@@ -180,6 +180,20 @@ function isSetupBootstrapAllowed(filePath) {
   }
 }
 
+// 2026-07-18 Fix (DESIGN-DEFECT closure): strip marketplace / plugin prefix
+// before AUTHORIZED_SKILLS check. The lifecycle router may record skill ids as
+// "arthurpower:domain-modeling" or "marketplace:plugin:name"; AUTHORIZED_SKILLS
+// stores bare names ("domain-modeling" | "setup-arthurpower"). Without this
+// normalize, every legitimate domain-modeling write was false-positively
+// blocked. See daemon.log 2026-07-18T15:37:01Z DESIGN-DEFECT entry.
+function normalizeSkillId(s) {
+  if (typeof s !== 'string' || !s) return s;
+  // Take the last ':'-segment ("arthurpower:domain-modeling" -> "domain-modeling").
+  // Bare names pass through unchanged.
+  const parts = s.split(':');
+  return parts[parts.length - 1];
+}
+
 function readActiveSkill() {
   // Read the lifecycle router's state file. Fail-open on any error.
   // Expected shape (per session-start evaluator contract):
@@ -191,7 +205,8 @@ function readActiveSkill() {
     const statePath = path.join(os.homedir(), '.claude', '.routing-state.json');
     const raw = fs.readFileSync(statePath, 'utf8');
     const state = JSON.parse(raw);
-    return (state && typeof state.skill === 'string') ? state.skill : null;
+    if (!(state && typeof state.skill === 'string')) return null;
+    return normalizeSkillId(state.skill);
   } catch (_) {
     return null;
   }
