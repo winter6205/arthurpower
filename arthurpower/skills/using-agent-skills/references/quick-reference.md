@@ -1,4 +1,4 @@
-# Quick Reference Table (auto-trigger skills only)
+# Quick Reference Table (router-reachable skills)
 
 | Phase | Skill | Trigger |
 |-------|-------|---------|
@@ -8,8 +8,6 @@
 | Meta | codebase-memory | "explore architecture", "trace call chain" |
 | Meta | serena | "LSP edit", "replace_symbol_body" |
 | Meta | gbrain-dispatch | "GBrain KB", "read page" |
-| Plan | architecture-change-reviewer | "加个新功能", "multi-file change" |
-| Plan | writing-plans | After ACR verdict:yes |
 | Build | bounded-context-guardian | "拆模块", "circular import" |
 | Build | defensive-contract-validator | "加接口", "修个 bug", "补验证" |
 | Build | error-handling-enforcer | "改错误处理", "加 try-catch" |
@@ -18,6 +16,20 @@
 | Verify | systematic-debugging | "修 bug", "系统调试" |
 | Verify | verification-before-completion | Pre-merge acceptance |
 | Review | code-review-and-quality | "review", "PR", "5-axis" |
+
+## User-invoked gates
+
+`disable-model-invocation: true` — user-invoked skills; operator triggers via Skill tool / slash; description not auto-matched.
+
+| Phase | Skill | Trigger |
+|-------|-------|---------|
+| Plan | architecture-change-reviewer | "加个新功能", "multi-file change" |
+| Plan | writing-plans | After ACR verdict:yes |
+
+## Restricted
+
+| Phase | Skill | Trigger |
+|-------|-------|---------|
 | Restricted | browser-testing-with-devtools | "browser test", "Chrome DevTools", "DOM inspect" |
 | Restricted | documentation-and-adrs | "ADR", "decision record", "write docs" |
 | Restricted | interview-me | "interview me", "grill me", "stress-test thinking" |
