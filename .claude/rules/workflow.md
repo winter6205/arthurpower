@@ -17,7 +17,7 @@
 | 改前摸调用链 / 找引用 | `serena` (find_symbol / find_referencing_symbols) |
 | 全局检索 / 多跳依赖 / 死代码 | `codebase-memory` (trace_path / query_graph / search_graph max_degree=0) |
 | 改代码 / 重构 / LSP 精准编辑 | `serena` (replace_symbol_body / insert_* / rename_symbol) |
-| 查库 / 框架 / SDK / API 文档 | `context7` (resolve-library-id + query-docs) |
+| 查库 / 框架 / SDK / API 文档 | web MCP tools already enabled (`exa` EN / `minimax-search` CN); cite retrieved snippets; do not invent version-pinned APIs from memory alone |
 | 改前先写测试 | `arthurpower:test-driven-development` (transplanted T2; SKILL.md + 5 references in arthurpower skill tree) |
 | 新功能 / 创意 / 模糊需求 | `brainstorming` |
 | 写 spec / 设计文档 | `spec-driven-development` |

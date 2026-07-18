@@ -393,40 +393,40 @@ Run 11 task end-to-end (one per skill) and append a "VERIFIED 2026-06-26" sectio
 
 ---
 
-## 2026-06-27 — v0.5.0 context7-lookup (upstream-docs lookup via context7 MCP)
+## 2026-06-27 — v0.5.0 upstream-docs discipline skill (lookup-first via docs MCP)
 
 ### Summary
 
-新增 `context7-lookup` discipline skill (131 行, ~5.5 KB), 把 arthurpower 工作流中所有"用户提具体库/框架/SDK/API/CLI/cloud service + 问版本相关问题"统一强制走 `mcp__context7__resolve-library-id` → `query-docs` 链路. 7 rationalization rows + 7 red flags + 6-row bypass table. 不替代 web search, 仅上游文档.
+新增 upstream-docs discipline skill (131 行, ~5.5 KB), 把 arthurpower 工作流中所有"用户提具体库/框架/SDK/API/CLI/cloud service + 问版本相关问题"统一强制走 docs MCP 链路. 7 rationalization rows + 7 red flags + 6-row bypass table. 不替代 web search, 仅上游文档. (注: 该 skill 后在 v0.7.1 cycle 退役并归档至 `docs/archive/skills/` 的 upstream-docs discipline 子目录.)
 
 ### Files Created
 
 | 路径 | 大小 | 说明 |
 |------|------|------|
-| `C:\Users\<user>\.claude\plugins\arthurpower\skills\context7-lookup\SKILL.md` | ~5.5 KB | NEW discipline (131 行, 8-step procedure, 6-bypass table, 7 rationalization rows, 7 red flags) |
+| `C:\Users\<user>\.claude\plugins\arthurpower\skills\upstream-docs-lookup\SKILL.md` (历史名 docs-lookup skill) | ~5.5 KB | NEW discipline (131 行, 8-step procedure, 6-bypass table, 7 rationalization rows, 7 red flags); 现存档于 `docs/archive/skills/` 的 upstream-docs discipline 子目录 |
 
 ### Files Modified
 
 | 路径 | 旧 → 新 | 变化 |
 |------|---------|------|
-| `plugin.json` | v0.4.0 (17 skill) | **v0.5.0 (18 skill)** — description 加 family 6 末段 `context7-lookup`, version 0.4.0 → 0.5.0 |
-| `using-agent-skills/SKILL.md` | quick-reference 29 auto-trigger | + `context7-lookup` 行, flowchart 加 docs-lookup 节点 |
+| `plugin.json` | v0.4.0 (17 skill) | **v0.5.0 (18 skill)** — description 加 family 6 末段 upstream-docs lookup 行, version 0.4.0 → 0.5.0 (v0.7.1 cycle 已 scrub 该引用, 重写为 family 6 = engineering disciplines 4 项) |
+| `using-agent-skills/SKILL.md` | quick-reference 29 auto-trigger | + upstream-docs 行, flowchart 加 docs-lookup 节点 (v0.7.1 cycle 已 scrub 该行) |
 
 ### Verification
 
 | 项 | 状态 |
 |----|------|
-| `python3 scripts/validate_skill.py arthurpower/skills/context7-lookup/SKILL.md` | exit 0 |
+| `python3 scripts/validate_skill.py <upstream-docs>/SKILL.md` | exit 0 |
 | Acceptance Criteria 7/7 | ✓ (detect → resolve → version → query-docs ≤3 → quote → no hallucinate → no web-search replace) |
 | Bypass table 6/6 row | ✓ (training memory / quick answer / well-known / resolve skipped / no-snippet fallback / mention-without-quote) |
 | Rationalization Table 7/7 row | ✓ |
 | Red Flags 7/7 row | ✓ |
 | Skill type | discipline |
 | Bar level | discipline (lookup-first rule under time/knowledge pressure); promote 到 high_risk 需 V 字面 trigger |
-| 1 skill dir 物理存在 | ✓ |
+| 1 skill dir 物理存在 | ✓ (历史路径已迁至 archive) |
 
 ### Routing Entries Added
 
-- `using-agent-skills` quick-reference 表加 `context7-lookup` 行 (触发词: 库名 / API 语法 / 版本迁移 / CLI flag / setup steps / SDK 配置)
-- flowchart 加 docs-lookup 节点 (User query → Detect library+version-sensitive → context7-lookup)
+- `using-agent-skills` quick-reference 表加 upstream-docs 行 (触发词: 库名 / API 语法 / 版本迁移 / CLI flag / setup steps / SDK 配置; v0.7.1 cycle 已 scrub)
+- flowchart 加 docs-lookup 节点 (User query → Detect library+version-sensitive → upstream-docs discipline skill)
 - 与 `codebase-memory` (项目内代码) + `serena` (symbol-level edit) 正交, 三者互补不竞争
