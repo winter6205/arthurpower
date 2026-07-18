@@ -36,7 +36,7 @@
 
 **当前状态（2026-07-18 更新）**：operator 已不在每次 settings edit 前后强制 GITHUB_TOKEN（或其他凭据）sha256 对照。通用纪律仍有效——见 §“通用外科式 edit 纪律”。
 
-### 通用外科式 edit 纪律（替代原先 byte-level + sha256 硬门禁）
+### 通用外科式 edit 纪律
 
 涉及 secret-bearing 配置文件（settings.json / *.env.json / credentials.json）时：
 
@@ -125,7 +125,7 @@
 
 ## References
 
-- 外科式 edit 纪律：本文件 §"通用外科式 edit 纪律"（替代历史 byte-level + GITHUB_TOKEN sha256 硬门禁）
+- 外科式 edit 纪律：本文件 §"通用外科式 edit 纪律"
 - skill-authoring 12 项硬约束：`arthurpower:skill-authoring`
 - 场景测试迭代流程：`D:/workspace/projects/SCENARIO_EVAL_REPORT.md` §"1. Goal"
 - self-evolving-rules：`arthurpower:self-evolving-rules` (user-invoked; marketplace + cache under arthurpower-local)
