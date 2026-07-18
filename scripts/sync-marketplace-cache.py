@@ -14,7 +14,8 @@ from pathlib import Path
 AUDIT_OK = 0
 DRIFT_FOUND = 1
 USAGE_OR_IO_ERROR = 2
-SCOPES = ("skills", ".claude-plugin")
+SCOPES = ("skills", ".claude-plugin", "agents", "commands", "hooks")
+ROOT_FILES = ("SKILL.md", "CHANGELOG.md")
 EXCLUDED_SEGMENTS = {".serena", "scripts", "node_modules", ".git"}
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULTS = {
@@ -56,6 +57,10 @@ def collect_layer(root: Path) -> dict[str, Path]:
             if any(part.startswith(".") and part != ".claude-plugin" for part in parent_parts):
                 continue
             files[relative.as_posix()] = path
+    for fname in ROOT_FILES:
+        path = root / fname
+        if path.is_file():
+            files[fname] = path
     return files
 
 
