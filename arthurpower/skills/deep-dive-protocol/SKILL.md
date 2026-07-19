@@ -3,7 +3,7 @@ name: deep-dive-protocol
 description: "Use when a long interview, 长访谈, 盘问, 质询, or 深度盘问 is needed to resolve project terms and hard-to-reverse decisions through domain-modeling — then STOP at an explicit operator stop gate before any downstream skill runs."
 version: 3.0.0
 tags: [Interview, Questioning, Alignment, Context, Driver, Requirement, StopGate, 盘问, 质询, 厘清, 澄清, 问清]
-related_skills: [domain-modeling, intent-inference, writing-plans, spec-driven-development, verification-before-completion]
+related_skills: [domain-modeling, intent-inference]
 disable-model-invocation: true
 ---
 
@@ -58,7 +58,7 @@ WHILE 用户输入含模糊/未对齐词:
   5. 推进访谈，直到本轮意图清晰
 ```
 
-ADR 三条件：难逆 / 跨模块 / 影响接口或契约。
+ADR 三条件同 `domain-modeling`（本体就是它的 driver）：**Hard to reverse** / **Surprising w/o context** / **Real trade-off**。三条件全真才调 domain-modeling 提议 ADR。
 
 **Done when:** no unresolved fuzzy term remains for this round; every new term / ADR went through domain-modeling.
 
@@ -82,9 +82,11 @@ Open **AskUserQuestion** with a short confirmation. Do not bury the question in 
 Suggested options (adapt labels to the session):
 
 1. **stop-here** — end; operator will invoke the next skill later
-2. **writing-plans** — operator intends to run writing-plans next (you still do not invoke it)
-3. **spec-driven-development** — operator intends to run spec next (you still do not invoke it)
-4. **other** — operator will name a different next step
+2. **deep-dive-protocol** — operator wants another deep-dive pass to continue clarifying (rare; usually stop-here covers this)
+3. **domain-modeling** — operator wants to skip the interview and write the resolved terms / ADRs directly through domain-modeling
+4. **writing-plans** — operator intends to run writing-plans next (you still do not invoke it)
+5. **spec-driven-development** — operator intends to run spec next (you still do not invoke it)
+6. **other** — operator will name a different next step
 
 **Done when:** AskUserQuestion has returned an operator selection. After the ack, **stop**. Narrate the chosen next skill name only; do not call the Skill tool on it.
 
@@ -97,6 +99,16 @@ Suggested options (adapt labels to the session):
 - 每识别一个术语缺口 → 立即调 domain-modeling 写入，不批量积攒
 - 每识别一个难逆决策 → 立即调 domain-modeling 提议 ADR
 - 写入前不替用户做决定；写入后把结果同步回会话
+
+### 接口契约 (Interface contract)
+
+调 domain-modeling 处理单点术语时，**透传 user 选择权**：
+
+- 冲突识别 (哪条 glossary 定义 vs 用户当前用法) → deep-dive 负责
+- 写入主权 → 调 domain-modeling，由 domain-modeling 弹 AskUserQuestion 让用户选
+- ADR 提议 → 调 domain-modeling，由 domain-modeling 走自己的三条件闸门
+
+deep-dive 自身在 Step 2 不弹 AskUserQuestion (除三条件提示外)。所有 user-facing 选择权交给 domain-modeling 内部处理。
 
 ## Verification Checklist
 

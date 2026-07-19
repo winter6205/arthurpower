@@ -138,7 +138,7 @@ Bar level: minimum
 
 ## References
 
-- 项目级词汇格式契约: 项目内 `CONTEXT-FORMAT.md` (本技能首次运行时创建)
-- 项目级 ADR 格式契约: 项目内 `ADR-FORMAT.md` (本技能首次运行时创建)
+- 项目级词汇格式契约: in-bundle `CONTEXT-FORMAT.md` (本技能随附, 反映 `pre-context-write-guard.cjs` 校验的 schema)
+- 项目级 ADR 格式契约: in-bundle `ADR-FORMAT.md` (本技能随附, 反映 arthurpower `docs/adr/0001-0011` 实际结构)
 - 读侧契约: 项目内 `docs/agents/context-contract.md`
 - 物理护栏: `C:/Users/dev/.claude/hooks/pre-context-write-guard.cjs`
