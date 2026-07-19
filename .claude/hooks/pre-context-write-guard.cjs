@@ -232,16 +232,12 @@ function validateAdr(content, expectedNumber) {
     const t = line.trim();
     return /^Status:\s*(proposed|accepted|deprecated|superseded\s+by\s+\d{4})\s*$/.test(t);
   });
-  const hasContext = hasHeading(content, /^##\s+Context\b/i);
-  const hasDecision = hasHeading(content, /^##\s+Decision\b/i);
-  const hasConsequences = hasHeading(content, /^##\s+Consequences\b/i);
 
   if (!hasTitle) fail('ADR 标题行缺少 NNNN. 前缀');
   if (!hasDate) fail('ADR 缺少 Date: YYYY-MM-DD 行');
   if (!hasStatus) fail('ADR Status 不在 proposed/accepted/deprecated/superseded by NNNN 枚举内');
-  if (!hasContext) fail('ADR 缺少 ## Context 章节');
-  if (!hasDecision) fail('ADR 缺少 ## Decision 章节');
-  if (!hasConsequences) fail('ADR 缺少 ## Consequences 章节');
+  // Sections (## Context / ## Decision / ## Consequences / ## Considered Options)
+  // are optional per ADR-FORMAT.md lightweight schema (aligned to legacy-skills source).
 }
 
 function checkAdrUniqueness(filePath, expectedNumber) {
