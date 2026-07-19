@@ -126,10 +126,11 @@ push 永远手动（CLAUDE.md NEVER #1 = operator-authorized only）。本规则
 
 ## 6. 引用 — 拆分规则
 
-详细规则下沉到 `.claude/rules/`。Always-on `@import` 仅 2 个，其余走 markdown link（不注入，仅可点击 / Read 时才拉）：
+详细规则下沉到 `.claude/rules/`。`@import` 仅用于每会话必读的指针；其余走 markdown link（不注入，仅可点击 / Read 时才拉）：
 
 - **任务前技能检查 + 工具路由 + 熔断** → @.claude/rules/workflow.md（**最元，所有任务先看**）
 - 权限 + 工具使用 + 安全与隐私 → @.claude/rules/security-boundaries.md
+- 项目领域语言（Glossary + Flagged ambiguities + 写入可观测性 sink） → @docs/CONTEXT.md（**每会话必读，含 reverse-anchor 防止 re-open 已 closed 任务**）
 - Git workflow + commit + pre-commit → [`.claude/rules/git.md`](.claude/rules/git.md)（commit / push / tag 时按需 Read）
 - Memory 三层 + 写入准入 + 维护 → [`.claude/rules/memory.md`](.claude/rules/memory.md)（写 L1/L2/auto memory 时 Read）
 - 代码修改 + 测试 + 高风险区域 → [`.claude/rules/code-quality.md`](.claude/rules/code-quality.md)（改业务代码 / 加测试 / 错误处理时 Read）
@@ -188,7 +189,7 @@ Multi-reviewer order (ACR → code-review + audit-agent → maintainability): se
 
 | path | load-policy | rationale |
 |------|-------------|-----------|
-| @docs/CONTEXT.md | `auto` | 项目领域语言 + Flagged ambiguities |
+| @docs/CONTEXT.md | `always-on` | 项目领域语言 + Flagged ambiguities |
 | `docs/handoff/<date>.md` | `on-demand` | session 交接；由 V 主动注入 |
 
 ### 3 层记忆模型 (where to write)
