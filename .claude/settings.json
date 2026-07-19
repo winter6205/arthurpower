@@ -1,5 +1,5 @@
 {
-  "autoMemoryEnabled": true,
+  "autoMemoryEnabled": false,
   "description": "Arthurpower project-local guard rails — context-write authority + fs anti-leak",
   "hooks": {
     "PreToolUse": [
