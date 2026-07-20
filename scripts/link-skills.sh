@@ -15,10 +15,11 @@ set -euo pipefail
 # Only `engineering` and `productivity` buckets are linked. Skills tagged with
 # any other bucket (misc / personal / in-progress / deprecated) are skipped.
 #
-# Windows symlink caveat: this script uses POSIX `ln -sfn`. Windows native
-# symlinks require developer mode or admin. On Windows without WSL/Git-Bash
-# providing a `ln` that supports symlinks, the link step will fail. Documented
-# as a known gap; workaround = run inside WSL or Git-Bash on Windows.
+# Windows symlink caveat: this script tries POSIX `ln -sfn` first (works on
+# Linux/Mac/WSL/Git-Bash with developer mode). If that fails on native Windows,
+# it falls back to an NTFS directory junction via `cmd.exe mklink /J`, which
+# requires neither developer mode nor admin rights. Junctions are directory-only,
+# which matches the skill directory structure exactly.
 #
 # Usage:
 #   bash scripts/link-skills.sh [--dry-run]

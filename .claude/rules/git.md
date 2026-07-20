@@ -239,7 +239,7 @@ git merge --abort    # 放弃本地合并, 回到干净状态
 # 然后 rebase / 重新拉 origin
 ```
 
-**the baseline 5-step merge-conflict loop** (gh-11 融合): merge 必须按 State → Primary source → Hunk → Automation → Complete 五步走完, **never `git merge --abort`**。
+**the 5-step merge-conflict loop** (gh-11 融合): merge 必须按 State → Primary source → Hunk → Automation → Complete 五步走完, **never `git merge --abort`**。
 
 1. **State** — 看当前 merge / rebase 状态 (`git status`, `git diff --name-only --diff-filter=U`).
 2. **Primary source** — 对每个冲突找 primary source (commit message / PR / original issue), 理解原始 intent.

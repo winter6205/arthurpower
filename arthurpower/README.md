@@ -67,7 +67,7 @@ Each skill below is grouped first by bucket, then by invocation class:
 
 ## Non-promoted buckets
 
-the baseline's system reserves four non-promoted buckets for skills that are not
+the upstream's system reserves four non-promoted buckets for skills that are not
 shipped through the plugin:
 
 - `misc` — kept around but rarely used

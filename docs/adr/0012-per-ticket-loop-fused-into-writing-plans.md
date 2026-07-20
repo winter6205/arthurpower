@@ -5,7 +5,7 @@ Status: accepted
 
 ## Context
 
-legacy-skills' `implement` orchestrator enforces a per-ticket loop: tdd → code-review → verification → commit per ticket. arthurpower has matching skills (`arthurpower:test-driven-development`, `arthurpower:code-review` backed by v-code-review CLI, `arthurpower:verification-before-completion`) and `writing-plans` owns tracer bullets (ADR-0007 §Decision 2). The question is whether to (a) create a new `arthurpower:implement` orchestrator skill, (b) leave the loop scattered across skills with no enforcement point, or (c) fuse the loop into `writing-plans` tracer bullet descriptions.
+the upstream skills repo' `implement` orchestrator enforces a per-ticket loop: tdd → code-review → verification → commit per ticket. arthurpower has matching skills (`arthurpower:test-driven-development`, `arthurpower:code-review` backed by v-code-review CLI, `arthurpower:verification-before-completion`) and `writing-plans` owns tracer bullets (ADR-0007 §Decision 2). The question is whether to (a) create a new `arthurpower:implement` orchestrator skill, (b) leave the loop scattered across skills with no enforcement point, or (c) fuse the loop into `writing-plans` tracer bullet descriptions.
 
 ## Decision
 

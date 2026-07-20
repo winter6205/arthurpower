@@ -39,10 +39,10 @@ _Avoid_: 看名字像不像, 看 .md 文件名猜.
 **三层验证体系**: skill 编写后的验证分三层, 各管各不重叠. (1) 静态结构 = `validate_skill.py` 验 SKILL.md 格式合规 (frontmatter / 段 / 长度 / no-meta-specific), 写完手动跑. (2) 动态响应 = `run_skill_eval.py` + `evals.json` 验 skill 触发后产出对不对 (rubric must_include / must_not 跟响应文本 match). (3) 文件内容 = `driver.py` 验 SKILL.md 真实文件含/不含规范关键词 (读真文件 keyword match). 三层互补不冲突.
 _Avoid_: validator 当运行时门禁, driver 当真实路由, dry-run 当真实 subagent.
 
-**移植 vs 蒸馏**: 移植 = 整套拉别人 skill (SKILL.md + GLOSSARY.md 等) 改 name + author 加自己署名, 主体一字不改. 蒸馏 = 按自己规范重写, 取长补短加自己独有的. 本 session skill-authoring 走移植 (the baseline author writing-great-skills 骨架 + Eval System 段), hook-development 走蒸馏 (官方 712 行压缩成 arthurpower 风格 + V 踩坑纪律).
+**移植 vs 蒸馏**: 移植 = 整套拉别人 skill (SKILL.md + GLOSSARY.md 等) 改 name + author 加自己署名, 主体一字不改. 蒸馏 = 按自己规范重写, 取长补短加自己独有的. 本 session skill-authoring 走移植 (upstream writing-great-skills 骨架 + Eval System 段), hook-development 走蒸馏 (官方 712 行压缩成 arthurpower 风格 + V 踩坑纪律).
 _Avoid_: 移植当蒸馏 (假装重写实际抄), 蒸馏当移植 (假装抄实际丢精华).
 
-**reference skill**: disable-model-invocation: true 的 skill, 主体是 flat reference (术语 / 概念 / 规则), 不是 procedural 指令. the baseline author writing-great-skills 是典型 reference skill. validator 对 reference skill 豁免 procedure 段必填 (When to use / Procedure / Acceptance Criteria / Verification) 和 Skill type / Bar level 声明.
+**reference skill**: disable-model-invocation: true 的 skill, 主体是 flat reference (术语 / 概念 / 规则), 不是 procedural 指令. upstream writing-great-skills 是典型 reference skill. validator 对 reference skill 豁免 procedure 段必填 (When to use / Procedure / Acceptance Criteria / Verification) 和 Skill type / Bar level 声明.
 _Avoid_: reference skill 强必填 procedure 段, reference skill 当 discipline skill 验.
 **plugin 三段注册机制**: Claude Code 2.1.206 启动按 `known_marketplaces.json` → `installed_plugins.json` → `settings.json enabledPlugins` 三段判定加载。框架校验读 `marketplaces/<marketplace>/plugins/<plugin>/.claude-plugin/plugin.json`，cache 是 installPath，二者都得合规。
 _Avoid_: 只改 settings.json enabledPlugins 就期望 plugin work; 只改 cache 副本忘了 marketplaces 副本.
@@ -162,7 +162,9 @@ _Avoid_: 只砍新加指令不审既有 always-on；把 system prompt ~50 条排
 
 ---
 
-### GitHub Collaboration (legacy-skills alignment, fusion 2026-07-20)
+### GitHub Collaboration (upstream alignment, fusion 2026-07-20)
+
+**upstream**: the external skills repo whose practices were fused into arthurpower (bucket tier, skill linking, router invariant, merge-conflict loop). Replaces prior "the baseline author" attribution per project decision 2026-07-20.
 
 **router invariant**: promoted skill 的 add / rename / remove / flow-placement 变化，必须在同一 commit 同步 router skill (`arthurpower:using-agent-skills`) 的 SKILL.md；违反 = "a router that lies"。
 _Avoid_: router 与 skill 分离维护；靠 reminder 提醒同步；新 skill 加完不更新 router。
@@ -183,14 +185,14 @@ _Avoid_: 用裸 branch name 不带 ticket 引用；throwaway 完成后不删 poi
 _Avoid_: tracker 选择散落各 skill；issue 在 file-based 与 GitHub 之间不声明；产生位置与追踪位置不一致。
 
 **wayfinder handoff**: wayfinder map clears 后的标准交接路径。默认 = `spec-driven-development`（wayfinder 产出 decision，spec 产出 executable spec，两者互补非重复）；可跳过 spec 当且仅当 grilling ticket Resolution 已含全 5 段（Problem / Solution / Implementation Decisions / Testing Decisions / Out of Scope）；交接前必走 `AskUserQuestion` stop gate（类比 `deep-dive-protocol`），handoff 目标是 operator 决定不是 agent 推断。Cross-ref `arthurpower/skills/wayfinder` §Handoff + `arthurpower/skills/spec-driven-development` §Input contract + `docs/wayfinder/tickets/gh-22-handoff-contract.md`。
-_Avoid_: 自动推断 handoff 目标；跳过 stop gate；grilling Resolution 不完整时强行跳 spec；把"map clear = 直接 implement"当默认路径（会丢 spec collapse 的细节，见 the baseline router-skill L46）。
+_Avoid_: 自动推断 handoff 目标；跳过 stop gate；grilling Resolution 不完整时强行跳 spec；把"map clear = 直接 implement"当默认路径（会丢 spec collapse 的细节，见 upstream router-skill L46）。
 
 ---
 
 ## Flagged ambiguities
 
-- **"通用型 / 任务型" 分类**: V 提的 the baseline author 工程师观点. 本 session 找到原文 = the baseline author `the baseline skills repo` 仓库 `skills/productivity/writing-great-skills/SKILL.md` + GLOSSARY.md. the baseline 用 **model-invoked vs user-invoked** (context load vs cognitive load trade-off) 分类, 不是"通用型/任务型". 决议: resolved, 用 the baseline 的 invocation 分类替代之前的"通用型/任务型"猜测.
-- **"官方 Skill 编写 vs 自研 skill-authoring"**: V 字面拍板 = 用 the baseline author writing-great-skills 整套移植替换 arthurpower 老 skill-authoring (改 name + author 加署名, 主体不改), 加 Eval System 段. 决议: resolved, 不再双轨, 直接用 the baseline 基线 + arthurpower Eval System.
+- **"通用型 / 任务型" 分类**: V 提的 the upstream author 工程师观点. 本 session 找到原文 = upstream skills repo 仓库 `skills/productivity/writing-great-skills/SKILL.md` + GLOSSARY.md. upstream 用 **model-invoked vs user-invoked** (context load vs cognitive load trade-off) 分类, 不是"通用型/任务型". 决议: resolved, 用 upstream 的 invocation 分类替代之前的"通用型/任务型"猜测.
+- **"官方 Skill 编写 vs 自研 skill-authoring"**: V 字面拍板 = 用 upstream writing-great-skills 整套移植替换 arthurpower 老 skill-authoring (改 name + author 加署名, 主体不改), 加 Eval System 段. 决议: resolved, 不再双轨, 直接用 upstream 基线 + arthurpower Eval System.
 - **auto-template vs arthurpower-afk**: 早期 handoff 把 "全自动模板仓库创建并编写" 任务命名为 auto-template; S2/S3 verdict 锁定实际交付 = 独立仓 `arthurpower-afk`. 决议: resolved, auto-template 是 arthurpower-afk 的历史别名, 不作 SSOT 名.
 
 ---
