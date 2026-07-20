@@ -17,7 +17,7 @@
 
 未经用户明确授权，不得：
 
-- commit、push、release、deploy、创建 tag、force push 或 rebase 公共分支；
+- push、release、deploy、创建 tag、force push 或 rebase 公共分支；
 - 修改任务范围外的安全、认证、权限、支付、数据迁移、CI/CD 或生产配置；
 - 删除、跳过或弱化测试以使验证通过；
 - 绕过 hooks、lint、测试或其他项目质量门禁；
@@ -50,6 +50,8 @@ major 版本。
 按其描述按需使用，不在本文件维护目录清单。
 
 ## Completion
+
+自动commit
 
 完成后简要报告：
 
