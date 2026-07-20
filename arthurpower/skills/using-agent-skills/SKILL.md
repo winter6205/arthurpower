@@ -58,6 +58,19 @@ See `references/flowchart.md` for the full decision flowchart. Branches: Definin
 
 See `references/behaviors.md` for the six operating behaviors (assumptions, confusion, push-back, simplicity, scope, verify).
 
+## 维护纪律
+
+Promoted skill add / rename / remove / flow-placement MUST update this router file (and `references/quick-reference.md`) in the same commit. The invariant is enforced by the physical hook `arthurpower/hooks/pre-release-validate.cjs` (PreToolUse on `Write|Edit|MultiEdit|Bash`) and recorded in `docs/agents/contributor-guide.md`. Drift between the filesystem (`arthurpower/skills/`) and the router surfaces as a non-blocking `[FAIL] router:missing-reference skills/<name>` advisory; fixing it is a precondition for shipping that ticket.
+
+Trigger cases (all four require a router update in the same commit):
+
+- **Add** — a new directory under `arthurpower/skills/<name>/SKILL.md` is added at promotion time. Add a row in `references/quick-reference.md` and reference the name in `SKILL.md` prose.
+- **Rename** — a skill directory is renamed. Update the row in `references/quick-reference.md` and replace prose mentions in `SKILL.md` (and the flowchart in `references/flowchart.md` if the skill was named there).
+- **Remove** — a skill directory is removed. Remove its row from `references/quick-reference.md` and strip prose mentions from `SKILL.md`. See also `commit-revert-protocol` for history hygiene.
+- **Flow-placement** — an existing skill moves to a different phase (Defining / Build / Verify / Review / SSOT / Setup / Restricted / User-invoked / Model-invoked). Update the phase column in `references/quick-reference.md` and the corresponding branch in `references/flowchart.md` if the skill is named in the tree.
+
+Cross-reference: `docs/agents/contributor-guide.md` for the full contributor contract (router rule + docs-page presence for promoted skills, the latter to be enforced by the docs-page-frame extension in T9).
+
 ## Failure Modes to Avoid
 
 1. Invoking symlink skill without explicit trigger
@@ -81,6 +94,52 @@ See `references/behaviors.md` for the six operating behaviors (assumptions, conf
 ## Quick Reference Table
 
 See `references/quick-reference.md` for the full table (auto-trigger vs restricted skills).
+
+### Registered skills (router mirror)
+
+The router invariant requires every promoted skill under `arthurpower/skills/`
+to be named here. Names listed in alphabetical order so the substring check
+in `pre-release-validate.cjs` is greppable by skill directory basename.
+Add / rename / remove entries here in the same commit that touches the
+skill directory. For full per-phase routing (auto-trigger vs restricted vs
+gates) see `references/quick-reference.md`.
+
+- architecture-change-reviewer
+- bounded-context-guardian
+- codebase-memory
+- codebase-onboarding
+- code-review
+- code-review-and-quality
+- commit-revert-protocol
+- complexity-anti-drift
+- deep-dive-protocol
+- defend-claim
+- defensive-contract-validator
+- dispatching-parallel-agents
+- documentation-and-adrs
+- domain-modeling
+- error-handling-enforcer
+- frontend-ui-engineering
+- gbrain-dispatch
+- intent-inference
+- interview-me
+- issue-triage-validator
+- minimal-change-verifier
+- performance-optimization
+- security-and-hardening
+- self-evolving-rules
+- serena
+- session-handoff
+- setup-arthurpower
+- skill-authoring
+- spec-driven-development
+- systematic-debugging
+- team-glossary-sync
+- test-driven-development
+- using-agent-skills
+- verification-before-completion
+- wayfinder
+- writing-plans
 
 ## Acceptance Criteria
 

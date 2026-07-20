@@ -13,9 +13,38 @@
 | Build | error-handling-enforcer | "改错误处理", "加 try-catch" |
 | Build | complexity-anti-drift | "重构", "减复杂度", "拆函数" |
 | Build | minimal-change-verifier | "提交前", "准备 commit", "1 commit" |
+| Build | test-driven-development | "write failing test first", "TDD" |
+| Build | frontend-ui-engineering | "build component", "UI", "design tokens" |
+| Build | performance-optimization | "slow LCP", "bundle size", "N+1 query" |
+| Build | security-and-hardening | "add endpoint", "auth flow", "secret handling" |
+| Build | codebase-onboarding | "onboarding", "newcomer guide", "learning path" |
 | Verify | systematic-debugging | "修 bug", "系统调试" |
 | Verify | verification-before-completion | Pre-merge acceptance |
+| Verify | defend-claim | "Q1 evidence", "raw exit code", "before commit" |
+| Verify | commit-revert-protocol | "rollback", "supersede ADR", "revert commit" |
 | Review | code-review-and-quality | "review", "PR", "5-axis" |
+
+## Defining (early-stage)
+
+| Phase | Skill | Trigger |
+|-------|-------|---------|
+| Defining | spec-driven-development | "new project", "no spec yet", "multi-file scope" |
+| Defining | intent-inference | "vague request", "under-specified", "infer intent" |
+| Defining | issue-triage-validator | "inbound issue", "external PR", "triage" |
+
+## Team SSOT
+
+| Phase | Skill | Trigger |
+|-------|-------|---------|
+| SSOT | domain-modeling | "glossary", "ADR", "CONTEXT.md" |
+| SSOT | team-glossary-sync | "team-level term", "docs/team-glossary.md" |
+
+## Setup / bootstrap
+
+| Phase | Skill | Trigger |
+|-------|-------|---------|
+| Setup | setup-arthurpower | "bootstrap project", "first-time setup" |
+| Setup | wayfinder | "multi-session plan", "decision tickets", "tracker map" |
 
 ## User-invoked gates
 
