@@ -286,6 +286,14 @@ git cherry-pick <SHA>         # 把丢失的 commit 接到新分支
 
 **SemVer 规范**: `<major>.<minor>.<patch>` (e.g. `v0.2.4`)
 
+**Changeset 纪律** (gh-14 融合, @changesets/cli v3):
+
+- 每个 PR 在 `.changeset/<branch-slug>.md` 写一个 changeset 文件；frontmatter 用 `"<package-name>": patch|minor|major`，body 一段简述动机与影响。
+- schema 遵循 `@changesets/cli` v3：参见 `https://unpkg.com/@changesets/config@3.1.4/schema.json`（或 `pnpm changeset init` 生成的本地 schema）。
+- 合并后跑 `pnpm changeset version` 把所有 pending entry 折叠进 CHANGELOG + bump package.json；发布时跑 `pnpm changeset publish`。
+- 本地 fallback：当 `@changesets/cli` 不可用，手动 bump version + 写 CHANGELOG entry（结构对齐上面 frontmatter 的 bump 级别）。
+- dual-manifest version 同步（`plugin.json` 与 `marketplace.json`）走 gh-20，**当前 deferred**：等 arthurpower 维护者决定发布到 Claude Code marketplace 时再启 PR6。
+
 **打 tag 步骤**:
 
 ```bash
