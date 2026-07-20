@@ -227,6 +227,18 @@ git merge --abort    # 放弃本地合并, 回到干净状态
 # 然后 rebase / 重新拉 origin
 ```
 
+**the baseline 5-step merge-conflict loop** (gh-11 融合): merge 必须按 State → Primary source → Hunk → Automation → Complete 五步走完, **never `git merge --abort`**。
+
+1. **State** — 看当前 merge / rebase 状态 (`git status`, `git diff --name-only --diff-filter=U`).
+2. **Primary source** — 对每个冲突找 primary source (commit message / PR / original issue), 理解原始 intent.
+3. **Hunk-by-hunk resolve** — 逐 hunk 解决, preserve both intents where possible; incompatible 时选符合 merge 目标的, note trade-off; **never invent new behaviour**; **always resolve, never `--abort`**.
+4. **Automation** — 跑项目自动化 (typecheck → tests → format), 修 merge 破坏的.
+5. **Complete** — stage all + commit; rebase 则继续到全部完成。
+
+> **Never `git merge --abort` / `git rebase --abort`** — 冲突必须被解决, 不是被放弃。`--abort` 跳过了 primary source 的核对, 把"放弃"伪装成"完成" (suppresses the Complete step), 是 merge-conflict 流程最大的 silent bug。
+
+**Merge 流程对照**: 每个 merge / rebase 冲突必经 State (state 现状) → Primary source (intent 来源) → Hunk (逐 hunk 合并) → Automation (CI 修正) → Complete (commit / continue rebase); 跳步 = silent FAIL.
+
 **回滚已推 commit**:
 
 ```bash
