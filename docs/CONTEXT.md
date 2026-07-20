@@ -162,6 +162,28 @@ _Avoid_: 只砍新加指令不审既有 always-on；把 system prompt ~50 条排
 
 ---
 
+### GitHub Collaboration (legacy-skills alignment, fusion 2026-07-20)
+
+**router invariant**: promoted skill 的 add / rename / remove / flow-placement 变化，必须在同一 commit 同步 router skill (`arthurpower:using-agent-skills`) 的 SKILL.md；违反 = "a router that lies"。
+_Avoid_: router 与 skill 分离维护；靠 reminder 提醒同步；新 skill 加完不更新 router。
+
+**throwaway from day 1**: 设计问题用一次性代码验证时（state model / UI 长啥样），保留答案（decision snippet），删除代码；工作在 `prototype/<name>` 分支，从 implementing ticket 附 context pointer。
+_Avoid_: prototype 代码合入 main；长期保留 prototype 分支；只删代码不留答案。
+
+**AGENT-BRIEF**: 把外部 issue/PR 转成 agent-ready 时，在 PR 评论附的 brief 模板（问题描述 + 复现步骤 + 期望行为）。让 agent pickup 时无需再问。
+_Avoid_: agent pickup 时再追问细节；brief 与 issue 描述重复；brief 写成大段散文。
+
+**ready-for-agent**: issue/PR state machine 5 角色之一（needs-triage / needs-info / ready-for-agent / ready-for-human / wontfix）；AGENT-BRIEF 附完 + 标签打好，等 `/implement` pickup。
+_Avoid_: 标签打上但 brief 缺失；brief 附完但没打标签；与"needs-triage"混用。
+
+**context pointer**: 从 implementing ticket / spec / wayfinder map 指向 throwaway artifact（handoff file / prototype branch / research markdown）的链接；保留跨 artifact 的追溯链。
+_Avoid_: 用裸 branch name 不带 ticket 引用；throwaway 完成后不删 pointer 导致悬空链接；pointer 写成 prose 散文。
+
+**issue lifecycle**: tracker 选择（GitHub issues 主路径 / 本地 markdown fallback）+ issue 产生位置（wayfinder map / spec / plans / triage）+ 追踪位置（ticket status / git log / state machine / PR thread）的统一规范。
+_Avoid_: tracker 选择散落各 skill；issue 在 file-based 与 GitHub 之间不声明；产生位置与追踪位置不一致。
+
+---
+
 ## Flagged ambiguities
 
 - **"通用型 / 任务型" 分类**: V 提的 the baseline author 工程师观点. 本 session 找到原文 = the baseline author `the baseline skills repo` 仓库 `skills/productivity/writing-great-skills/SKILL.md` + GLOSSARY.md. the baseline 用 **model-invoked vs user-invoked** (context load vs cognitive load trade-off) 分类, 不是"通用型/任务型". 决议: resolved, 用 the baseline 的 invocation 分类替代之前的"通用型/任务型"猜测.
