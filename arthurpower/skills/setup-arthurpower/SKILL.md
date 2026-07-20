@@ -61,8 +61,7 @@ related_skills: [domain-modeling, deep-dive-protocol, boundary-testing, self-evo
 
 ```bash
 declare -a REQUIRED=(
-  ".claude/rules/context-loop.md"
-  ".claude/rules/boundary-testing-protocol.md"
+  "docs/rules/context-loop.md"
   ".claude/hooks/pre-context-write-guard.cjs"
   ".claude/hooks/pre-stale-read.cjs"
   ".claude/hooks/pre-read-contract.cjs"
@@ -243,8 +242,8 @@ bash scripts/update.sh --from-git <owner>/<repo> --force
 - [ ] 6 个 hook 文件存在于 `.claude/hooks/` (pre-context-write-guard / pre-stale-read / pre-read-contract / post-ssot-priority / post-conflict-annotation / pre-fs-guard)
 - [ ] **hook 注册按需** (Step 5b 三分支)
 - [ ] `domain-modeling` 在 `.claude/skills/` (模板自带); `deep-dive-protocol` + `self-evolving-rules` 由 plugin 全局供给 (fresh 模式不必复制到 `.claude/skills/`, plugin 装上即有)
-- [ ] `.claude/rules/context-loop.md` 存在
-- [ ] `.claude/rules/boundary-testing-protocol.md` 存在 (跨多文件/多 hook 改动按 6 步流程)
+- [ ] `docs/rules/context-loop.md` 存在 (post reorg 2026-07-20)
+- [ ] 跨多文件/多 hook 改动走 `arthurpower:boundary-testing-axis1-agent` + `axis2-agent` 两轴 6 步流程 (无独立 rule 文件; 2026-07-20 起职责移交全局 agent)
 - [ ] `arthurpower:self-evolving-rules` skill 可用 (user-invoked, 规则沉淀 6 步流程)
 - [ ] `scripts/bootstrap.sh` + `scripts/update.sh` 存在 + 可执行
 - [ ] `.evals/run.sh --all` 10/10 PASS
@@ -270,7 +269,7 @@ PASS = fresh 模式跑过 `.evals/run.sh --all` 10/10 + 6 hook 全在; old-repo 
 - 读侧契约: `docs/agents/context-contract.md`
 - 写侧主权: `.claude/skills/domain-modeling/SKILL.md`
 - 物理护栏: `.claude/hooks/pre-context-write-guard.cjs` (5 个 context-闭环 hook 的根)
-- 规则层: `.claude/rules/context-loop.md`
-- 边界测试 SOP: `.claude/rules/boundary-testing-protocol.md`
+- 规则层 (always-on): `.claude/rules/{workflow,security-boundaries,git}.md`; 规则层 (on-demand): `docs/rules/{context-loop,task-templates,code-quality,memory}.md` — 见 `workflow.md` 当读
+- 边界测试 SOP: `arthurpower:boundary-testing-axis1-agent` + `axis2-agent` 两轴 (2026-07-20 移交, 无独立 rule 文件)
 - v3.0.0 changelog: 从 v2.0.0 升级, 新增 Step 0 mode detection + Step 0.5 gap-fill + Step 6 GitHub pull; 集成 pre-fs-guard (v2 漏) + post-ssot-priority / post-conflict-annotation 修复版; Verification Checklist 拆 fresh / old-repo 双分支
 - v3.0.0 -> user-invoked skill 形态: 从 slash command 改回 skill (`disable-model-invocation: true`), 与 plugin 其他 user-invoked skill (architecture-change-reviewer / code-review) frontmatter 形态一致, 保持显式触发纪律

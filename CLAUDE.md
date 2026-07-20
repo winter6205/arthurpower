@@ -1,86 +1,76 @@
 # Project Instructions
 
-本文件定义团队共享、跨任务稳定的智能体协作约束。个人偏好放入
-`CLAUDE.local.md`，且不得提交。
+个人偏好放 `CLAUDE.local.md`（不提交）。本文件 = 团队共享约束。
 
-## Project context
+## Coding Principles
 
-按任务需要读取 `README.md`、`docs/CONTEXT.md`、相关目录中的
-`CLAUDE.md`，以及直接相关的代码、测试和配置。不要预读整个仓库。
+Use as default bias, not strict checklist.
 
-代码与可执行配置是行为事实来源。它们与文档冲突时，报告冲突，不要
-静默选择或顺带修复。
+- Principle of Least Astonishment：代码行为可预测，少意外副作用。
+- Follow Existing Conventions：沿用项目既有风格、目录、命名、接口。
+- Keep It Simple：优先最短清楚实现，不提前抽象。
+- Explicit over Implicit：意图、类型、边界、错误路径显式。
+- Single Responsibility Principle：一个函数 / 类 / 模块一个明确职责。
+- Single Source of Truth：业务概念、规则、状态、配置单一权威来源。
+- Comments Explain Why：注释只解释原因、约束、边界，不解释显而易见的代码。
 
 ## Scope and authorization
 
-保持最小必要变更。不得混入任务外重构、格式化、调试代码或其他无关改动。
+保持最小必要变更。代码与可执行配置是行为事实来源；与文档冲突时报告冲突，不静默选择。
 
-未经用户明确授权，不得：
+未经用户明确授权，不得：push / release / deploy / tag / force push / rebase 公共分支；
+修改任务范围外的安全、认证、权限、支付、数据迁移、CI/CD 或生产配置；
+删除、跳过或弱化测试；绕过 hooks、lint、测试或其他质量门禁；暴露密钥或凭据。
 
-- push、release、deploy、创建 tag、force push 或 rebase 公共分支；
-- 修改任务范围外的安全、认证、权限、支付、数据迁移、CI/CD 或生产配置；
-- 删除、跳过或弱化测试以使验证通过；
-- 绕过 hooks、lint、测试或其他项目质量门禁；
-- 暴露密钥、凭据或生产数据。
-
-当需求、影响范围或高风险变更存在关键歧义时，先说明计划、预计修改范围
-和验证方式，等待确认。
-
-## Changes
-
-修改前确认现有行为、调用范围和相关测试。
-
-新增或升级依赖时，优先复用现有依赖；确认维护状态、许可证、安全风险和
-运行时影响。使用项目既有包管理器并同步锁文件。未经明确理由不得升级
-major 版本。
-
-公共行为、API、配置、命令、环境变量或迁移步骤变化时，同步更新对应文档。
+锁文件变更需显式指令。不得升级 major 版本除非有明确理由。
 
 ## Validation
 
-运行与变更风险相匹配的最小充分验证，包括适用的测试、lint、类型检查或
-构建。
+完成 = 跑过 = ground truth。不得声称未运行的检查已通过。
+验证失败时报告失败命令、原因和未完成项，不绕过质量门禁。
 
-不得声称未运行的检查已经通过。验证失败时报告失败命令、原因和未完成项，
-不得绕过质量门禁。
+## 10-hook 不可 regress
+
+`arthurpower/hooks/hooks.json` 注册的 10 个 hook 是项目身份。
+任何弱化、删除、绕过 hook 的变更必须附带 ADR，否则驳回。
 
 ## Bucket tier discipline
 
-Arthurpower 插件当前装载 30 个 skill，全部是 promoted bucket（`engineering`
-或 `productivity`）。未 promoted 的桶 (`misc` / `personal` / `in-progress` /
-`deprecated`) 在 the baseline 体系中保留给不发版到插件的 skill；Arthurpower 当前
-没有任何 skill 落在这些桶里。
+30 个 skill 全部 promoted（`engineering` / `productivity`）。Promotion 三条件：
+(1) frontmatter `bucket:` 为 engineering/productivity；(2) 行为稳定且文档化；
+(3) router `using-agent-skills` 有引用。`scripts/link-skills.sh` 只链 promoted skill。
 
-- **Promotion 规则**：一个 skill 在以下三条同时满足时被 promote — (1)
-  frontmatter 带 `bucket: engineering` 或 `bucket: productivity`；(2)
-  行为稳定且文档化（见 `arthurpower/skills/skill-authoring/SKILL.md` 的
-  Docs-page 要求，PR4）；(3) 在 router `using-agent-skills` 中有引用
-  （PR1 invariant，T2 hook 强制）。
-- **`scripts/link-skills.sh` 只链 promoted skill**：脚本读每个 SKILL.md
-  的 `bucket:` frontmatter，仅链接 `engineering` / `productivity`，跳过
-  其它任何桶。本地 harness（`~/.claude/skills` / `~/.agents/skills`）里
-  永远不会出现 non-promoted skill。
-- **总览入口**：`arthurpower/README.md` 按 bucket + invocation class
-  （User-invoked vs Model-invoked）分组列全部 30 个 skill。
+## Skill routing
 
-策略来源：ADR-0011 fusion approach 与 gh-10 bucket tier ticket。
+非平凡任务开始前，通过 Skill 工具 invoke 对应技能：
 
-## On-demand instructions
+| 场景 | 技能 |
+|------|------|
+| 理解架构 / 多跳依赖 | `codebase-memory` |
+| 精准编辑 / 调用链 | `serena` |
+| 改前先写测试 | `arthurpower:test-driven-development` |
+| 解 bug | `arthurpower:systematic-debugging` |
+| 大改动 (>20 files) | `dispatching-parallel-agents` |
+| 完成前验收 | `arthurpower:audit` |
+| 文档 / ADR | `arthurpower:domain-modeling` |
+| 跨多文件 / 多 hook 验 silent bug | boundary-testing 两轴 agent |
 
-仅在相关任务中读取 `.claude/rules/` 下的专项规则。Skills 和 subagents
-按其描述按需使用，不在本文件维护目录清单。
+L1（单文件）用原生工具；L2（跨模块）先 Codebase Memory 后 Serena。
+工具不可用时输出 `[NEED_STRUCTURAL_INFO]` 暂停。
 
-- 自动化 divergence（10-hook 护栏 vs the baseline prose 纪律）见 @docs/agents/automation-divergence.md
+## On-demand rules
+
+以下文件不自动加载，按任务形状 Read：
+
+- `docs/rules/git.md` — commit / push / PR / merge / tag 操作前
+- `docs/rules/security.md` — 高风险模块 / 凭据 / 安全审计
+- `docs/rules/workflow.md` — 4 步流程 / 技能检查 / 工具路由详情
+- `docs/rules/context-loop.md` — 涉及 CONTEXT.md / ADR 写入时
+- `docs/rules/code-quality.md` — 改业务代码 / 加测试 / 重构前
+- `docs/rules/task-templates.md` — 6 类任务模板
+- `docs/rules/memory.md` — 更新项目记忆前
 
 ## Completion
 
-自动commit
-
-完成后简要报告：
-
-- 改了什么；
-- 实际运行的验证及结果；
-- 未验证内容及原因；
-- 存在时报告风险、阻塞项以及 commit、push、release 等 Git/发布操作。
-
-不要输出空字段或重复显而易见的信息。
+自动 commit。完成后简要报告：改了什么；实际验证及结果；未验证内容及原因；
+风险、阻塞项及 Git/发布操作。不输出空字段。

@@ -148,18 +148,18 @@ else
   fail "missing hook files:$MISSING_HOOKS — template corrupt (re-copy)"
 fi
 
-# Step 8: verify 3 critical rule files exist (context-loop / boundary-testing / self-evolving)
-step 8 "verify 3 critical rule files exist"
-RULES_DIR=".claude/rules"
-REQUIRED_RULES="context-loop.md boundary-testing-protocol.md self-evolving.md"
+# Step 8: verify critical rule files exist (all on-demand under docs/rules/)
+step 8 "verify critical rule files exist"
+DOCS_RULES_DIR="docs/rules"
+REQUIRED_RULES="git.md workflow.md security.md context-loop.md"
 MISSING_RULES=""
 for rule in $REQUIRED_RULES; do
-  if [ ! -f "$RULES_DIR/$rule" ]; then
-    MISSING_RULES="$MISSING_RULES $rule"
+  if [ ! -f "$DOCS_RULES_DIR/$rule" ]; then
+    MISSING_RULES="$MISSING_RULES docs/rules/$rule"
   fi
 done
 if [ -z "$MISSING_RULES" ]; then
-  skip "3 critical rule files present"
+  skip "critical rule files present"
 else
   fail "missing rule files:$MISSING_RULES — template corrupt"
 fi

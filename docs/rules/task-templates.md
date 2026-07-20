@@ -160,9 +160,9 @@ Git 工作流:
 
 **触发**: 升级 context-闭环 hook / rule / skill 时 (如新增 advisory hook / 改 SSOT 优先级 / 加 ADR 冲突检测).
 
-**强制动作**: 走 `boundary-testing` skill 的 6 步流程, 不跳 driver-level smoke.
+**强制动作**: 走全局 boundary-testing 两轴 agent (`arthurpower:boundary-testing-axis1-agent` / `axis2-agent`) 的 6 步流程, 不跳 driver-level smoke.
 
-**任务步骤**: 走 `@.claude/rules/boundary-testing-protocol.md` 的 6 步流程 (成功标准 → 样例 → 子代理 smoke → 主 agent driver smoke → A/B gate → 变更记录). 不跳 driver-level smoke.
+**任务步骤**: 走全局 boundary-testing 两轴 agent 的 6 步流程 (成功标准 → 样例 → 子代理 smoke → 主 agent driver smoke → A/B gate → 变更记录). 不跳 driver-level smoke.
 
 **关键约束**:
 - hook 文件零依赖 Node CJS (只用 `node:fs` / `node:path` / `node:os`)
@@ -171,7 +171,7 @@ Git 工作流:
 - state 文件原子写入 (temp + `renameSync`, 处理 Windows EEXIST)
 - 不修改 settings.json secret 字段 (byte-level `rb + regex + wb`)
 
-**完成性声明规则** (boundary-testing-protocol §经验启示):
+**完成性声明规则** (boundary-testing 经验启示):
 - 完成与否由用户判断, 不由主 agent 自评
 - 禁止包装未完成为"成功"
 - 逐项列举未完成 / 未触达项 (含 deferred / infra-gap / 未做修复的 bug)
@@ -182,11 +182,11 @@ Git 工作流:
 
 | 现有规则 | 关系 |
 |---|---|
-| `.claude/rules/git.md` | §0 通用尾巴已纳入 (独立分支 / PR / 等待审核), 不重复 |
-| `.claude/rules/code-quality.md` | 模板 1/3/4 共用 §测试规范 + §最小变更原则 |
-| `.claude/rules/security-boundaries.md` | 模板 5 是其工程化版本, 不冲突 |
-| `.claude/rules/memory.md` | 模板任务结束后走 task-end ritual (Q1/Q2/Q3) |
-| `.claude/rules/workflow.md` | 任务开始前走 §规则 A 技能检查 |
+| `docs/rules/git.md` | §0 通用尾巴已纳入 (独立分支 / PR / 等待审核), 不重复 |
+| `docs/rules/code-quality.md` | 模板 1/3/4 共用 §测试规范 + §最小变更原则 |
+| `docs/rules/security.md` | 模板 5 是其工程化版本, 不冲突 |
+| `docs/rules/memory.md` | 模板任务结束后走 task-end ritual (Q1/Q2/Q3) |
+| `docs/rules/workflow.md` | 任务开始前走 §规则 A 技能检查 |
 
 ---
 

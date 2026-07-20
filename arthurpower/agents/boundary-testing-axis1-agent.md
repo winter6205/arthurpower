@@ -90,7 +90,7 @@ plus a one-line overall verdict: `OVERALL: PASS` only if all 6 PASS; otherwise `
 
 ## Reference
 
-- Protocol source: `~/.claude/rules/boundary-testing-protocol.md`
-- Case library + templates: `~/.claude/rules/boundary-testing-cases.md`
+- Protocol source (archived 2026-07-20; responsibility now lives in this agent pair): `~/.claude/archive/rules/boundary-testing-protocol.md`
+- Case library + templates (archived): `~/.claude/archive/rules/boundary-testing-cases.md`
 - Pair agent (skeptic): `boundary-testing-axis2-agent`
 - Terminology: protocol tokens (`machine-assertable`, `assert`, `ground truth`, `pass` / `fail`, `boundary`, `contract`) stay English; Chinese may gloss once.

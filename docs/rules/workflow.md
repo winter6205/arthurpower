@@ -1,5 +1,17 @@
 # 强制工作流规则
-> 通用 4 步流程见 `@~/.claude/rules/agent-workflow.md`.
+> 通用 4 步流程 (原全局 `~/.claude/rules/agent-workflow.md`, 已归档; 内联于此).
+
+## 非平凡任务 4 步流程
+
+1. **计划** — 澄清需求 + 列出方案 + 等待 V 字面指令
+2. **实现** — 按计划执行, surgical change, 不顺手优化
+3. **验证** — 跑测试 + 端到端实测, 给出"PASS = ..."结论
+4. **汇报** — 表格 + 行号 + 实测值, 不堆文字
+
+## 适用判定
+
+- 适用: 跨文件改动 / 新功能 / 架构变更 / Bug fix
+- 不适用: 1 行 typo fix / V 明确说"就是这 1 个文件" / 简单查询
 
 ---
 
@@ -25,7 +37,7 @@
 | 大改动 (>20 files) | `dispatching-parallel-agents` |
 | 完成前验收 / 多维 audit | `arthurpower:audit` |
 | 文档 / ADR | `arthurpower:domain-modeling` |
-| 跨多文件 / 多 hook / 多状态改动验 silent bug | `.claude/rules/boundary-testing-protocol.md` (6 步 SOP; no skill) |
+| 跨多文件 / 多 hook / 多状态改动验 silent bug | 全局 boundary-testing 两轴 agent (`arthurpower:boundary-testing-axis1-agent` proponent / `axis2-agent` skeptic); 6 步 SOP + driver-level smoke |
 
 ---
 
@@ -65,16 +77,18 @@
 
 ## When to Read 其他项目规则 (on-demand 提示)
 
-本文件已 always-on 加载；下列项目规则只在使用到对应任务形状时 Read：
+CLAUDE.md 是唯一 always-on 入口（2026-07-20 进一步压缩：`.claude/rules/` 已空）。
+所有详细规则在 `docs/rules/`，按任务形状显式 Read：
 
-- **`git.md`** — 任何 commit / push / PR / merge / tag 操作前；pre-commit / commit-msg hook 报错时
-- **`code-quality.md`** — 改业务代码 / 加测试 / 错误处理 / 重构前；Code Review 触发"高风险区域"判断时
-- **`memory.md`** — 写 L1（CLAUDE.md / rules）或 L2（auto memory）前；更新项目记忆前
-- **`task-templates.md`** — 接 test-coverage / pr-review / error-handling-fix / refactor-dedup / security-audit / context-loop-upgrade 六类任务时
-- **`boundary-testing-protocol.md`** — 跨多文件 / 多 hook / 多状态改动前；T6 driver-level smoke 写时
-- **`context-loop.md`** — 涉及 docs/CONTEXT.md 或 docs/adr/*.md 时；domain-modeling 写入时
+- **`docs/rules/code-quality.md`** — 改业务代码 / 加测试 / 错误处理 / 重构前
+- **`docs/rules/memory.md`** — 写 L1（CLAUDE.md / rules）或 L2（auto memory）前
+- **`docs/rules/task-templates.md`** — 接 test-coverage / pr-review / error-handling-fix / refactor-dedup / security-audit / context-loop-upgrade 六类任务时
+- **`docs/rules/context-loop.md`** — 涉及 docs/CONTEXT.md 或 docs/adr/*.md 时；domain-modeling 写入时
+- **`docs/rules/git.md`** — commit / push / PR / merge / tag 操作前
+- **`docs/rules/security.md`** — 高风险模块修改前；安全审计时
+- **全局 boundary-testing 两轴 agent** (`arthurpower:boundary-testing-axis1-agent` / `axis2-agent`) — 跨多文件 / 多 hook / 多状态改动前；T6 driver-level smoke 写时
 
-> 跨引设计：这些是 markdown 链接而非 `@import`——点开才注入内容，节省 always-on 指令条数（ADR-0008）。
+> 加载机制: `.claude/rules/` 已空（2026-07-20 reorg）；`docs/rules/` 下文件不自动加载，须按上表触发条件显式 Read。
 
 - Serena 工具文档: 触发 Skill `serena`
 - Codebase Memory 工具文档: 触发 Skill `codebase-memory`

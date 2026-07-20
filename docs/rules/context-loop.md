@@ -17,6 +17,8 @@
 
 **违反写入主权 = 物理 hook 拒收** (走 `pre-context-write-guard.cjs`).
 
+> Hook runtime 注册位置: CJS 物理护栏 (pre-context-write-guard / pre-stale-read / pre-read-contract / post-ssot-priority / post-conflict-annotation) 运行时由全局 settings 装载, 项目仓库内 CJS 文件为离线副本, 行为描述见下表。
+
 ---
 
 ## 2. ADR 三条件闸门
@@ -113,7 +115,7 @@
 
 ### 7.3 Defensive contract enforcement
 
-任何跨多文件 / 多 hook / 多状态修改, 必走 `.claude/rules/boundary-testing-protocol.md` 的 6 步流程:
+任何跨多文件 / 多 hook / 多状态修改, 必走全局 boundary-testing 两轴 agent (`arthurpower:boundary-testing-axis1-agent` / `axis2-agent`) 的 6 步流程:
 成功标准 → 30 样例 → 子代理 smoke → 主 agent driver smoke (真实 FS) → A/B gate → 变更记录。
 
 ### 7.4 Override annotation 语法
@@ -124,24 +126,10 @@
 
 ---
 
-## 8. Defect-to-rule mapping (12 项缺陷修复落点)
+## 8. 增量 hook 修复 (4 个新 hook)
 
-| # | 缺陷 | 修复位置 |
-|---|------|---------|
-| D1 | 缺统一声明入口 | `setup-arthurpower` (一次性 setup) |
-| D2 | 写入权限分散 | `domain-modeling` 唯一主权 + `pre-context-write-guard.cjs` 物理护栏 |
-| D3 | 无 ADR 子回路 | `domain-modeling` ADR 段 + `docs/adr/` + ADR-FORMAT.md |
-| D4 | 读侧消费无契约 | `docs/agents/context-contract.md` |
-| D5 | 缺少驱动者 | `deep-dive-protocol` (插件内) |
-| D6 | 深化路径缺位 | 插件 `architecture-change-reviewer` 评审 |
-| D7 | 无冲突标注护栏 | `post-conflict-annotation.cjs` + context-contract §4 |
-| D8 | 缺失 handoff 桥 | `docs/handoff/<date>.md` + smart zone 阈值 (§7.2) |
-| D9 | 无 schema 自动校验 | `pre-context-write-guard.cjs` |
-| D10 | ADR 编号竞态 | `domain-modeling` ADR 段 Step 2 扫最大号 + 1 |
-| D11 | ADR 冲突标注无下游闭合 | `verification-before-completion` context-loop 段 + context-contract §4 |
-| D12 | 引用点计数不一致 | 19 处引用点已在 `setup-arthurpower` 校验清单中 |
+12 项缺陷的完整修复落点见 §4 (唯一定义)。本节只记项目增量修复新增的 4 个 hook:
 
-**4 个新 hook 增量修复**:
 - D_stale_read (mtime 容差 + 排除路径): `pre-stale-read.cjs`
 - F_read_contract (session read_paths): `pre-read-contract.cjs`
 - C_ssot_priority (team/project/override): `post-ssot-priority.cjs`

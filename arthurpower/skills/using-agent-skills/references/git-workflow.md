@@ -1,7 +1,7 @@
 # Git Workflow — Generic Reference
 
-> 通用 Git 工作流参考。从 `arthurpower` 项目 `.claude/rules/git.md` 提取的通用部分。
-> 项目特定的 hooks 集成表 / 项目路径引用未搬入此文件；项目内部用 `git.md`。
+> 通用 Git 工作流参考。从 `arthurpower` 项目 `docs/rules/git.md` 提取的通用部分。
+> 项目特定的 hooks 集成表 / 项目路径引用未搬入此文件；项目内部用 `docs/rules/git.md`。
 
 ## 分支规范
 
