@@ -89,3 +89,29 @@ Use these to diagnose issues the user may be having with the skill.
 - `scripts/run_skill_eval.py` runs the eval and writes `iteration/<n>/grading.json`.
 - Pass rate must reach >= 90% across queries; the last two iterations must not regress.
 - The eval drives the description optimisation loop: change one trigger phrase, re-run, measure.
+
+## Docs-page (promoted-skill requirement)
+
+Promoted skills in the `engineering` and `productivity` buckets require a human-facing docs page at `docs/<bucket>/<skill-name>.md`. Skills in non-promoted buckets (`misc`, `personal`, `in-progress`, and `deprecated`) get no docs page. Per [ADR-0011](../../../docs/adr/0011-fusion-approach-for-github-collab-adaptation.md), docs-page presence is part of promotion; the gh-09 router invariant will enforce that presence alongside router synchronization.
+
+Every promoted-skill docs page uses this fixed frame, in order:
+
+### **Quickstart**
+
+Give the reader the minimal runnable example for invoking or installing the skill. Keep it short enough to copy and run without first reading the rest of the page.
+
+### **Absolute SKILL.md link**
+
+Link to the skill's source of truth at the repo-absolute path `arthurpower/skills/<name>/SKILL.md`. the baseline's published pages require absolute `the project site` and GitHub URLs; Arthurpower does not publish docs pages, so this adaptation uses a repo-absolute path instead of a web URL.
+
+### **What it does**
+
+Write one or two plain-language paragraphs. Lead with the skill's one-sentence job, then state the **defining constraint**: the single fact that makes the skill behave differently from the obvious default. State that constraint as plain prose, not as a labelled aside.
+
+### **When to reach for it**
+
+State the invocation mode: whether the skill is user-invoked or model-invoked. Then give its trigger boundary as the index entry a reader should remember; where it is confusable with a sibling, name and link that sibling and distinguish when to use it.
+
+### **Where it fits**
+
+Name the skill's role as a chain step, run-once setup, periodic maintenance, or standalone tool. Name and link the one or two relevant neighbours, each with a because-clause, then link to the [`using-agent-skills`](../using-agent-skills/SKILL.md) router so the page remains a node in the system map rather than redrawing the whole graph.
