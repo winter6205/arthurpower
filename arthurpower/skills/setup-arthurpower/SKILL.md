@@ -272,4 +272,4 @@ PASS = fresh 模式跑过 `.evals/run.sh --all` 10/10 + 6 hook 全在; old-repo 
 - 规则层: `.claude/rules/context-loop.md`
 - 边界测试 SOP: `.claude/rules/boundary-testing-protocol.md`
 - v3.0.0 changelog: 从 v2.0.0 升级, 新增 Step 0 mode detection + Step 0.5 gap-fill + Step 6 GitHub pull; 集成 pre-fs-guard (v2 漏) + post-ssot-priority / post-conflict-annotation 修复版; Verification Checklist 拆 fresh / old-repo 双分支
-- v3.0.0 -> user-invoked skill 形态: 从 slash command 改回 skill (`disable-model-invocation: true`), 与 plugin 其他 user-invoked skill (architecture-change-reviewer / code-review / deep-dive-protocol) frontmatter 形态一致, 保持显式触发纪律
+- v3.0.0 -> user-invoked skill 形态: 从 slash command 改回 skill (`disable-model-invocation: true`), 与 plugin 其他 user-invoked skill (architecture-change-reviewer / code-review) frontmatter 形态一致, 保持显式触发纪律

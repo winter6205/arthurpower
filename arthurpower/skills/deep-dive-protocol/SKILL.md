@@ -1,10 +1,9 @@
 ---
 name: deep-dive-protocol
 description: "Use when a long interview, 长访谈, 盘问, 质询, or 深度盘问 is needed to resolve project terms and hard-to-reverse decisions through domain-modeling — then STOP at an explicit operator stop gate before any downstream skill runs."
-version: 3.0.0
+version: 3.1.0
 tags: [Interview, Questioning, Alignment, Context, Driver, Requirement, StopGate, 盘问, 质询, 厘清, 澄清, 问清]
 related_skills: [domain-modeling, intent-inference]
-disable-model-invocation: true
 ---
 
 # Deep Dive Protocol
