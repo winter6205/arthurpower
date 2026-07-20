@@ -26,6 +26,10 @@ Errors are typed contracts with explicit exit conditions, not log lines and fall
 - Pure type definitions (no runtime behavior)
 - `unwrap()` / `panic` in clearly non-recoverable code paths
 
+## Dispatch
+
+本环节由 `arthurpower:error-handling-enforcer-agent` 承接。识别到修改错误处理、新增 try/catch、失败时返回 null/-1/"" 、出现 magic 错误码/字符串码、或无退出条件的 fallback 分支等验证时机时，用 Agent 工具以 `subagent_type: "arthurpower:error-handling-enforcer-agent"` 派发，而非在主线程自跑。派发时传：diff 范围 + 本 skill 判据 + 证据格式（file:line + PASS/FAIL）。软触发：应当派，非必须派；偶发主线程自跑属可接受降级，不视为违规。
+
 ## Procedure
 
 1. Locate every `try/catch` in the diff. For each — confirm catch either re-throws typed error, converts to `Result<T,E>`, or documents explicit recovery.

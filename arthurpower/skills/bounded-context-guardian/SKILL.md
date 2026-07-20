@@ -22,6 +22,10 @@ Preface (supplements When to use): Modules are sliced by business capability tha
 - Pure documentation or comment changes
 - Cosmetic rename inside a single file
 
+## Dispatch
+
+本环节由 `arthurpower:bounded-context-guardian-agent` 承接。识别到模块切分 / 目录重构 / 跨模块实现细节泄漏 / 循环 import / 新增 bounded context 未更新 context-map 等验证时机时，用 Agent 工具以 `subagent_type: "arthurpower:bounded-context-guardian-agent"` 派发，而非在主线程自跑。派发时传：diff 范围 + 本 skill 判据 + 证据格式（file:line + PASS/FAIL）。软触发：应当派，非必须派；偶发主线程自跑属可接受降级，不视为违规。
+
 ## Procedure
 1. List the modules / folders affected. Draw a 1-line dependency map on paper.
 2. If any new folder is `controllers/`, `services/`, `repositories/`, `models/`, `utils/`, `helpers/` — STOP, split by business capability instead.

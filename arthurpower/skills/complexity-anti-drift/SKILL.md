@@ -26,6 +26,10 @@ Complexity drifts by accretion: one branch, one nested `if`, one more parameter.
 - Generated code (codegen, vendored)
 - Declarative config / type-only files
 
+## Dispatch
+
+本环节由 `arthurpower:complexity-anti-drift-agent` 承接。识别到函数超 30 行 / 超 10 分支、参数超 3、嵌套达 4+、文件超 300 行、或克隆率超 3% 等验证时机时，用 Agent 工具以 `subagent_type: "arthurpower:complexity-anti-drift-agent"` 派发，而非在主线程自跑。派发时传：diff 范围 + 本 skill 判据 + 证据格式（file:line + PASS/FAIL）。软触发：应当派，非必须派；偶发主线程自跑属可接受降级，不视为违规。
+
 ## Procedure
 1. Run the complexity linter on the diff. Capture the output.
 2. For each offender — extract a helper, NOT a comment. The function stays at one abstraction level.

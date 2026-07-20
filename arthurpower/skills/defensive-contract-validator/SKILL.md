@@ -21,6 +21,10 @@ Public functions and external dependencies are **contracts**. Every contract mus
 - Pure declarative config (yaml/json without code path)
 - No-behavior-change formatting
 
+## Dispatch
+
+本环节由 `arthurpower:defensive-contract-validator-agent` 承接。识别到新增 public API / CLI 命令、修 bug、引入外部依赖、或 PR 缺边界覆盖类（empty/negative/overflow/concurrent/exception 五类）等验证时机时，用 Agent 工具以 `subagent_type: "arthurpower:defensive-contract-validator-agent"` 派发，而非在主线程自跑。派发时传：diff 范围 + 本 skill 判据 + 证据格式（file:line + PASS/FAIL）。软触发：应当派，非必须派；偶发主线程自跑属可接受降级，不视为违规。
+
 ## Procedure
 1. List the 5 boundary classes the new code must cover: empty, negative, long, concurrent, exception.
 2. For each class, write a failing test that exercises it (RED).

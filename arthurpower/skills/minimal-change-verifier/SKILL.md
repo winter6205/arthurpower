@@ -21,6 +21,10 @@ A commit is **one logical task**: one feature, one fix, one refactor. Mixing the
 - Pure comment / doc fix with no code change
 - Pure formatting handled by a configured formatter
 
+## Dispatch
+
+本环节由 `arthurpower:minimal-change-verifier-agent` 承接。识别到准备 / 拆分 commit、新增依赖、commit 触及任务范围外文件、或 refactor 混入 feature 等验证时机时，用 Agent 工具以 `subagent_type: "arthurpower:minimal-change-verifier-agent"` 派发，而非在主线程自跑。派发时传：diff 范围 + 本 skill 判据 + 证据格式（file:line + PASS/FAIL）。软触发：应当派，非必须派；偶发主线程自跑属可接受降级，不视为违规。
+
 ## Procedure
 1. Run `git status` + `git diff --stat`. Confirm scope matches the task description.
 2. Read every hunk: is every change required by the task? Reject drive-by refactors.

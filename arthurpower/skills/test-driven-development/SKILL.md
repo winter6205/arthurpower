@@ -109,6 +109,10 @@ Full code examples: [`references/testing-patterns.md`](references/testing-patter
 | No test isolation | Pass alone, fail together | Each test sets up + tears down its own state |
 | Mocking everything | Tests pass but production breaks | Prefer real implementations; mock only at boundaries |
 
+## Dispatch
+
+本环节由 `arthurpower:test-driven-development-agent` 承接。识别到实现新逻辑 / 修 bug / 改行为前的 S4 Spec-as-Test 验证时机（测试先于实现、测试覆盖 spec 验收点、mock 不替代真实代码、重构保持既有测试通过）时，用 Agent 工具以 `subagent_type: "arthurpower:test-driven-development-agent"` 派发，而非在主线程自跑。派发时传：diff 范围 + 本 skill 判据 + 证据格式（file:line + PASS/FAIL）。软触发：应当派，非必须派；偶发主线程自跑属可接受降级，不视为违规。
+
 ## Procedure
 
 1. **Identify the behavior to add or fix.** Write it as a single sentence: "After X input, the system does Y."
