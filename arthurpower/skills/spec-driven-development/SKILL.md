@@ -17,6 +17,17 @@ Before drafting any spec, this skill MUST:
 
 This skill is a **read-side consumer** of the context closed-loop read contract.
 
+## Input contract
+
+Spec-driven-development accepts the wayfinder map as a valid input source alongside the usual one-line ask.
+
+- **Source of prior decisions.** When wayfinder is the input, read the map's `## Decisions so far` section as the authoritative list of prior decisions. Each line is a closeable ticket with gist + link — zoom the link for the full Resolution.
+- **Decision identifiers.** Spec's "Architectural Constraints" may reference decisions by their wayfinder ticket number or map decision ID instead of formal ADR numbers. Decisions promoted via `domain-modeling` carry ADR numbers; those still at the map level do not — both forms are valid until promotion.
+- **Skip-spec decision lives in wayfinder.** The 5-section skip condition (Problem / Solution / Implementation Decisions / Testing Decisions / Out of Scope — all present in the grilling ticket's Resolution) is decided by wayfinder's `AskUserQuestion` stop gate, not here. This skill is always ready to run; whether it runs is wayfinder's call.
+- **Decisions-so-far ↔ CONTEXT.md.** The map's index is a working index, not a glossary. Stable terms graduate into `docs/CONTEXT.md` via `domain-modeling`.
+
+Cross-ref `arthurpower/skills/wayfinder` §Handoff.
+
 ## Overview
 
 A spec is the contract between human reviewer and implementation. It captures what to build, why, and how to know it is done. Code without a spec is guessing at requirements. A spec without surfaced assumptions is guessing at context. This skill owns the SPECIFY phase of the four-phase gated workflow (SPECIFY → PLAN → TASKS → IMPLEMENT). PLAN / TASKS / IMPLEMENT live in `writing-plans`. The boundary gate between SPECIFY and PLAN is `architecture-change-reviewer` (5-verdict frame).

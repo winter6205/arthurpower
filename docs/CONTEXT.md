@@ -182,6 +182,9 @@ _Avoid_: 用裸 branch name 不带 ticket 引用；throwaway 完成后不删 poi
 **issue lifecycle**: tracker 选择（GitHub issues 主路径 / 本地 markdown fallback）+ issue 产生位置（wayfinder map / spec / plans / triage）+ 追踪位置（ticket status / git log / state machine / PR thread）的统一规范。
 _Avoid_: tracker 选择散落各 skill；issue 在 file-based 与 GitHub 之间不声明；产生位置与追踪位置不一致。
 
+**wayfinder handoff**: wayfinder map clears 后的标准交接路径。默认 = `spec-driven-development`（wayfinder 产出 decision，spec 产出 executable spec，两者互补非重复）；可跳过 spec 当且仅当 grilling ticket Resolution 已含全 5 段（Problem / Solution / Implementation Decisions / Testing Decisions / Out of Scope）；交接前必走 `AskUserQuestion` stop gate（类比 `deep-dive-protocol`），handoff 目标是 operator 决定不是 agent 推断。Cross-ref `arthurpower/skills/wayfinder` §Handoff + `arthurpower/skills/spec-driven-development` §Input contract + `docs/wayfinder/tickets/gh-22-handoff-contract.md`。
+_Avoid_: 自动推断 handoff 目标；跳过 stop gate；grilling Resolution 不完整时强行跳 spec；把"map clear = 直接 implement"当默认路径（会丢 spec collapse 的细节，见 the baseline router-skill L46）。
+
 ---
 
 ## Flagged ambiguities

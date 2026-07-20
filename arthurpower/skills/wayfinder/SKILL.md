@@ -127,3 +127,17 @@ User invokes with a map (URL or number). A ticket is **optional** — without on
 5. Add newly-surfaced tickets (create-then-wire); graduate fog the answer has made specifiable, clearing each graduated patch from **Not yet specified**. If the answer reveals a ticket sits beyond the destination, **rule it out of scope** rather than resolving it. If the decision invalidates other parts of the map, update or delete those tickets.
 
 The user may run ready tickets in parallel, so expect other sessions to be editing the tracker concurrently.
+
+## Handoff
+
+When the map clears (frontier empty, all tickets resolved), wayfinder stops: it hands off, it doesn't build. A map whose route is now visible owes the next skill a clean seam, not more decisions.
+
+**Stop gate.** Before any handoff action, invoke `AskUserQuestion` to confirm the handoff target with the operator. The handoff target is a human decision, not an inference — same shape as `deep-dive-protocol`'s stop gate. Present the 3-way choice:
+
+1. **spec-driven-development** (default) — when the Decisions-so-far set scope / strategy / sequencing that need collapsing into a buildable spec.
+2. **writing-plans** (skip spec) — only when the active grilling ticket's Resolution already contains all 5 sections (Problem / Solution / Implementation Decisions / Testing Decisions / Out of Scope); otherwise return to option 1.
+3. **Other** — operator-named target.
+
+If the operator answers (1) or (2), route to that skill. If (3), record the chosen target in the map's Notes and route accordingly. Never auto-route from "map cleared" alone.
+
+This mirrors the baseline `router-skill/SKILL.md` line 46: *"When the map clears, it hands off, it doesn't build: merge onto the main flow at /to-spec"* — the skip path there is the exception, not the rule. See `docs/wayfinder/tickets/gh-22-handoff-contract.md` for the 3 ratified decisions and `arthurpower/skills/spec-driven-development` §Input contract for the receiving side.
