@@ -49,6 +49,8 @@ major 版本。
 仅在相关任务中读取 `.claude/rules/` 下的专项规则。Skills 和 subagents
 按其描述按需使用，不在本文件维护目录清单。
 
+- 自动化 divergence（10-hook 护栏 vs the baseline prose 纪律）见 @docs/agents/automation-divergence.md
+
 ## Completion
 
 完成后简要报告：
