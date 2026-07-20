@@ -194,6 +194,20 @@ function normalizeSkillId(s) {
   return parts[parts.length - 1];
 }
 
+// 2026-07-20 Fix (gh-21 active-skill stale-read): the lifecycle router state
+// file is the only signal the hook has for which skill invoked the current
+// tool call (the harness does not pass active-skill in PreToolUse payload).
+// When the Skill tool injects a skill body, it does NOT refresh this file -
+// the field stays at whatever was last written (often the previous session's
+// skill). A naive read produces stale data and false-positive BLOCKs on every
+// legit domain-modeling write. The TRUE root cause is harness-side (Skill tool
+// should refresh state); the hook can only read files. Safe hook-side
+// mitigation: when the state's timestamp is clearly stale (older than
+// MAX_STATE_AGE_MS), treat the state as untrusted and fail-open (return null).
+// Fresh states still get full enforcement, so write sovereignty is not
+// weakened - only false-blocks from stale data are removed.
+const MAX_STATE_AGE_MS = 60 * 60 * 1000; // 60 minutes; covers typical session span.
+
 function readActiveSkill() {
   // Read the lifecycle router's state file. Fail-open on any error.
   // Expected shape (per session-start evaluator contract):
@@ -206,6 +220,13 @@ function readActiveSkill() {
     const raw = fs.readFileSync(statePath, 'utf8');
     const state = JSON.parse(raw);
     if (!(state && typeof state.skill === 'string')) return null;
+    // Stale-read guard: if the state has a numeric timestamp older than
+    // MAX_STATE_AGE_MS, treat as untrusted. None / non-numeric timestamp ->
+    // assume fresh (preserve authority for legacy states that omit the field).
+    if (typeof state.timestamp === 'number' && state.timestamp > 0) {
+      const ageMs = Date.now() - state.timestamp;
+      if (ageMs > MAX_STATE_AGE_MS) return null;
+    }
     return normalizeSkillId(state.skill);
   } catch (_) {
     return null;
@@ -254,9 +275,18 @@ function validateAdr(content, expectedNumber) {
   if (!hasTitle) fail('ADR 标题行缺少 NNNN. 前缀');
   if (!hasDate) fail('ADR 缺少 Date: YYYY-MM-DD 行');
   if (!hasStatus) fail('ADR Status 不在 proposed/accepted/deprecated/superseded by NNNN 枚举内');
-  if (!hasContext) fail('ADR 缺少 ## Context 章节');
-  if (!hasDecision) fail('ADR 缺少 ## Decision 章节');
-  if (!hasConsequences) fail('ADR 缺少 ## Consequences 章节');
+  // 2026-07-20 Fix (gh-21): align with ADR-FORMAT.md "single-paragraph is
+  // the default". If NONE of the optional section headings are present, the
+  // ADR is valid as a single-paragraph record (skip the 3-heading check).
+  // If ONE OR MORE is present, ALL 3 must be present (no partial multi-section).
+  // This preserves regression on genuinely incomplete ADRs (any one heading
+  // missing in a multi-section ADR still blocks).
+  const multiSectionPresent = hasContext || hasDecision || hasConsequences;
+  if (multiSectionPresent) {
+    if (!hasContext) fail('ADR 缺少 ## Context 章节');
+    if (!hasDecision) fail('ADR 缺少 ## Decision 章节');
+    if (!hasConsequences) fail('ADR 缺少 ## Consequences 章节');
+  }
 }
 
 function checkAdrUniqueness(filePath, expectedNumber) {
