@@ -63,6 +63,18 @@ git push --no-verify
 
 如果 pre-commit 或测试失败，必须报告失败原因，提出修复方案，不得绕过。
 
+## 3.5 prototype branch 纪律（throwaway carve-out, gh-13 融合）
+
+`prototype/<name>` 是 throwaway 分支，out of main；它们豁免 §推送流程中"非默认 / 非受保护 feature 分支才能 push"的限制（例外 / carve-out），原因是它们承担 primary source 角色：
+
+- 探索结论作为 **primary source** 沉淀在 `prototype/<name>` 上（commit message + branch history 是决策依据）。
+- 验证通过后，只把"validated decision"折回 main，原始探索保留在 `prototype/<name>` 侧分支，事后可查。
+- 命名约定：`prototype/<name>`，`<name>` 用 kebab-case 短语（如 `prototype/auth-rotation-shape`）。
+- 推 `prototype/<name>` 不需要走"非默认 feature 分支"那条门禁；其它纪律（Conventional Commits / pre-commit / 提交频率）照常生效。
+- 这条 carve-out 仅限 `prototype/` 前缀的分支；普通 `feat/` / `fix/` / `docs/` / `refactor/` / `test/` / `chore/` 仍受默认分支规则约束。
+
+来源：legacy-skills `prototype` skill rule 6 — "the prototype is a primary source"。
+
 ## 提交信息规范 — Conventional Commits
 
 格式：`<type>(<scope>): <subject>`
