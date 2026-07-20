@@ -70,6 +70,43 @@ Why this exists (ADR-0012 §Why no implement skill): an orchestrator skill adds 
 
 The `Per-ticket loop` line is mandatory — review of `plans/<feature>.md` is a loop-completeness check per ticket, not a generic style review.
 
+## Tracker = GitHub (main path)
+
+The default tracker for plans produced by this skill is **GitHub issues** — not local markdown. Local markdown (`plans/<feature>.md` + `docs/wayfinder/tickets/`) is a **fallback only**, used when the `gh` CLI is unavailable (no GitHub remote configured, or `gh` not installed). When the fallback is used, the plan header must state the fallback explicitly (e.g. `**Tracker**: local markdown — gh CLI unavailable`).
+
+### Main path (GitHub issues)
+
+Apply the main path as follows (gh-08 ratified decision; gh-16 fusion location):
+
+1. **Wayfinder map + decision tickets** → one GitHub issue per ticket, all carrying the label `wayfinder:map`. Create with `gh issue create --label 'wayfinder:map' --title "<ticket-title>" --body-file <ticket.md>`. The `wayfinder:map` label is the routing key for the wayfinder-map context.
+2. **Spec output** (from `spec-driven-development` or a grilling ticket whose Resolution already carries the 5 spec sections per gh-22) → one **spec issue**. Create with `gh issue create --label 'spec' --title "spec: <feature>"`; body is the rendered spec markdown.
+3. **Plan output** (this skill's `plans/<feature>.md`) → one **ticket issue per tracer bullet**, with **native blocking edges** between them. Use the GitHub sub-issue API (`gh issue create --body "... blocked by #N ..."`) or the blocking-issues API (`gh issue edit N --add-blocking M`) so that `#M` appears as a blocker on `#N` natively. The `[blocks: T1, T2]` annotation in `plans/<feature>.md` is the source of truth; the `gh issue edit --add-blocking` call renders those edges onto the tracker.
+
+### Fallback (local markdown)
+
+Use the fallback ONLY when one of the following holds:
+
+- No GitHub remote on the local clone (`git remote get-url origin` fails).
+- `gh` CLI not installed (`gh --version` exits non-zero) or not authenticated (`gh auth status` reports not logged in).
+
+In fallback mode:
+
+- Plan lives in `plans/<feature>.md` as today.
+- Decision / spec / ticket files live in `docs/wayfinder/tickets/` and `docs/specs/`.
+- The plan header must record the fallback rationale so a reader knows why no tracker edges exist.
+
+### Handoff boundary interaction (gh-22)
+
+The tracker choice interacts with the wayfinder → spec handoff boundary (gh-22). When the main path is active:
+
+- Map tickets live on GitHub with the `wayfinder:map` label.
+- After the map clears, the handoff target is `spec-driven-development` (default) — its output is a spec issue (step 2 above) — or `writing-plans` directly when the grilling ticket's Resolution already contains the 5 spec sections per gh-22's exception clause.
+- Plan tickets then follow step 3 with native blocking edges.
+
+When the fallback is active, the handoff boundary still applies (map closes → spec or plans), but the artifacts are local markdown files instead of GitHub issues. The contract is the same; the storage changes.
+
+This section documents the fusion of gh-08's tracker decision into the writing-plans skill. The original gh-16 ticket scoped a new `tracker-publisher` skill; per gh-07 (Fusion strategy) that surface is intentionally not created — the publisher responsibilities are fused into writing-plans here, with `gh issue create` / `gh issue edit --add-blocking` as the direct CLI surface.
+
 ## Acceptance Criteria
 
 A plan is complete when every tracer bullet carries one binary acceptance criterion, one tag, and one commit, ordered by dependency. See `references/acceptance-criteria.md` for the binary checklist.
