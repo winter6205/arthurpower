@@ -130,11 +130,11 @@ else
 fi
 
 # Step 7: verify 5 context-闭环 hook files exist (assets, not registration)
-# These are the hook FILES (.cjs) that ship with the template. Registration is
+# These are the hook FILES (.cjs) that ship with the plugin. Registration is
 # handled by setup-arthurpower skill (NOT auto-registered to avoid double-run
 # with user-level ~/.claude/settings.json).
 step 7 "verify 5 context-闭环 hook files exist"
-HOOKS_DIR=".claude/hooks"
+HOOKS_DIR="arthurpower/hooks"
 REQUIRED_HOOKS="pre-context-write-guard.cjs pre-stale-read.cjs pre-read-contract.cjs post-ssot-priority.cjs post-conflict-annotation.cjs"
 MISSING_HOOKS=""
 for hook in $REQUIRED_HOOKS; do

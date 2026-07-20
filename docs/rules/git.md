@@ -317,21 +317,30 @@ git push origin :v0.2.4    # 远端删 (注意: 是 :refs/tags/v0.2.4 简写)
 
 ## Hooks 集成
 
-项目用 3 层 hook 配合 git workflow. 区分**项目本地注册**与**全局注册**:
+项目 hook 物理强制关键 invariant，不靠 prose 重复。两层来源:
 
-- **项目本地注册** (`.claude/settings.json`): 仅 `.claude/hooks/pre-tool-guard.sh` (PreToolUse Bash)。
-- **全局注册** (用户级 settings): `.claude/hooks/pre-fs-guard.cjs` / `.claude/hooks/pre-context-write-guard.cjs` / `.claude/hooks/pre-stale-read.cjs` / `.claude/hooks/pre-read-contract.cjs` / `.claude/hooks/post-ssot-priority.cjs` / `.claude/hooks/post-conflict-annotation.cjs`。
-- 仓库内保留的 CJS 文件为**离线副本**, 文档描述行为不变; 运行时由全局 settings 装载。
+- **项目本地注册** (`.claude/settings.json` PreToolUse Bash): `.claude/hooks/pre-tool-guard.sh` — 反篡改（hooks / pre-commit / lint-staged）+ 允许 `rm -rf /tmp`。
+- **插件注册** (`arthurpower/hooks/hooks.json`): 10 个 hook + session-start — 写入主权、stale-read、read-contract、release-validate、SSOT 优先级、ADR 冲突标注、defend-claim 五项。运行时由 plugin 装载。
 
-| 层 | 触发时机 | 作用 | 注册位置 |
-|---|---|---|---|
-| `.claude/hooks/pre-fs-guard.cjs` | PreToolUse Bash | 阻断危险 FS pattern（裸 `find /` / `grep -r /` / 孤立 `&`）| 全局 |
-| `.claude/hooks/pre-tool-guard.sh` | PreToolUse Bash | 反篡改（hooks / pre-commit / lint-staged）+ 允许 `rm -rf /tmp` | 项目本地 |
-| `.claude/hooks/pre-context-write-guard.cjs` | PreToolUse Write/Edit/MultiEdit/Bash | 写入 `CONTEXT.md` / `CONTEXT-MAP.md` / `docs/adr/*.md` 仅允许 `domain-modeling` | 全局 |
-| `.claude/hooks/pre-stale-read.cjs` | PreToolUse Write/Edit/MultiEdit/Bash | `src/` 写前若 `CONTEXT.md` 自上次读后被改 → advisory | 全局 |
-| `.claude/hooks/pre-read-contract.cjs` | PreToolUse Write/Edit/MultiEdit/NotebookEdit/Bash | `src/` 写前若 session 未读 `CONTEXT.md` → advisory | 全局 |
-| `.claude/hooks/post-ssot-priority.cjs` | PostToolUse Write/Edit/MultiEdit/Bash | 三层 SSOT 优先级 + 合法 override marker | 全局 |
-| `.claude/hooks/post-conflict-annotation.cjs` | PostToolUse Write/Edit/MultiEdit/Bash | ADR 冲突标注护栏（须显式 `> Contradicts ADR-NNNN`）| 全局 |
+`.claude/hooks/` 只保留 `.claude/hooks/pre-tool-guard.sh`。其余离线副本已删——以 plugin `arthurpower/hooks/` 为唯一权威（见 `docs/agents/automation-divergence.md`）。
+
+| Hook file | Event / Matcher | 注册位置 |
+|---|---|---|
+| `arthurpower/hooks/pre-context-write-guard.cjs` | PreToolUse Write/Edit/MultiEdit/Bash | 插件 |
+| `arthurpower/hooks/pre-stale-read.cjs` | PreToolUse Write/Edit/MultiEdit/Bash | 插件 |
+| `arthurpower/hooks/pre-read-contract.cjs` | PreToolUse Write/Edit/MultiEdit/NotebookEdit/Bash | 插件 |
+| `arthurpower/hooks/pre-release-validate.cjs` | PreToolUse Write/Edit/MultiEdit/Bash | 插件 |
+| `arthurpower/hooks/post-ssot-priority.cjs` | PostToolUse Write/Edit/MultiEdit/Bash | 插件 |
+| `arthurpower/hooks/post-conflict-annotation.cjs` | PostToolUse Write/Edit/MultiEdit/Bash | 插件 |
+| `arthurpower/hooks/defend-claim-execution.cjs` | PostToolUse Bash | 插件 |
+| `arthurpower/hooks/defend-claim-cite-integrity.cjs` | PostToolUse Edit / Write | 插件 |
+| `arthurpower/hooks/defend-claim-dumb-zone.cjs` | PostToolUse Edit / Write | 插件 |
+| `arthurpower/hooks/defend-claim-silent-fail.cjs` | PostToolUse Edit / Write | 插件 |
+| `arthurpower/hooks/defend-claim-report-triple.cjs` | PostToolUse Write | 插件 |
+| `arthurpower/hooks/session-start.sh` | SessionStart | 插件 |
+| `.claude/hooks/pre-tool-guard.sh` | PreToolUse Bash | 项目本地 |
+
+**禁止 regress**: 删除 / 弱化任何 hook 必须附 ADR。
 
 **CI 端 S4 红测试门禁当前未启用**（无 .githooks / 无 GitHub Actions workflow 文件）——缺位时不要把它当存在的 gate；本 plan 不新建该 CI。
 

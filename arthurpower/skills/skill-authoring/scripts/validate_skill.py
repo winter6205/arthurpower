@@ -57,10 +57,17 @@ STANDALONE_RE = re.compile(rf"(?<!\w){re.escape(PREFIX_BYTES)}(?!\w)")
 L1_PATH_RE = re.compile(r"~/\.claude/(CLAUDE|rules|settings|memory|projects|plugins)/")
 DATE_RE = re.compile(rf"{re.escape(PREFIX_BYTES)}\s*[0-9]+[/-][0-9]+")
 
-# Authority labels: verbatim, locked, blocked (contains "locked" substring),
-# and other self-certifying markers.
-# "blocked" is included because it contains the substring "locked".
-AUTHORITY_RE = re.compile(r"verbatim|locked|严守|红线|必走|硬性|一字不改")
+# L5 / AMBIGUITY_RE: five Chinese ambiguous compounds banned as literal
+# substrings (no private-prefix requirement). Aligns validator with
+# no-meta-specific.md grep #6 + docs/CONTEXT.md + docs/adr/0006.
+# Marker string must match plans/l5-validator-driver.py AMBIGUITY_MARKER.
+AMBIGUITY_RE = re.compile(r"撞名|真因|切流|等价品|拍板")
+AMBIGUITY_MARKER = "chinese ambiguity banned compound"
+
+# Authority labels: self-certifying markers claiming a rule's own text is
+# immutable/authoritative. "locked"/"verbatim" are allowed — "locked" collides
+# with legitimate ticket terminology ("blocked"/"unblocked").
+AUTHORITY_RE = re.compile(r"严守|红线|必走|硬性|一字不改")
 
 
 def split_frontmatter(text: str) -> tuple[str, str]:
@@ -336,6 +343,13 @@ def main() -> int:
     if AUTHORITY_RE.search(text):
         ln = next((i for i, line in enumerate(text.splitlines(), 1) if AUTHORITY_RE.search(line)), 0)
         violations.append(f"authority label at line {ln}")
+
+    # Check: L5 / AMBIGUITY_RE — Chinese ambiguity banned compounds.
+    # SSR-aligned with no-meta-specific.md grep #6 + docs/adr/0006.
+    ambig_match = AMBIGUITY_RE.search(text)
+    if ambig_match:
+        ln = next((i for i, line in enumerate(text.splitlines(), 1) if AMBIGUITY_RE.search(line)), 0)
+        violations.append(f"{AMBIGUITY_MARKER} at line {ln} (matched: {ambig_match.group(0)!r})")
 
     # Fence balance.
     open_count, close_count = count_fence_balance(text)
