@@ -1,6 +1,7 @@
 ---
 name: domain-modeling
 description: "Use when another skill needs to write project terminology, or the user requests glossary alignment, an ADR, or decision persistence. Handles ambiguous or overloaded terms and hard-to-reverse decisions."
+bucket: engineering
 version: 2.0.0
 tags: [Context, Glossary, ADR, Domain, SSOT, WritePrimitive]
 author: Arthurpower

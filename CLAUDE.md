@@ -44,6 +44,27 @@ major 版本。
 不得声称未运行的检查已经通过。验证失败时报告失败命令、原因和未完成项，
 不得绕过质量门禁。
 
+## Bucket tier discipline
+
+Arthurpower 插件当前装载 30 个 skill，全部是 promoted bucket（`engineering`
+或 `productivity`）。未 promoted 的桶 (`misc` / `personal` / `in-progress` /
+`deprecated`) 在 the baseline 体系中保留给不发版到插件的 skill；Arthurpower 当前
+没有任何 skill 落在这些桶里。
+
+- **Promotion 规则**：一个 skill 在以下三条同时满足时被 promote — (1)
+  frontmatter 带 `bucket: engineering` 或 `bucket: productivity`；(2)
+  行为稳定且文档化（见 `arthurpower/skills/skill-authoring/SKILL.md` 的
+  Docs-page 要求，PR4）；(3) 在 router `using-agent-skills` 中有引用
+  （PR1 invariant，T2 hook 强制）。
+- **`scripts/link-skills.sh` 只链 promoted skill**：脚本读每个 SKILL.md
+  的 `bucket:` frontmatter，仅链接 `engineering` / `productivity`，跳过
+  其它任何桶。本地 harness（`~/.claude/skills` / `~/.agents/skills`）里
+  永远不会出现 non-promoted skill。
+- **总览入口**：`arthurpower/README.md` 按 bucket + invocation class
+  （User-invoked vs Model-invoked）分组列全部 30 个 skill。
+
+策略来源：ADR-0011 fusion approach 与 gh-10 bucket tier ticket。
+
 ## On-demand instructions
 
 仅在相关任务中读取 `.claude/rules/` 下的专项规则。Skills 和 subagents

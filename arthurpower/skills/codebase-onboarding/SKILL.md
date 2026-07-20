@@ -5,6 +5,7 @@ tags: [onboarding, codebase-study, learning-path, newcomer-guide, source-citatio
 related_skills: [domain-modeling, deep-dive-protocol, bounded-context-guardian]
 type: discipline
 description: Use when a newcomer asks to learn a codebase through guided lessons, asks for onboarding, a learning path, a newcomer guide, or systematic study of how a project works.
+bucket: engineering
 disable-model-invocation: true
 ---
 

@@ -1,6 +1,7 @@
 ---
 name: frontend-ui-engineering
 description: Use when building a component, page, or user-facing interface; modifying layout, state container, or visual design; adding keyboard, focus, or screen-reader interaction; reviewing a UI diff before merge; replacing hardcoded CSS with design tokens; or when output looks generic and template-driven. Stops the AI-aesthetic frontend failure mode.
+bucket: engineering
 ---
 
 # Frontend UI Engineering

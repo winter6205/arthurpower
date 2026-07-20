@@ -1,6 +1,7 @@
 ---
 name: dispatching-parallel-agents
 description: Use when 2+ independent tasks can run without shared mutable state, when context isolation is needed between tasks, when parallel subagent dispatch is requested, when batch review of multiple files is required, or when the user requests fan-out across independent investigations.
+bucket: engineering
 ---
 
 # Dispatching Parallel Agents

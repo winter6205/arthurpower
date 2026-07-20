@@ -1,6 +1,7 @@
 ---
 name: setup-arthurpower
 description: "Use when bootstrapping an Arthurpower project for the first time, migrating an existing repo onto Arthurpower (preserving prior content), gap-filling against a partial setup, or switching a multi-context project to CONTEXT-MAP.md mode. User-invoked: operator triggers explicitly; model does NOT auto-fire. Registers 5 context-闭环 hooks + pre-fs-guard WITH dedup detection."
+bucket: engineering
 disable-model-invocation: true
 version: 3.0.0
 tags: [Setup, Bootstrap, ContextMap, Contract, OneShot, Hooks, Dedupe, Migration, GithubPull]

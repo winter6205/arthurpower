@@ -1,6 +1,7 @@
 ---
 name: error-handling-enforcer
 description: Use when modifying error handling in a diff, adding try/catch blocks, returning null/-1/empty string on failure, introducing magic error codes or string codes, adding fallback branches without exit criteria, mixing error path with main logic, throwing generic Error without a typed class, or seeing empty catch swallowing failure silently in code review.
+bucket: engineering
 ---
 
 # Error Handling Enforcer

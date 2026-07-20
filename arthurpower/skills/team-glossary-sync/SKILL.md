@@ -1,6 +1,7 @@
 ---
 name: team-glossary-sync
 description: Use when the same term carries different meanings across projects or team members and a team-level SSOT must be established. Drives the lifecycle of docs/team-glossary.md from propose, conflict detect, merge, to deprecate; writes via domain-modeling so the team-level SSOT stays under the same write authority as project-level CONTEXT.md.
+bucket: productivity
 version: 1.0.0
 tags: [glossary, team, multi-project, ssot, conflict-resolution, 统一术语, 术语冲突, 团队词汇, 对齐词义, 权威定义]
 related_skills: [domain-modeling, deep-dive-protocol, setup-arthurpower, bounded-context-guardian]

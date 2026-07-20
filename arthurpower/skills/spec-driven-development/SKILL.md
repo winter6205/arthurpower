@@ -1,6 +1,7 @@
 ---
 name: spec-driven-development
 description: Use when starting a new project or feature with no spec yet, requirements are only a one-line ask, scope spans multiple files or days, an architectural decision lacks approved assumptions, or cross-functional blast radius is in play. Not for single-line fixes or bounded bug fixes.
+bucket: engineering
 disable-model-invocation: true
 ---
 

@@ -1,6 +1,7 @@
 ---
 name: wayfinder
 description: Use when a chunk of work is more than one agent session can hold — plan it as a shared map of decision tickets on your issue tracker, and resolve them one at a time until the way to the destination is clear.
+bucket: engineering
 version: 1.0.0
 tags: [Planning, Map, Tickets, FogOfWar, Orchestration, DecisionTracking]
 related_skills: [deep-dive-protocol, domain-modeling]

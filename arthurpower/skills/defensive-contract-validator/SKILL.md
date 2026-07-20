@@ -1,6 +1,7 @@
 ---
 name: defensive-contract-validator
 description: Use when adding a public API or CLI command, fixing a bug, introducing an external dependency, or a PR misses a coverage class. Triggers on "add boundary tests", "test the edge cases", "what if input is empty", "fix the regression", "concurrent case failed", "explain the 5 boundary classes". Not for prototypes, generated code, or formatting.
+bucket: engineering
 ---
 
 # Defensive Contract Validator

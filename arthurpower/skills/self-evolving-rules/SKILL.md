@@ -1,6 +1,7 @@
 ---
 name: self-evolving-rules
 description: "Use when the operator manually runs memory or rule evolution — \"add a memory\", \"merge memories\", \"archive\", \"rewrite the rule\", \"move across layers\", \"clean stale memory\", \"sync L1 + rules\", or trims always-on instruction load / CLAUDE.md length / rules dump — and needs the 6-step strip-and-route process plus optional Step 7 extraction."
+bucket: engineering
 disable-model-invocation: true
 version: 2.1.0
 tags: [memory, rules, self-evolving, strip, routing, L1, L2, archive, merge, always-on, instruction-budget, progressive-disclosure]

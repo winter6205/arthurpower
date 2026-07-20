@@ -1,6 +1,7 @@
 ---
 name: intent-inference
 description: Use when a request is vague, under-specified, or mixes multiple goals and the true intent must be inferred before any skill runs. Produces a one-paragraph inferred intent plus an explicit confirmation question, then hands off to deep-dive-protocol for term resolution.
+bucket: engineering
 version: 1.0.0
 tags: [intent, clarification, pre-route, disambiguation, requirement, 想清楚, 想明白, 先理清, 模糊, 欠规格, 说不清]
 related_skills: [deep-dive-protocol, using-agent-skills, domain-modeling, spec-driven-development]

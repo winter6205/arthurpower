@@ -1,6 +1,7 @@
 ---
 name: writing-plans
 description: Use when planning implementation after architecture-change-reviewer has issued a verdict. Covers ordered multi-file tasks, binary acceptance criteria, dependency sequencing, and commit-sized work. Triggers on 写计划, 拆任务, 任务分解, 制定方案, 跨文件改动, 计划.
+bucket: engineering
 disable-model-invocation: true
 ---
 

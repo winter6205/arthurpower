@@ -1,6 +1,7 @@
 ---
 name: minimal-change-verifier
 description: Use when preparing a commit, splitting a commit, adding a dependency, a commit message starts with refactor, a commit touches files outside task scope, a new dependency appears without justification, pre-commit tests are skipped, or a commit mixes refactor with feature/fix.
+bucket: engineering
 ---
 
 # Minimal Change Verifier

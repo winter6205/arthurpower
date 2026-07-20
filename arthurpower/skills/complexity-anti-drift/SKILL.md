@@ -2,6 +2,7 @@
 name: complexity-anti-drift
 type: discipline
 description: Use when a function exceeds 30 lines or 10 branches, a function takes more than 3 parameters, nesting depth hits 4+, a file exceeds 300 lines, code clone percentage is above 3%, or CI reports a complexity gate failure. Triggers on requests to refactor, split a function, reduce complexity, extract a helper, or fix ESLint complexity violations.
+bucket: engineering
 ---
 
 # Complexity Anti-Drift

@@ -1,6 +1,7 @@
 ---
 name: performance-optimization
 description: Use when optimizing page speed, API latency, or Core Web Vitals. Triggers: slow LCP/INP/CLS, bundle-size growth, render-blocking scripts, images without width/height, N+1 queries, unbounded list endpoints, Lighthouse drops, or CI budget failures. Profile-driven fixes; ship only with before/after numbers.
+bucket: engineering
 ---
 
 # Performance Optimization

@@ -1,6 +1,7 @@
 ---
 name: bounded-context-guardian
 description: Use when slicing modules, restructuring folders across multiple files, detecting implementation-detail leaks between sibling modules, encountering circular import errors, noticing shotgun surgery in code review, or adding a new bounded context without updating docs/context-map.md. Enforces business-capability slicing and forbids technical-layer directories.
+bucket: engineering
 ---
 
 # Bounded Context Guardian

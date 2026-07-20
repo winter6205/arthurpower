@@ -1,6 +1,7 @@
 ---
 name: using-agent-skills
 description: Use when starting a new session, switching tasks, or unsure which arthurpower skill applies. Routes incoming work to the matching skill via flowchart before invoking. Activates on phrases like "which skill should I use", "skill check", "pre-task skill check", "how to start", "router", "skill routing", or when multiple competing skills could apply. Does NOT auto-trigger symlink skills.
+bucket: engineering
 type: discipline
 ---
 

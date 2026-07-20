@@ -1,6 +1,7 @@
 ---
 name: defend-claim
 description: Use when about to report 完成/done/fixed/passing/成功, before git commit/push, when asserting "X works"/"Y is configured"/"no regression", or when a claim substitutes prose for proof. Echoes "defend-claim" and demands Q1 evidence (raw exit code, pytest stdout, sha256, HTTP status) before accepting. Do NOT load for: explaining code, designing schemas, reading source, TODOs, or comprehension questions.
+bucket: engineering
 version: 0.5.0
 author: arthurpower
 tags: [verification, claim-integrity, anti-self-cert, hook-gate, evidence-graph]

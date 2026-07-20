@@ -1,6 +1,7 @@
 ---
 name: issue-triage-validator
 description: Use when Arthurpower receives an external request stream, external PR, or inbound support item and must decide category, state, owner, and next action.
+bucket: engineering
 version: 1.0.0
 tags: [triage, external-pr, state-machine, categorize, verify-claim]
 related_skills: [systematic-debugging, domain-modeling, verification-before-completion, defensive-contract-validator, deep-dive-protocol]

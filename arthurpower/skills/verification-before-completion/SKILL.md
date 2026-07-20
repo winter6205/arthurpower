@@ -1,6 +1,7 @@
 ---
 name: verification-before-completion
 description: Use when about to claim 完成 / done / fixed / passing / ready to ship / 跑过 / 真值, before git commit or push, when a subagent reports success, or before marking a TaskList task complete. Enforces evidence before assertions — actual output captured in full, not remembered or paraphrased.
+bucket: engineering
 ---
 
 # Verification Before Completion

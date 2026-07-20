@@ -1,6 +1,7 @@
 ---
 name: code-review
 description: This skill should be used when users ask to "审代码", "审 PR", or "review" Git changes after implementation and before commit. Runs v-code-review, checks Standards and Spec, and returns severity-based remediation.
+bucket: engineering
 type: technique
 ---
 

@@ -1,6 +1,7 @@
 ---
 name: session-handoff
 description: Use when a session is ending, a new agent must continue the same task, or the operator mentions session continuity, cross-session relay, token pressure, or next-agent pickup. Compresses the live thread into a project-local handoff document in docs/handoff/ and references already-committed artifacts instead of duplicating them.
+bucket: productivity
 version: 1.0.0
 tags: [handoff, cross-session, continuity, relay, next-agent, 接班人, 交接, 下一棒, 接力, 续做]
 related_skills: [using-agent-skills, domain-modeling, verification-before-completion]

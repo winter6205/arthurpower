@@ -1,6 +1,7 @@
 ---
 name: security-and-hardening
 description: Use when adding an endpoint, handler, RPC, web form, auth flow, file upload, third-party API integration, or secret-handling code path, or when input validation, authentication, authorization, rate limiting, secret management, CORS, or security headers are missing or assumed.
+bucket: engineering
 ---
 
 # Security and Hardening

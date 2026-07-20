@@ -1,6 +1,7 @@
 ---
 name: commit-revert-protocol
 description: Use when a commit must be rolled back, a bad change was pushed, a feature toggle must disable a commit, or an ADR is superseded. Drives the revert decision (revert vs reset vs ADR supersede), executes the reversible action, and records the supersession chain so history stays auditable.
+bucket: engineering
 version: 1.0.0
 tags: [revert, rollback, supersede, history, audit, git, 撤回, 撤了, 撤销, 推翻, 还原]
 related_skills: [domain-modeling, verification-before-completion, using-agent-skills, systematic-debugging]

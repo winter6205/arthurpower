@@ -1,6 +1,7 @@
 ---
 name: systematic-debugging
 description: Use when debugging a test failure, build break, unexpected runtime error, flaky test, or hanging process. Triggers on phrases like "fix this bug", "getting an error", "failing test", "flaky", "hanging", "halfway through debugging", "this used to work", "intermittent failure", "stack trace shows X", or any case where behavior does not match expectations. Prevents shotgun debugging.
+bucket: engineering
 ---
 
 # Systematic Debugging
