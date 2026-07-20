@@ -57,6 +57,32 @@ Q6 accept this ADR; Q7 tracer order = honest gates first, then always-on cut.
    must either fit inside those two files as one-line pointers or be enforced by
    hooks, not by re-@importing a 300-line `git.md`.
 
+   §3.1 Amendment (2026-07-20, accepted as refinement of §3): In implementation,
+   `git.md` is retained in `.claude/rules/` as always-on. Rationale: four eval
+   gates (`007-git-hook-paths-exist`, `023-merge-conflict-doc`,
+   `024-prototype-carveout-doc`, `025-changeset-doc`) hard-lock the path
+   `.claude/rules/git.md`, and git discipline applies universally across
+   commit / push sessions. The other four project rules (`context-loop.md`,
+   `task-templates.md`, `code-quality.md`, `memory.md`) are moved out of
+   `.claude/rules/` to `docs/rules/` per the §3 on-demand principle;
+   `workflow.md` and `security-boundaries.md` remain always-on as originally
+   permitted. This amendment is an evidence-based exception grounded in
+   machine-assertable eval locks, not a re-import for convenience; the budget
+   discipline of §3 stands.
+
+   §3.2 Amendment (2026-07-20, accepted as second refinement of §3): All three
+   remaining files (git.md, workflow.md, security-boundaries.md) moved from
+   .claude/rules/ to docs/rules/. Rationale: (a) CLAUDE.md already carries
+   the 7 Coding Principles + compressed project deltas (~90 lines), making
+   prose-duplication of detailed rules pure noise; (b) hooks physically enforce
+   the critical invariants (write authority, SSOT priority, conflict annotation,
+   silent-fail) -- prose duplication of hook-enforced rules is redundant;
+   (c) the four eval gates (007, 023, 024, 025) were updated to point
+   to docs/rules/git.md in the same commit, so the prior machine-assertable
+   lock that justified §3.1 is gone; (d) net always-on budget: 618 -> ~90 lines
+   (CLAUDE.md only), an 85% reduction. .claude/rules/ is now empty;
+   bootstrap.sh step 8 was updated to check docs/rules/ instead.
+
 4. **Global layer stays cross-project.** Global `~/.claude/CLAUDE.md` and
    `~/.claude/rules/*` must not name arthurpower-only skills as if they were
    universal. Arthurpower execution entrypoints live under the plugin / project

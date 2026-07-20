@@ -93,7 +93,7 @@ plus a one-line overall verdict:
 
 ## Reference
 
-- Protocol source: `~/.claude/rules/boundary-testing-protocol.md`
-- Case library + templates + Case 1/2/3 narratives: `~/.claude/rules/boundary-testing-cases.md`
+- Protocol source (archived 2026-07-20; responsibility now lives in this agent pair): `~/.claude/archive/rules/boundary-testing-protocol.md`
+- Case library + templates + Case 1/2/3 narratives (archived): `~/.claude/archive/rules/boundary-testing-cases.md`
 - Pair agent (proponent): `boundary-testing-axis1-agent`
 - Provenance: real-API-driven smoke catches boundaries subagents cannot anticipate (NTFS mtime precision, Windows path separators, tmpdir state-key drift).

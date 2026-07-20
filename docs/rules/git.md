@@ -234,9 +234,6 @@ git diff --name-only --diff-filter=U   # 列出 unmerged
 git add <resolved-files>
 git commit           # 提交解决 (不要 --no-verify)
 
-# 3. 如果冲突太多, 考虑:
-git merge --abort    # 放弃本地合并, 回到干净状态
-# 然后 rebase / 重新拉 origin
 ```
 
 **the 5-step merge-conflict loop** (gh-11 融合): merge 必须按 State → Primary source → Hunk → Automation → Complete 五步走完, **never `git merge --abort`**。
@@ -320,19 +317,21 @@ git push origin :v0.2.4    # 远端删 (注意: 是 :refs/tags/v0.2.4 简写)
 
 ## Hooks 集成
 
-项目用 3 层 hook 配合 git workflow. **每一行下面的路径必须是真实存在并注册的**——文档不写虚的。
+项目用 3 层 hook 配合 git workflow. 区分**项目本地注册**与**全局注册**:
 
-| 层 | 触发时机 | 作用 |
-|---|---|---|
-| `.claude/hooks/pre-fs-guard.cjs` | PreToolUse Bash | 阻断危险 FS pattern（裸 `find /` / `grep -r /` / 孤立 `&`）|
-| `.claude/hooks/pre-tool-guard.sh` | PreToolUse Bash | 反篡改（hooks / pre-commit / lint-staged）+ 允许 `rm -rf /tmp` |
-| `.claude/hooks/pre-context-write-guard.cjs` | PreToolUse Write/Edit/MultiEdit/Bash | 写入 `CONTEXT.md` / `CONTEXT-MAP.md` / `docs/adr/*.md` 仅允许 `domain-modeling` |
-| `.claude/hooks/pre-stale-read.cjs` | PreToolUse Write/Edit/MultiEdit/Bash | `src/` 写前若 `CONTEXT.md` 自上次读后被改 → advisory |
-| `.claude/hooks/pre-read-contract.cjs` | PreToolUse Write/Edit/MultiEdit/NotebookEdit/Bash | `src/` 写前若 session 未读 `CONTEXT.md` → advisory |
-| `.claude/hooks/post-ssot-priority.cjs` | PostToolUse Write/Edit/MultiEdit/Bash | 三层 SSOT 优先级 + 合法 override marker |
-| `.claude/hooks/post-conflict-annotation.cjs` | PostToolUse Write/Edit/MultiEdit/Bash | ADR 冲突标注护栏（须显式 `> Contradicts ADR-NNNN`）|
+- **项目本地注册** (`.claude/settings.json`): 仅 `.claude/hooks/pre-tool-guard.sh` (PreToolUse Bash)。
+- **全局注册** (用户级 settings): `.claude/hooks/pre-fs-guard.cjs` / `.claude/hooks/pre-context-write-guard.cjs` / `.claude/hooks/pre-stale-read.cjs` / `.claude/hooks/pre-read-contract.cjs` / `.claude/hooks/post-ssot-priority.cjs` / `.claude/hooks/post-conflict-annotation.cjs`。
+- 仓库内保留的 CJS 文件为**离线副本**, 文档描述行为不变; 运行时由全局 settings 装载。
 
-注册载体：`settings.json` `hooks.PreToolUse` + `hooks.PostToolUse`（TB2 锁定）。
+| 层 | 触发时机 | 作用 | 注册位置 |
+|---|---|---|---|
+| `.claude/hooks/pre-fs-guard.cjs` | PreToolUse Bash | 阻断危险 FS pattern（裸 `find /` / `grep -r /` / 孤立 `&`）| 全局 |
+| `.claude/hooks/pre-tool-guard.sh` | PreToolUse Bash | 反篡改（hooks / pre-commit / lint-staged）+ 允许 `rm -rf /tmp` | 项目本地 |
+| `.claude/hooks/pre-context-write-guard.cjs` | PreToolUse Write/Edit/MultiEdit/Bash | 写入 `CONTEXT.md` / `CONTEXT-MAP.md` / `docs/adr/*.md` 仅允许 `domain-modeling` | 全局 |
+| `.claude/hooks/pre-stale-read.cjs` | PreToolUse Write/Edit/MultiEdit/Bash | `src/` 写前若 `CONTEXT.md` 自上次读后被改 → advisory | 全局 |
+| `.claude/hooks/pre-read-contract.cjs` | PreToolUse Write/Edit/MultiEdit/NotebookEdit/Bash | `src/` 写前若 session 未读 `CONTEXT.md` → advisory | 全局 |
+| `.claude/hooks/post-ssot-priority.cjs` | PostToolUse Write/Edit/MultiEdit/Bash | 三层 SSOT 优先级 + 合法 override marker | 全局 |
+| `.claude/hooks/post-conflict-annotation.cjs` | PostToolUse Write/Edit/MultiEdit/Bash | ADR 冲突标注护栏（须显式 `> Contradicts ADR-NNNN`）| 全局 |
 
 **CI 端 S4 红测试门禁当前未启用**（无 .githooks / 无 GitHub Actions workflow 文件）——缺位时不要把它当存在的 gate；本 plan 不新建该 CI。
 
@@ -340,7 +339,7 @@ git push origin :v0.2.4    # 远端删 (注意: 是 :refs/tags/v0.2.4 简写)
 
 ## 8. 任务模板尾巴 (跨引)
 
-`test-coverage` / `pr-review` / `error-handling-fix` / `refactor-dedup` / `security-audit` / `context-loop-upgrade` 六类任务的"独立分支 + PR 等待审核"通用尾巴走 @.claude/rules/task-templates.md §0.
+`test-coverage` / `pr-review` / `error-handling-fix` / `refactor-dedup` / `security-audit` / `context-loop-upgrade` 六类任务的"独立分支 + PR 等待审核"通用尾巴走 @docs/rules/task-templates.md §0.
 
 本文件已定义分支命名 / 推送流程 / PR 流程, 不重复; 任务模板只追加跨任务通用的 PR 尾巴.
 
