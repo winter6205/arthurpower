@@ -33,3 +33,4 @@ docs/SKILL.md
 
 # --- third-party vendor copy (not tracked; upstream reference only) ---
 legacy-skills/
+.claude/skills/teach
