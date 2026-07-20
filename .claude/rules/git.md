@@ -73,7 +73,7 @@ git push --no-verify
 - 推 `prototype/<name>` 不需要走"非默认 feature 分支"那条门禁；其它纪律（Conventional Commits / pre-commit / 提交频率）照常生效。
 - 这条 carve-out 仅限 `prototype/` 前缀的分支；普通 `feat/` / `fix/` / `docs/` / `refactor/` / `test/` / `chore/` 仍受默认分支规则约束。
 
-来源：legacy-skills `prototype` skill rule 6 — "the prototype is a primary source"。
+来源：upstream `prototype` skill rule 6 — "the prototype is a primary source"。
 
 ## 提交信息规范 — Conventional Commits
 

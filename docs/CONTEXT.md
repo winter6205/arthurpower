@@ -164,7 +164,7 @@ _Avoid_: 只砍新加指令不审既有 always-on；把 system prompt ~50 条排
 
 ### GitHub Collaboration (upstream alignment, fusion 2026-07-20)
 
-**upstream**: the external skills repo whose practices were fused into arthurpower (bucket tier, skill linking, router invariant, merge-conflict loop). Replaces prior "the baseline author" attribution per project decision 2026-07-20.
+**upstream**: the external skills repo whose practices were fused into arthurpower (bucket tier, skill linking, router invariant, merge-conflict loop).
 
 **router invariant**: promoted skill 的 add / rename / remove / flow-placement 变化，必须在同一 commit 同步 router skill (`arthurpower:using-agent-skills`) 的 SKILL.md；违反 = "a router that lies"。
 _Avoid_: router 与 skill 分离维护；靠 reminder 提醒同步；新 skill 加完不更新 router。
