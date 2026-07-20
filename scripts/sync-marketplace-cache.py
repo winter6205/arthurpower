@@ -130,11 +130,11 @@ def collect_layer(root: Path) -> dict[str, Path]:
 
 
 def sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as stream:
-        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
+    # Normalize line endings before hashing so CRLF (git working tree on
+    # Windows with core.autocrlf=true) and LF (mkt/cache copies) hash identically.
+    raw = path.read_bytes()
+    normalized = raw.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    return hashlib.sha256(normalized).hexdigest()
 
 
 def audit(layers: Layers) -> list[str]:
