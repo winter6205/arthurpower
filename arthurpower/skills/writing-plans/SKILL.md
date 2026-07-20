@@ -45,6 +45,31 @@ If scope is unclear, route to the `using-agent-skills` router first; do not crea
 5. **Cross-check with `architecture-change-reviewer`'s 5-verdict frame** before declaring the plan done. If scope is unclear, run that skill first. See `references/handoff-acr.md`.
 6. **Plan lives in a file** (`plans/<feature>.md` or commit body) — not in agent memory, not in chat scrollback, not in PR description afterthought. Head-plan is not a reviewable plan.
 
+## Per-ticket loop (ADR-0012)
+
+Every `[implementation]` tracer bullet in `plans/<feature>.md` MUST embed the per-ticket loop verbatim. The loop is the discipline enforcement point — there is no separate `arthurpower:implement` orchestrator skill by design (ADR-0012 §Decision). Fusion into the tracer bullet definition makes the loop visible, reviewable, and impossible to skip silently.
+
+The loop (verbatim from ADR-0012 §Decision):
+
+1. **`arthurpower:test-driven-development`** — write the failing test first (or template-render / doc-render test for docs-only tickets).
+2. **typecheck + tests** — run the project's typecheck and test suite; both must be green.
+3. **`arthurpower:code-review`** (v-code-review CLI) — severity-gated: block on `high` or `critical` findings; `medium`/`low` are advisory.
+4. **`arthurpower:verification-before-completion`** — capture actual evidence (output in full, not remembered); the 4-question ritual must complete before commit.
+5. **commit on the ticket branch** — 1 commit per tracer bullet, on its own branch off `worktree-wayfinder-gh-collab-adapt` (or the active worktree base).
+
+Why this exists (ADR-0012 §Why no implement skill): an orchestrator skill adds an unnecessary layer of indirection. Arthurpower already owns `test-driven-development`, `code-review` (v-code-review CLI), and `verification-before-completion`. What was missing was the discipline of running them in sequence per ticket — fusing the loop into the tracer bullet definition enforces it without adding a new skill surface.
+
+**Template block** — embed this in every `[implementation]` tracer bullet of `plans/<feature>.md`:
+
+```
+#### Tn. `[implementation]` <name>
+- **Affects**: <files>
+- **Acceptance**: <binary check>
+- **Per-ticket loop**: tdd → typecheck+tests → code-review (v-code-review CLI) → verification-before-completion → commit on ticket branch
+```
+
+The `Per-ticket loop` line is mandatory — review of `plans/<feature>.md` is a loop-completeness check per ticket, not a generic style review.
+
 ## Acceptance Criteria
 
 A plan is complete when every tracer bullet carries one binary acceptance criterion, one tag, and one commit, ordered by dependency. See `references/acceptance-criteria.md` for the binary checklist.
