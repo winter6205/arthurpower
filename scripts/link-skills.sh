@@ -102,7 +102,23 @@ for DEST in "${DESTS[@]}"; do
       rm -rf "$target"
     fi
 
-    ln -sfn "$src" "$target"
-    echo "linked $name -> $src ($DEST)"
+    # Try POSIX symlink first (works on Linux/Mac/WSL/Git-Bash with developer mode).
+    # Windows fallback: NTFS directory junction via cmd.exe — works without
+    # developer mode or admin rights. Junctions are directory-only (which is
+    # exactly what we need: every promoted skill exposes a directory of files).
+    if ln -sfn "$src" "$target" 2>/dev/null; then
+      echo "linked $name -> $src ($DEST)"
+    elif command -v cmd.exe >/dev/null 2>&1 && command -v cygpath >/dev/null 2>&1; then
+      rm -rf "$target" 2>/dev/null || true
+      if cmd.exe /c "mklink /J \"$(cygpath -w "$target")\" \"$(cygpath -w "$src")\"" >/dev/null 2>&1; then
+        echo "linked $name -> $src ($DEST, junction)"
+      else
+        echo "error: failed to link $target (symlink and junction both failed)" >&2
+        exit 1
+      fi
+    else
+      echo "error: failed to link $target (ln -sfn failed and no Windows junction fallback available)" >&2
+      exit 1
+    fi
   done
 done
