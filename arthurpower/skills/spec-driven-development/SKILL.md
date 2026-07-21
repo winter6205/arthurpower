@@ -18,16 +18,29 @@ Before drafting any spec, this skill MUST:
 
 This skill is a **read-side consumer** of the context closed-loop read contract.
 
-## Input contract
+## Input
 
-Spec-driven-development accepts the wayfinder map as a valid input source alongside the usual one-line ask.
+Spec-driven-development accepts either the wayfinder map or a one-line ask; it is a read-side consumer of the context closed-loop. When the wayfinder map is the input, `## Decisions so far` is the authoritative index of prior decisions — zoom each link for the full Resolution. Stable terms graduate from the map's working index into `docs/CONTEXT.md` via `domain-modeling`; ADR numbers take precedence over map decision IDs once promoted, but both forms are valid until promotion. Cross-ref `arthurpower/skills/wayfinder` §Handoff.
 
-- **Source of prior decisions.** When wayfinder is the input, read the map's `## Decisions so far` section as the authoritative list of prior decisions. Each line is a closeable ticket with gist + link — zoom the link for the full Resolution.
-- **Decision identifiers.** Spec's "Architectural Constraints" may reference decisions by their wayfinder ticket number or map decision ID instead of formal ADR numbers. Decisions promoted via `domain-modeling` carry ADR numbers; those still at the map level do not — both forms are valid until promotion.
-- **Skip-spec decision lives in wayfinder.** The 5-section skip condition (Problem / Solution / Implementation Decisions / Testing Decisions / Out of Scope — all present in the grilling ticket's Resolution) is decided by wayfinder's `AskUserQuestion` stop gate, not here. This skill is always ready to run; whether it runs is wayfinder's call.
-- **Decisions-so-far ↔ CONTEXT.md.** The map's index is a working index, not a glossary. Stable terms graduate into `docs/CONTEXT.md` via `domain-modeling`.
+| Input source | 形态 | 消费方式 |
+|---|---|---|
+| wayfinder map (`wayfinder:map` issue) | artifact (GitHub issue / local markdown) | read `## Decisions so far` as authoritative prior decisions; zoom links for full Resolution |
+| one-line ask | inline (operator prompt) | the feature / project request to spec |
+| `docs/CONTEXT.md` + `docs/adr/` | file | read-side consumer per Context-Loop Pre-Check; surface terms in Glossary, reference ADRs by number |
 
-Cross-ref `arthurpower/skills/wayfinder` §Handoff.
+**What this skill does NOT consume**: code / deliverables (this skill produces the spec, not the implementation); the plan (`plans/<feature>.md` is writing-plans territory); implementation details, tickets, or PR descriptions; ADR write authority (domain-modeling owns `docs/CONTEXT.md` and `docs/adr/`). The skip-spec decision (5-section skip condition) is decided by wayfinder's `AskUserQuestion` stop gate — not consumed here.
+
+## Output
+
+The main product is the spec document at `specs/<feature>.md` plus the ACR 5-verdict block embedded inline in Step 4. The stop-gate for whether spec runs at all lives in wayfinder's `AskUserQuestion` (the 3-way handoff choice), not here. This skill is always ready to run; whether it runs is wayfinder's call.
+
+| Artifact | 落点 | 下游消费者 |
+|---|---|---|
+| spec document | `specs/<feature>.md` | `architecture-change-reviewer` (5-verdict gate) → `writing-plans` |
+| ACR verdict block | inline in spec (Step 4) | `writing-plans` reads it as the gate result |
+| handoff to writing-plans | Step 5 (fixed sequence: spec → ACR → writing-plans) | `writing-plans` |
+
+**Explicit non-outputs**: the plan (`plans/<feature>.md` is writing-plans territory); working code or implementation artifacts; ADRs (domain-modeling owns `docs/adr/`); `docs/CONTEXT.md` glossary terms (domain-modeling owns those); the wayfinder map (wayfinder owns it); any commit / push / release action (those are operator-level, post-handoff).
 
 ## Overview
 

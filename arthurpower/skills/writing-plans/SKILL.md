@@ -20,6 +20,30 @@ If the change is a wide mechanical refactor whose blast radius spans the whole c
 
 If scope is unclear, route to the `using-agent-skills` router first; do not create implementation tickets from an undefined scope.
 
+## Input
+
+`writing-plans` runs AFTER the spec is buildable. The primary input is the spec (`specs/<feature>.md`) carrying an ACR all-yes verdict, OR a grilling ticket whose Resolution already holds the 5 spec sections (gh-22 skip path). The spec must be ready to decompose into ordered tracer bullets before this skill fires.
+
+| Input source | 形态 | 消费方式 |
+|---|---|---|
+| spec document (`specs/<feature>.md`) | file | read the 9 core areas + ACR verdict as the buildable contract to decompose into tracer bullets |
+| ACR 5-verdict block | inline in spec | the gate — `writing-plans` runs only after all 5 verdicts = yes; per-bullet cross-check before declaring plan done (see `references/handoff-acr.md`) |
+| `docs/CONTEXT.md` + tagged ADRs | file | read-side per context-loop pre-check; annotate contradictions (`> Contradicts ADR-NNNN — worth reopening because <证据>`) — never silently override |
+
+**What this skill does NOT consume**: the wayfinder map directly (`spec-driven-development` consumes it before `writing-plans` fires); working code (the plan is the input to the code, not vice-versa); implementation detail before planning is finalized.
+
+## Output
+
+The main output is the plan file (`plans/<feature>.md`) — ordered tracer bullets, each ≤ 1 commit, binary acceptance, dependency-ordered. This is the artifact that the per-ticket loop (ADR-0012) executes against. The closed-loop verification backstop is `.evals/tasks/<NNN>-<name>.yaml` running under `bash .evals/run.sh` — plan completion = N/N eval tasks pass.
+
+| Artifact | 落点 | 下游消费者 |
+|---|---|---|
+| plan file (`plans/<feature>.md`) | file at repo root | the per-ticket loop (ADR-0012) executes it; each bullet → 1 commit on its own branch |
+| tracer-bullet issues | GitHub issues with label `ready-for-agent` | the executing agent claims each issue, resolves via per-ticket loop; see `references/tracker.md` for the gh CLI mechanics |
+| eval baseline | `.evals/tasks/<NNN>-<name>.yaml` | `bash .evals/run.sh` asserts completion — the closed-loop that proves the plan (replaces the retired closed-loop-feedback section archived in `docs/archive/skill-reorg-2026-07-21/writing-plans.md`) |
+
+**Explicit non-outputs**: the spec (`spec-driven-development` owns it, `writing-plans` only consumes); working code (produced during per-ticket execution, not planning); ADRs (`domain-modeling` owns the 3-condition gate); the wayfinder map (`wayfinder` owns it).
+
 ## When to Use
 
 - About to touch 3+ files in a single change
@@ -73,40 +97,9 @@ The `Per-ticket loop` line is mandatory — review of `plans/<feature>.md` is a 
 
 ## Tracker = GitHub (main path)
 
-The default tracker for plans produced by this skill is **GitHub issues** — not local markdown. Local markdown (`plans/<feature>.md` + `docs/wayfinder/tickets/`) is a **fallback only**, used when the `gh` CLI is unavailable (no GitHub remote configured, or `gh` not installed). When the fallback is used, the plan header must state the fallback explicitly (e.g. `**Tracker**: local markdown — gh CLI unavailable`).
+The default tracker for plans produced by this skill is **GitHub issues** — not local markdown. Map tickets carry the `wayfinder:map` label; plan tickets carry `ready-for-agent`. Local markdown (`plans/<feature>.md` + `docs/wayfinder/tickets/`) is a **fallback only**, used when the `gh` CLI is unavailable (no GitHub remote configured, or `gh` not installed). When the fallback is used, the plan header must state the fallback explicitly (e.g. `**Tracker**: local markdown — gh CLI unavailable`).
 
-### Main path (GitHub issues)
-
-Apply the main path as follows (gh-08 ratified decision; gh-16 fusion location):
-
-1. **Wayfinder map + decision tickets** → one GitHub issue per ticket, all carrying the label `wayfinder:map`. Create with `gh issue create --label 'wayfinder:map' --title "<ticket-title>" --body-file <ticket.md>`. The `wayfinder:map` label is the routing key for the wayfinder-map context.
-2. **Spec output** (from `spec-driven-development` or a grilling ticket whose Resolution already carries the 5 spec sections per gh-22) → one **spec issue**. Create with `gh issue create --label 'spec' --title "spec: <feature>"`; body is the rendered spec markdown.
-3. **Plan output** (this skill's `plans/<feature>.md`) → one **ticket issue per tracer bullet**, all carrying the label `ready-for-agent`. Create in dependency order (blockers first) so each issue gets a real number before its dependents reference it: `gh issue create --label 'ready-for-agent' --title "T1 <name>" --body-file <ticket.md>`. Then render the blocking edges — for every `[blocks: T1, T2]` annotation in `plans/<feature>.md` (the source of truth), use the GraphQL `addBlockedBy` mutation (`gh issue edit` has NO `--add-blocking` flag): resolve each issue's node id via `gh api graphql -f query='query { repository(owner:"<owner>", name:"<repo>") { issue(number:<n>) { id } } }'`, then run `gh api graphql -f query='mutation { addBlockedBy(input: {issueId: "<dependent-node-id>", blockingIssueId: "<blocker-node-id>"}) { clientMutationId } }'` so the blocker shows natively on the dependent. **Completion criterion**: every tracer-bullet issue carries `ready-for-agent` (NOT `wayfinder:map` — that label is path 1's decision tickets only), and every `[blocks:]` edge in the plan file renders as a native blocking link on the tracker.
-
-### Fallback (local markdown)
-
-Use the fallback ONLY when one of the following holds:
-
-- No GitHub remote on the local clone (`git remote get-url origin` fails).
-- `gh` CLI not installed (`gh --version` exits non-zero) or not authenticated (`gh auth status` reports not logged in).
-
-In fallback mode:
-
-- Plan lives in `plans/<feature>.md` as today.
-- Decision / spec / ticket files live in `docs/wayfinder/tickets/` and `docs/specs/`.
-- The plan header must record the fallback rationale so a reader knows why no tracker edges exist.
-
-### Handoff boundary interaction (gh-22)
-
-The tracker choice interacts with the wayfinder → spec handoff boundary (gh-22). When the main path is active:
-
-- Map tickets live on GitHub with the `wayfinder:map` label.
-- After the map clears, the handoff target is `spec-driven-development` (default) — its output is a spec issue (step 2 above) — or `writing-plans` directly when the grilling ticket's Resolution already contains the 5 spec sections per gh-22's exception clause.
-- Plan tickets then follow step 3 with native blocking edges.
-
-When the fallback is active, the handoff boundary still applies (map closes → spec or plans), but the artifacts are local markdown files instead of GitHub issues. The contract is the same; the storage changes.
-
-This section documents the fusion of gh-08's tracker decision into the writing-plans skill. The original gh-16 ticket scoped a new `tracker-publisher` skill; per gh-07 (Fusion strategy) that surface is intentionally not created — the publisher responsibilities are fused into writing-plans here, with `gh issue create` plus the GraphQL `addBlockedBy` mutation as the direct CLI surface.
+Full `gh issue create` commands, the GraphQL `addBlockedBy` mutation mechanics, the fallback rules, and the gh-22 handoff-boundary interaction are disclosed to [`references/tracker.md`](references/tracker.md) — load that file when applying the tracker, not before.
 
 ## Acceptance Criteria
 
@@ -121,46 +114,8 @@ Run all four before declaring "plan done":
 3. `git diff --stat HEAD~N..HEAD` — diff scope per commit matches the tracer bullet's "affects:" line; no scope creep
 4. Final report contains the line: `成功 = plan has N tracer bullets, each with binary acceptance + one [decision]|[implementation] tag`
 
-## Rationalization Table
-
-| Rationalization | Counter |
-|---|---|
-| "Plan is in my head, no need to write it down" | Head-plan ≠ reviewable plan. PR description and audit both need the plan in a file. |
-| "Just 3 files, no plan needed" | 3 files = 3 commits = 3 tracer bullets. The plan is what makes those 3 commits atomic and ordered. |
-| "I'll plan as I go" | Plan-as-you-go = re-work. Tasks discovered mid-implementation are tasks you cannot verify retroactively. |
-| "Acceptance criterion is obvious" | Obvious to you ≠ binary. "Looks good" is not a check. Write the command. |
-| "Tasks can be merged for efficiency" | Merged tracer bullets = 1 commit = `minimal-change-verifier` (S6) fails. 1 task per commit, full stop. |
-| "Split by layer (one bullet for schema, one for API, one for UI)" | Horizontal split, not a tracer bullet. A vertical slice ships end-to-end; layer-only splits are not demoable on their own. |
-| "Operator said ship it, skip plan" | Override requires `EXPLICIT_OVERRIDE` annotation. Audit still needs the plan. |
-
-## Red Flags
-
-- Plan with any tracer bullet missing its `[decision]` or `[implementation]` decision-ticket tag
-- Plan with no acceptance criteria on any tracer bullet
-- Plan using "should" / "probably" / "looks good" / "TBD" in place of a binary check
-- Tracer bullets not mapped to commits (1-to-1 violation — 1 commit per logical task)
-- Tracer bullets ordered by file path or directory depth, not by dependency
-- Plan only in chat scrollback, not in `plans/<feature>.md` or commit body
-- "I'll plan during implementation" — post-hoc planning is invalid
-
 ## Required Baseline
 
 Zero tolerance — every tracer bullet has 1 binary acceptance criterion + maps to exactly 1 commit. No exceptions, no `EXPLICIT_OVERRIDE` without explicit annotation.
 
 See `references/acceptance-criteria.md` for the binary checklist and the cross-reference index.
-
----
-
-## Plan + eval baseline (闭环反馈组件)
-
-新 plan / 新 feature / 新 baseline 任务必须配套 `.evals/tasks/<NNN>-<name>.yaml`:
-
-- `id`: 唯一 (001, 002, ...)
-- `description`: 1 行说明验证什么
-- `test_command`: bash / pytest / curl 之一, exit 0 = pass
-- `success`: 输出包含的 marker (可选, 用于 grep 验证)
-- `budget`: max_turns / max_cost_usd (agent 任务才有)
-
-让 plan 完成 = `bash .evals/run.sh` 全 N/N pass. **无 eval = 不可证伪, 等于没 plan**.
-
-RAG 项目示例见 `D:\workspace\projects\project-rag-customer-service\.evals\tasks\` (4 tasks: 001-bootstrap / 002-pytest / 003-import / 004-ruff). 模板见 `~/.claude/skills/arthurpower/...` 暂无 (v2 模板 `.evals/tasks/001-bootstrap-pass.yaml` 是参考).
