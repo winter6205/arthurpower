@@ -1,12 +1,12 @@
 ---
 name: self-evolving-rules
-description: "Use when the operator manually runs memory or rule evolution — \"add a memory\", \"merge memories\", \"archive\", \"rewrite the rule\", \"move across layers\", \"clean stale memory\", \"sync L1 + rules\", or trims always-on instruction load / CLAUDE.md length / rules dump — and needs the 6-step strip-and-route process plus optional Step 7 extraction."
+description: "Use when the operator manually runs memory or rule evolution — \"add a memory\", \"merge memories\", \"archive\", \"rewrite the rule\", \"move across layers\", \"clean stale memory\", \"sync L1 + rules\", or trims always-on instruction load / CLAUDE.md length / rules dump — and needs the 6-step strip-and-route process plus optional Step 7 extraction and Step 8 context handoff to domain-modeling."
 bucket: engineering
 disable-model-invocation: true
-version: 2.1.0
+version: 2.2.0
 tags: [memory, rules, self-evolving, strip, routing, L1, L2, archive, merge, always-on, instruction-budget, progressive-disclosure]
 author: arthurpower-team
-related_skills: [skill-authoring, session-handoff, verification-before-completion, using-agent-skills]
+related_skills: [skill-authoring, session-handoff, verification-before-completion, using-agent-skills, domain-modeling]
 type: discipline
 ---
 
@@ -37,7 +37,7 @@ Also use after a completed iteration when the operator wants Step 7 knowledge ex
 - Single-line typo with no rule semantics
 - Pure command execution with no memory write
 - Skill body already strip-clean and only needs structural skill-authoring work → hand off to `arthurpower:skill-authoring` (this skill never authors skill content itself)
-- Writing domain glossary / ADR → `domain-modeling`
+- Writing domain glossary / ADR → this skill never writes them directly; Step 8 drives `domain-modeling` (the sole write authority) to persist them
 - Session continuity only → `session-handoff`
 - Operator said not to touch memory / rules this turn
 
@@ -101,6 +101,14 @@ After Step 6, optionally spawn a **read-only** subagent. Details: [`references/s
 
 **Done when:** skip conditions applied, or candidates filtered and counts reported. Subagent wrote zero files.
 
+### Step 8 — Hand new context to domain-modeling (conditional)
+
+If this iteration surfaced a new project term, an overloaded / ambiguous term, or a hard-to-reverse decision, invoke `domain-modeling` **via the Skill tool** (`arthurpower:domain-modeling`) to persist it — `docs/CONTEXT.md` (or `CONTEXT-MAP.md`) for vocabulary, `docs/adr/` for a decision that meets the ADR three-condition gate. The Skill-tool invocation is required, not a formality: `pre-tool-skill-routing-sync.cjs` refreshes `~/.claude/.routing-state.json` only when a skill is invoked through the Skill tool, and `pre-context-write-guard.cjs` permits these writes only while that state names `domain-modeling`. Merely reading domain-modeling's SKILL.md leaves the state on `self-evolving-rules` and the write is blocked. This skill is a **driver**, never the writer: `domain-modeling` is the sole write authority for those artifacts.
+
+**Skip when:** the iteration touched only memory / rules wording with no new vocabulary or decision.
+
+**Done when:** no new term / decision surfaced (skipped), or `domain-modeling` was invoked via the Skill tool and confirmed the write landed. This skill wrote zero `docs/CONTEXT.md` / `docs/adr/` bytes itself.
+
 ## Post-iteration regression
 
 When rules changed and the project has `.evals/`:
@@ -127,6 +135,7 @@ If this iteration ships with hook / skill / rules / settings changes (not memory
 - [ ] Step 6 wrote only the routed layer; re-read OK
 - [ ] No API key / token / password values in any written file
 - [ ] Step 7 skipped for cause, or candidates filtered with counts
+- [ ] Step 8 skipped (no new term / decision), or `domain-modeling` invoked and confirmed the write; this skill wrote zero `docs/CONTEXT.md` / `docs/adr/` bytes
 - [ ] `.evals/run.sh` run when present; fail rolled back
 
 ## Verification
@@ -171,6 +180,9 @@ bash .evals/run.sh; echo EXIT=$?
 - Skipping strip/route preflight and jumping straight to skill-authoring when the skill change carries new durable rules or wrappers
 - Authoring skill content inside this skill instead of handing off to skill-authoring
 - Adding imperative units to always-on layers without universal-applicability check or instruction-budget review
+- Writing `docs/CONTEXT.md` / `docs/adr/` directly from this skill instead of driving `domain-modeling` (write-authority violation)
+- Reading `domain-modeling`'s SKILL.md instead of invoking it via the Skill tool — routing-state stays on `self-evolving-rules`, so `pre-context-write-guard.cjs` blocks the write
+- Skipping Step 8 when a new term or hard-to-reverse decision surfaced during the iteration
 
 ## References
 
