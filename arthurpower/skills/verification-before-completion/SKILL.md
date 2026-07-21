@@ -39,6 +39,7 @@ These checks run alongside the standard verification procedure (§Procedure belo
 4. **Compare output against the criterion** — does the captured output match the binary predicate from step 1? If yes, evidence = present. If no, claim = forbidden.
 5. **If mismatch: stop, fix, re-run** — do not rationalize ("应该可以", "看起来对"). Re-run from step 2 with corrected code.
 6. **Report with the success format**: `PASS = <criterion> <actual evidence>` (一行, 表格 + 行号 + 实测值). 不写 "完成" without 实测输出.
+7. **Offer rule distillation (task-end, ask-only)** — after the PASS report, ask in prose whether this task produced a durable lesson worth persisting (a correction, a repeated mistake, a new convention). If yes, tell the operator to run `/self-evolving-rules` themselves. **Ask only — never invoke it**: `self-evolving-rules` is user-invoked (`disable-model-invocation: true`), so the model must not fire it; the operator types the command. Skip the offer for trivial edits, or when the operator has already declined this session.
 
 ## Acceptance Criteria
 
@@ -47,8 +48,9 @@ These checks run alongside the standard verification procedure (§Procedure belo
 - [ ] Output matches the success criterion (binary check)
 - [ ] If mismatch surfaced, code was fixed and re-run, not rationalized
 - [ ] Report contains `PASS = ...` 一行 with concrete evidence (exit code, line count, screenshot path)
+- [ ] After PASS, the rule-distillation offer was made in prose (or skipped for cause); `/self-evolving-rules` was NOT auto-invoked
 
-A worked example covering all 6 procedure steps is in [`references/example.md`](references/example.md).
+A worked example covering the 6 core verification steps is in [`references/example.md`](references/example.md).
 
 ## Verification
 
@@ -94,6 +96,7 @@ grep -E "^PASS =" reports/latest.md
 - Reporting 1-file change when `git diff --stat` shows 3 (scope drift)
 - "I'll verify in the next session" — verification is now, not later
 - Trusting subagent "success" without independent re-run
+- Auto-invoking `/self-evolving-rules` at task end — it is user-invoked; ask in prose and let the operator type the command
 
 ## Required Baseline
 
@@ -101,5 +104,5 @@ grep -E "^PASS =" reports/latest.md
 
 ## References
 
-- Worked example covering all 6 procedure steps — see [`references/example.md`](references/example.md).
+- Worked example covering the 6 core verification steps — see [`references/example.md`](references/example.md).
 - Project-level or workspace-level governance rules (commit discipline, vocabulary norms, review subagent) live in the project's own CLAUDE.md / rules/ files and are not duplicated in this canonical skill.
