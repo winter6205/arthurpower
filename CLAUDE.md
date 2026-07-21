@@ -16,7 +16,7 @@ Use as default bias, not strict checklist.
 
 ## Scope and authorization
 
-保持最小必要变更。代码与可执行配置是行为事实来源；与文档冲突时报告冲突，不静默选择。
+代码与可执行配置是行为事实来源；与文档冲突时报告冲突，不静默选择。
 
 未经用户明确授权，不得：push / release / deploy / tag / force push / rebase 公共分支；
 修改任务范围外的安全、认证、权限、支付、数据迁移、CI/CD 或生产配置；
@@ -26,7 +26,9 @@ Use as default bias, not strict checklist.
 
 ## Validation
 
-完成 = 跑过 = ground truth。不得声称未运行的检查已通过。
+完成 = 跑过 = ground truth。
+完成前必须走 `arthurpower:verification-before-completion`，验证失败时报告失败命令、原因和未完成项，不绕过质量门禁。
+不得声称未运行的检查已通过。
 验证失败时报告失败命令、原因和未完成项，不绕过质量门禁。
 
 ## 10-hook 不可 regress
@@ -43,20 +45,6 @@ Use as default bias, not strict checklist.
 ## Skill routing
 
 非平凡任务开始前，通过 Skill 工具 invoke 对应技能：
-
-| 场景 | 技能 |
-|------|------|
-| 理解架构 / 多跳依赖 | `codebase-memory` |
-| 精准编辑 / 调用链 | `serena` |
-| 改前先写测试 | `arthurpower:test-driven-development` |
-| 解 bug | `arthurpower:systematic-debugging` |
-| 大改动 (>20 files) | `dispatching-parallel-agents` |
-| 完成前验收 | `arthurpower:audit` |
-| 文档 / ADR | `arthurpower:domain-modeling` |
-| 跨多文件 / 多 hook 验 silent bug | boundary-testing 两轴 agent |
-
-L1（单文件）用原生工具；L2（跨模块）先 Codebase Memory 后 Serena。
-工具不可用时输出 `[NEED_STRUCTURAL_INFO]` 暂停。
 
 ## On-demand rules
 
