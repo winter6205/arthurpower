@@ -58,5 +58,4 @@ plus a one-line overall verdict: `OVERALL: PASS` only if all 7 PASS; otherwise `
 ## Reference
 
 - Rule source: `~/.claude/plugins/marketplaces/arthurpower-local/plugins/arthurpower/skills/defensive-contract-validator/SKILL.md`
-- Provenance: Boundary Value Analysis / Equivalence Partitioning (ISTQB) — the 5-class framing is an arthurpower operationalization; coverage floors are a project convention
 - Common LLM failure mode: long multi-responsibility functions that skip the "simplest failing test first" rhythm, with tests coupled to existing implementation rather than growing from requirements.
