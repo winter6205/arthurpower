@@ -46,6 +46,6 @@ plus a one-line overall verdict: `OVERALL: PASS` only if all 5 PASS; otherwise `
 
 ## Reference
 
-- Rule source: `~/.claude/rules/s6-minimal-change.md`
+- Rule source: `~/.claude/plugins/marketplaces/arthurpower-local/plugins/arthurpower/skills/minimal-change-verifier/SKILL.md`
 - Provenance: 《The Pragmatic Programmer》Tip 11 DRY + Tip 12 Orthogonality | arXiv 2603.28592 AI code rot empirical (89.3% code smells)
 - Common LLM failure mode: copy-pasting near-identical code instead of abstracting, hard-coding similar constants to ship features fast, batch "rewrites" replacing small-step refactors and losing intermediate rollback states.
