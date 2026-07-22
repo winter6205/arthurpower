@@ -28,7 +28,7 @@ interface InvariantResult {
 }
 
 async function readStdin(): Promise<string> {
-  const { readStdin: rs } = await import('./lib/read-stdin-with-timeout.cjs');
+  const { readStdin: rs } = await import('./lib/read-stdin-with-timeout.ts');
   return rs();
 }
 
