@@ -45,5 +45,5 @@ plus a one-line overall verdict: `OVERALL: PASS` only if all 4 PASS; otherwise `
 ## Reference
 
 - Rule source: `~/.claude/plugins/marketplaces/arthurpower-local/plugins/arthurpower/skills/error-handling-enforcer/SKILL.md`
-- Provenance: 《Clean Code》Ch.7 | 《Code Complete》Ch.8 | Amazon Builders' Library "Avoiding Fallback"
+- Provenance: 《Clean Code》Ch.7 Error Handling | 《Code Complete》Ch.8 Defensive Programming | Amazon Builders' Library "Avoiding fallback in distributed systems" (argues against fallback; // EXIT: is an arthurpower convention)
 - Common LLM failure mode: large volumes of empty-catch swallowing, return-null/-1 instead of throw, and ad-hoc fallback branches added to lower complexity (branches almost never covered by production tests).

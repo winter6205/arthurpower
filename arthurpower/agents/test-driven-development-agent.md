@@ -73,5 +73,5 @@ plus a one-line overall verdict:
 ## Reference
 
 - Rule source: `~/.claude/plugins/marketplaces/arthurpower-local/plugins/arthurpower/skills/test-driven-development/SKILL.md` (criteria: `references/spec-as-test.md`; path convention: `references/testing-standards.md`)
-- Provenance: Kent Beck 《TDD: By Example》(2002) three laws | Fowler 《Refactoring》2nd ed. | Google SE@G Ch.12
+- Provenance: Kent Beck 《TDD: By Example》(2002) red-green-refactor | Robert C. Martin three laws of TDD | Fowler 《Refactoring》2nd ed. | Google SE@G Ch.12-13 | Mike Cohn test pyramid
 - Common LLM failure mode: large batches of production code followed by backfilling tests, skipping the "simplest failing test first" rhythm, with tests coupled to existing implementation rather than growing from requirements.
