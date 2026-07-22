@@ -18,6 +18,9 @@ arthurpower/skills/skill-authoring/scripts/__pycache__/
 # --- Serena working cache (local LSP state, not portable) ---
 arthurpower/.serena/
 
+# --- hook runtime deps (zod; installed via npm, not portable) ---
+arthurpower/hooks/node_modules/
+
 # --- runtime eval artifacts ---
 .evals/results/
 

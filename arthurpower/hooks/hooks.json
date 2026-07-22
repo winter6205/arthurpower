@@ -27,12 +27,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/pre-context-write-guard.cjs\"",
+            "command": "node --experimental-strip-types \"${CLAUDE_PLUGIN_ROOT}/hooks/pre-context-write-guard.ts\"",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/pre-stale-read.cjs\"",
+            "command": "node --experimental-strip-types \"${CLAUDE_PLUGIN_ROOT}/hooks/pre-stale-read.ts\"",
             "timeout": 5
           },
           {
@@ -47,7 +47,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/pre-read-contract.cjs\"",
+            "command": "node --experimental-strip-types \"${CLAUDE_PLUGIN_ROOT}/hooks/pre-read-contract.ts\"",
             "timeout": 5
           }
         ]
@@ -59,12 +59,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/post-ssot-priority.cjs\"",
+            "command": "node --experimental-strip-types \"${CLAUDE_PLUGIN_ROOT}/hooks/post-ssot-priority.ts\"",
             "timeout": 5
           },
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/post-conflict-annotation.cjs\"",
+            "command": "node --experimental-strip-types \"${CLAUDE_PLUGIN_ROOT}/hooks/post-conflict-annotation.ts\"",
             "timeout": 5
           }
         ]
@@ -74,7 +74,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/defend-claim-execution.cjs\""
+            "command": "node --experimental-strip-types \"${CLAUDE_PLUGIN_ROOT}/hooks/defend-claim-execution.ts\""
           }
         ]
       },
@@ -83,15 +83,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/defend-claim-cite-integrity.cjs\""
+            "command": "node --experimental-strip-types \"${CLAUDE_PLUGIN_ROOT}/hooks/defend-claim-cite-integrity.ts\""
           },
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/defend-claim-dumb-zone.cjs\""
+            "command": "node --experimental-strip-types \"${CLAUDE_PLUGIN_ROOT}/hooks/defend-claim-dumb-zone.ts\""
           },
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/defend-claim-silent-fail.cjs\""
+            "command": "node --experimental-strip-types \"${CLAUDE_PLUGIN_ROOT}/hooks/defend-claim-silent-fail.ts\""
           }
         ]
       },
@@ -100,19 +100,19 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/defend-claim-cite-integrity.cjs\""
+            "command": "node --experimental-strip-types \"${CLAUDE_PLUGIN_ROOT}/hooks/defend-claim-cite-integrity.ts\""
           },
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/defend-claim-report-triple.cjs\""
+            "command": "node --experimental-strip-types \"${CLAUDE_PLUGIN_ROOT}/hooks/defend-claim-report-triple.ts\""
           },
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/defend-claim-dumb-zone.cjs\""
+            "command": "node --experimental-strip-types \"${CLAUDE_PLUGIN_ROOT}/hooks/defend-claim-dumb-zone.ts\""
           },
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/defend-claim-silent-fail.cjs\""
+            "command": "node --experimental-strip-types \"${CLAUDE_PLUGIN_ROOT}/hooks/defend-claim-silent-fail.ts\""
           }
         ]
       }
