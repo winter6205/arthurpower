@@ -57,6 +57,5 @@ plus a one-line overall verdict: `OVERALL: PASS` only if all 7 PASS; otherwise `
 
 ## Reference
 
-- Rule source: `~/.claude/rules/s2-defensive-contract.md`
-- Provenance: Kent Beck 《TDD: By Example》(2002) | Robert C. Martin SOLID SRP
+- Rule source: `~/.claude/plugins/marketplaces/arthurpower-local/plugins/arthurpower/skills/defensive-contract-validator/SKILL.md`
 - Common LLM failure mode: long multi-responsibility functions that skip the "simplest failing test first" rhythm, with tests coupled to existing implementation rather than growing from requirements.
