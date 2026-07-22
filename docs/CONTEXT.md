@@ -189,6 +189,28 @@ _Avoid_: 自动推断 handoff 目标；跳过 stop gate；grilling Resolution �
 
 ---
 
+### Hook 三层拓扑与迁移 (2026-07-22)
+
+**三层 hook 拓扑 (L1/L2/L3)**: L1 = 项目仓库 SSOT (`arthurpower/hooks/`, `hooks.json` 用 `${CLAUDE_PLUGIN_ROOT}` 引用); L2 = 插件部署层 (marketplace + cache, 由 `sync-marketplace-cache.py` 从 L1 同步, no-delete); L3 = 全局共享 hook (`~/.claude/hooks/`, `settings.json` 用绝对路径接线). 三层各有独立 git remote. L1/L3 重叠 hook 只应在 L1 注册, L3 只放真正全局通用的 hook (lifecycle-hook, token-counter, pre-fs-guard 等).
+_Avoid_: L3 settings.json 重复注册插件 hook (导致双跑); 把 L3 当 L1 的备份; 在 L3 放插件专有 hook.
+
+**defineHook runtime**: hook 系统的共享 TS 运行时 (`runtime/defineHook.ts`), 用 zod schema 做 stdin envelope 校验 + 类型推导, `safeParse` fail-open (解析失败 exit 0 放行). 所有 `.ts` hook 通过 `import { defineHook } from './runtime/defineHook.ts'` 接入. ADR-0015 批准 zod 为唯一运行时依赖.
+_Avoid_: 手写 stdin 解析 (7 种旧实现已统一); 在 hook 里直接 `require('zod')` (应走 defineHook); 把 defineHook 当可选装饰 (它是唯一入口).
+
+**hook 双跑 (double-fire)**: 同一 hook 同时在插件层 (`hooks.json`) 和全局层 (`settings.json`) 注册, 每次工具调用执行两遍. 根因: L3 全局 `settings.json` 引用了和 L1 插件重叠的 hook. 修复 (2026-07-22): `settings.json` 只保留 L3 独有 hook, 插件 hook 由 `hooks.json` 独占.
+_Avoid_: 在 settings.json 和 hooks.json 同时注册同一 hook; 把双跑当"冗余保护"; 迁移后不清理 settings.json 旧条目.
+
+**sync no-delete**: `sync-marketplace-cache.py` 的设计约束 — 同步只增不删, 目标端 (MKT/CACHE) 的孤儿文件不会被自动清理. `audit` 报 drift 但 `sync` 不修; 孤儿 (如迁移后残留的 `.cjs`) 需手动删除.
+_Avoid_: 期望 sync 自动清理旧文件; 把 audit exit 1 当 sync 失败; 不清理孤儿就期望 audit 通过.
+
+**orphaned hook**: MKT/CACHE 中存在但 `hooks.json` 不再引用的 hook 文件 (通常是 `.cjs→.ts` 迁移后残留). 不影响运行 (hooks.json 不引用就不执行), 但占空间且 audit 报 drift. 需手动清理.
+_Avoid_: 把 orphaned hook 当"备份"; 不清理 orphaned hook 就期望 audit 通过; 把 sync no-delete 当 bug.
+
+**CJS→ESM hook 迁移**: 插件 hook 从 `.cjs` (CommonJS `require`/`module.exports`) 迁到 `.ts` (ESM `import`/`export`, `node --experimental-strip-types` 直跑). 迁移不改行为逻辑, 只统一格式 + 接入 defineHook runtime. 旧 `.cjs` 归档到 `archive/`, `hooks.json` 命令加 `--experimental-strip-types` 标志.
+_Avoid_: 迁移时改行为逻辑 (只改格式); 不归档旧 `.cjs` 直接删; 忘了更新 hooks.json 命令格式.
+
+---
+
 ## Flagged ambiguities
 
 - **"通用型 / 任务型" 分类**: V 提的 the upstream author 工程师观点. 本 session 找到原文 = upstream skills repo 仓库 `skills/productivity/writing-great-skills/SKILL.md` + GLOSSARY.md. upstream 用 **model-invoked vs user-invoked** (context load vs cognitive load trade-off) 分类, 不是"通用型/任务型". 决议: resolved, 用 upstream 的 invocation 分类替代之前的"通用型/任务型"猜测.
