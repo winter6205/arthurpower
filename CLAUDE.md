@@ -22,7 +22,7 @@ Use as default bias, not strict checklist.
 修改任务范围外的安全、认证、权限、支付、数据迁移、CI/CD 或生产配置；
 删除、跳过或弱化测试；绕过 hooks、lint、测试或其他质量门禁；暴露密钥或凭据。
 
-锁文件变更需显式指令。不得升级 major 版本除非有明确理由。
+锁文件变更需显式指令。
 
 ## Validation
 
