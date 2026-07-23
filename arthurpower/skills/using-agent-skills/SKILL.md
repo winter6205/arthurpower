@@ -110,7 +110,6 @@ gates) see `references/quick-reference.md`.
 - codebase-memory
 - codebase-onboarding
 - code-review
-- code-review-and-quality
 - commit-revert-protocol
 - complexity-anti-drift
 - deep-dive-protocol
@@ -206,7 +205,7 @@ Halt and re-classify if any of the following appear:
 - Selecting a comprehensive / catch-all skill when a focused one suffices.
 - Treating a refactor as part of a feature commit (1 commit = 1 logical task violation).
 - Auto-triggering based on system-prompt defaults instead of explicit user signal.
-- Stacking two routing skills ("I'll invoke both ACR and code-review-and-quality") when one is the gate.
+- Stacking two routing skills ("I'll invoke both ACR and arthurpower:code-review") when one is the gate.
 - Reaching for `verification-before-completion` before the implementation actually runs (gate ordering violation).
 
 ## References

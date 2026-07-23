@@ -33,7 +33,7 @@ Task arrives
 │
 ├── Reviewing
 │   ├── Pre-impl 5-verdict ─────────────→ architecture-change-reviewer (ACR)
-│   └── Post-impl 5-axis review ─────────→ code-review-and-quality
+│   └── Post-impl dual-axis review ──────→ arthurpower:code-review
 │
 ├── Committing / branching
 │   └── 1 commit = 1 logical task ──────→ minimal-change-verifier

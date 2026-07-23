@@ -74,11 +74,11 @@ _Avoid_: 用 disabledMcpjsonServers (bug 字段); 给 deniedMcpServers 用字符
 **MCP 启动状态四态**: /mcp 显示 server 状态有 4 种: ✔ connected (定义+批准+启动成功), ◯ connecting… (启动中, npx 首次下载/OAuth 远程认证会慢, 非错误), ✘ Failed to connect (启动失败, 如 OAuth 未授权 / 命令不存在 / 网络不通), ⏸ Pending approval (有定义但未批准, untrusted folder 中 enabledMcpjsonServers 被 ignore). 用 `claude mcp get <name>` 看单 server 真状态 (含 Scope + Status + 错误原因), 比 /mcp TUI 详细.
 _Avoid_: 把 connecting… 当错误 (npx 首次启动正常慢); 不区分 Failed to connect (启动失败) 跟 Pending approval (未批准).
 
-**三体 S1-S6 决策位置分工**: S1–S6 由时点 + 作用域分工：改前 ACR gate、改后预 commit code-review / audit-agent、pre-merge maintainability-reviewer，不合并成一体。详见 `docs/adr/0002` + `docs/adr/0007`。
+**三体 S1-S6 决策位置分工**: S1–S6 由时点 + 作用域分工：改前 ACR gate、改后预 commit code-review (ADR-0017: dual-subagent 编排) / audit-agent、pre-merge maintainability-reviewer，不合并成一体。详见 `docs/adr/0002` + `docs/adr/0007` + `docs/adr/0017`。
 _Avoid_: 三体合并成一个 skill; 把 audit-agent 当通用项目审查; 把 code-review 当 S1-S6 规范审计.
 
-**独立智能体 CLI vs Task subagent**: 两种不同机制. 独立智能体 CLI = 调本地 exe 的 Bash 流程 (如 `v-code-review` skill 调 `OCR_BIN` exe, OpenCodeReview fork, 内部 AI 审查, 分类 High/Medium), 主 Claude 自己跑 Bash. Task subagent = Task tool + subagent_type 字段 spawn 隔离 Claude 实例 (如 `arthurpower-audit-agent`, 独立 context + 独立 tool 权限). 触发词区分: "审代码/审 PR/review changes" 走 CLI; "audit/S1-S6/审计" 走 subagent.
-_Avoid_: 把 v-code-review 当 Task subagent (它是 Bash 调 exe); 把 arthurpower-audit-agent 当 CLI (它是 Task subagent); 混淆两者触发词.
+**独立智能体 CLI vs Task subagent**: 两种不同机制. 独立智能体 CLI = 调本地 exe 的 Bash 流程 (如 `v-code-review` 调 `OCR_BIN` exe, OpenCodeReview fork, 内部 AI 审查, 分类 High/Medium), 主 Claude 自己跑 Bash. Task subagent = Task/Agent tool + subagent_type 字段 spawn 隔离 Claude 实例 (如 `arthurpower-audit-agent` / `standards-reviewer-agent` / `spec-reviewer-agent`, 独立 context + 独立 tool 权限). 触发词区分 (ADR-0017 后): "审代码/审 PR/review" 走 `arthurpower:code-review` (dual-subagent 编排, 并行 dispatch standards-reviewer + spec-reviewer); `v-code-review` 锁定为手动 slash (`disable-model-invocation: true`, 不再自动触发); "audit/S1-S6/审计" 走 audit-agent subagent.
+_Avoid_: 把 v-code-review 当 Task subagent (它是 Bash 调 exe); 把 arthurpower-audit-agent 当 CLI (它是 Task subagent); 期望 v-code-review 自动触发 (它已锁定手动); 把 arthurpower:code-review 当 CLI wrapper (它是 dual-subagent 编排).
 
 **router 规模路由分支 + decision ticket**: `using-agent-skills` router 增设 3 选 1：scope 已定单 session → deep-dive-protocol；scope 已定多 session → ACR + writing-plans；scope 未定多 session → 三步组合（即 wayfinder 职能，不叫 wayfinder，因为是 routing 决策不是 procedural skill）。详见 ADR-0007。
 _Avoid_: 新建独立 wayfinder skill 替代 router 分支 (v0.7.0 最小变更); 把 router 分支当 procedural skill; decision ticket 跟 implementation ticket 混.

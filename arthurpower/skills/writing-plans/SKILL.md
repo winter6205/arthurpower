@@ -78,11 +78,11 @@ The loop (verbatim from ADR-0012 §Decision):
 
 1. **`arthurpower:test-driven-development`** — write the failing test first (or template-render / doc-render test for docs-only tickets).
 2. **typecheck + tests** — run the project's typecheck and test suite; both must be green.
-3. **`arthurpower:code-review`** (v-code-review CLI) — severity-gated: block on `high` or `critical` findings; `medium`/`low` are advisory.
+3. **`arthurpower:code-review`** — conditional: runs when the ticket produces a code diff; severity-gated (unresolved High blocks commit; Medium/Low advisory).
 4. **`arthurpower:verification-before-completion`** — capture actual evidence (output in full, not remembered); the 4-question ritual must complete before commit.
 5. **commit on the ticket branch** — 1 commit per tracer bullet, on its own branch off `worktree-wayfinder-gh-collab-adapt` (or the active worktree base).
 
-Why this exists (ADR-0012 §Why no implement skill): an orchestrator skill adds an unnecessary layer of indirection. Arthurpower already owns `test-driven-development`, `code-review` (v-code-review CLI), and `verification-before-completion`. What was missing was the discipline of running them in sequence per ticket — fusing the loop into the tracer bullet definition enforces it without adding a new skill surface.
+Why this exists (ADR-0012 §Why no implement skill): an orchestrator skill adds an unnecessary layer of indirection. Arthurpower already owns `test-driven-development`, `code-review`, and `verification-before-completion`. What was missing was the discipline of running them in sequence per ticket — fusing the loop into the tracer bullet definition enforces it without adding a new skill surface.
 
 **Template block** — embed this in every `[implementation]` tracer bullet of `plans/<feature>.md`:
 
@@ -90,7 +90,7 @@ Why this exists (ADR-0012 §Why no implement skill): an orchestrator skill adds 
 #### Tn. `[implementation]` <name>
 - **Affects**: <files>
 - **Acceptance**: <binary check>
-- **Per-ticket loop**: tdd → typecheck+tests → code-review (v-code-review CLI) → verification-before-completion → commit on ticket branch
+- **Per-ticket loop**: tdd → typecheck+tests → code-review → verification-before-completion → commit on ticket branch
 ```
 
 The `Per-ticket loop` line is mandatory — review of `plans/<feature>.md` is a loop-completeness check per ticket, not a generic style review.

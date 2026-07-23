@@ -2,6 +2,7 @@
 
 Date: 2026-07-15
 Status: accepted
+Superseded by: ADR-0017 (mechanism portion — CLI wrapper → dual parallel sub-agents). Content decisions (two axes, Fowler 12, severity gating, three-body time-point partition) remain valid.
 
 ## Context
 
