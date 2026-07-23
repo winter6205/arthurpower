@@ -22,7 +22,7 @@
 | Verify | verification-before-completion | Pre-merge acceptance |
 | Verify | defend-claim | "Q1 evidence", "raw exit code", "before commit" |
 | Verify | commit-revert-protocol | "rollback", "supersede ADR", "revert commit" |
-| Review | code-review-and-quality | "review", "PR", "5-axis" |
+| Review | arthurpower:code-review | "review", "PR", "审代码", "dual-axis" |
 
 ## Defining (early-stage)
 

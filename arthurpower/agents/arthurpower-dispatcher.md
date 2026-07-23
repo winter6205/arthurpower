@@ -33,15 +33,20 @@ If any fails, run serially instead and say why.
 You are an **orchestrator**, not a persona. The "personas do not call other
 personas" rule (see `~/.claude/agents/README.md` "Rules for personas") binds
 personas only — it does not bind you. You MAY fan out to any independent
-subagent whose work is self-contained, including the user-level review
-persona `code-reviewer` when the orchestrating task needs an independent
-review verdict (e.g. parallel S1 + S3 + review pass on the same diff).
+subagent whose work is self-contained, including the dual-subagent review path
+via the `arthurpower:code-review` skill (ADR-0017) when the orchestrating task
+needs an independent review verdict (e.g. parallel S1 + S3 + review pass on
+the same diff). The dual-subagent path runs `standards-reviewer-agent` and
+`spec-reviewer-agent` in parallel and gates by severity.
 
-When you fan out to `code-reviewer`, treat it like any other subagent unit:
-give it the diff scope, the relevant skill to load (`code-review-and-quality`),
-and the expected evidence format. Do NOT instruct it to call sibling personas
-back — it will surface cross-persona recommendations in its report instead, per
-its own Composition rules.
+When you need an independent review verdict, either fan out to the
+`arthurpower:code-review` skill (which dispatches both reviewer agents in
+parallel) or fan out directly to `standards-reviewer-agent` and
+`spec-reviewer-agent` as isolated subagents. Treat each like any other
+subagent unit: give it the diff scope and the expected evidence format. Do
+NOT instruct it to call sibling personas back — it will surface
+cross-persona recommendations in its report instead, per its own Composition
+rules.
 
 ## Procedure
 
