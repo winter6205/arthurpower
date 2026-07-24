@@ -1,9 +1,8 @@
 ---
 name: session-handoff
-description: Use when a session is ending, a new agent must continue the same task, or the operator mentions session continuity, cross-session relay, token pressure, or next-agent pickup. Compresses the live thread into a project-local handoff document in docs/handoff/ and references already-committed artifacts instead of duplicating them.
+description: Use when a session ends with unfinished work another agent must continue — compresses the live thread into a lean handoff doc in docs/handoff/ that references (not duplicates) committed artifacts.
 bucket: productivity
-version: 1.0.0
-tags: [handoff, cross-session, continuity, relay, next-agent, 接班人, 交接, 下一棒, 接力, 续做]
+version: 1.1.0
 related_skills: [using-agent-skills, domain-modeling, verification-before-completion]
 type: discipline
 disable-model-invocation: true
@@ -63,11 +62,11 @@ disable-model-invocation: true
 
 - 移除 API key、token、password、credential
 - 用环境变量名（`GITHUB_TOKEN`、`MINIMAX_API_KEY`）代替值
-- 完整脱敏走 `pre-context-write-guard.cjs`（如可用）
+- 写完用 Verification 段的 secret grep 自检，确认无凭据值残留
 
 ### Step 7: 写入 handoff 文件
 
-写入 `docs/handoff/YYYY-MM-DD-<slug>.md`，slug 匹配任务名。
+套用 `references/handoff-template.md` 骨架，写入 `docs/handoff/YYYY-MM-DD-<slug>.md`，slug 匹配任务名。已固化在 CONTEXT / ADR / plan / map / ticket 的内容只在模板「已固化工件」表里填路径，不 inline 复制。
 
 ### Step 8: 验证可消费
 
@@ -112,18 +111,20 @@ grep -Eiq "(=[A-Za-z0-9_\-\.=]{16,}|Bearer\s+[A-Za-z0-9_\-\.=]+|ghp_[A-Za-z0-9]{
 
 ### Red Flags — STOP
 
-- 将 secret / credential 值写入 handoff 文件
-- 完整复制 ADR / spec / plan 内容而非引用路径
-- 将 handoff 留在 OS 临时目录而非 `docs/handoff/`
-- 多于一个 `[NEXT]` step，或完全无 `[NEXT]` step
-- "下个 agent 自己摸索 X" — handoff 必须写具体动作
-- handoff 文件超过 300 行 — 将细节推回引用的 artifacts
-- 未 capture 已验证状态（tests / commands / exit codes）
-- 在用户确认 session 即将结束前就写 handoff
+每条反模式 → 正确动作（discipline 硬护栏）：
+
+- 写入 secret / credential 值 → 只留环境变量名，写完跑 Verification 的 secret grep 自检
+- inline 复制 ADR / spec / plan 内容 → 只引用路径，内容留在 SSOT
+- 写到 OS 临时目录 → 写进 `docs/handoff/`，保证项目树内可发现
+- `[NEXT]` 多于一个或缺失 → 恰好一个 concrete `[NEXT]`
+- "下个 agent 自己摸索 X" → `[NEXT]` 写具体可执行动作
+- 文件超过 300 行 → 把细节推回引用的 artifacts
+- 缺已验证状态 → 至少一条命令 / 测试结果 + exit marker
+- 用户未确认 session 将结束就写 → 先确认再写
 
 ## References
 
-- Handoff template: `references/handoff-template.md`
+- Handoff template: `references/handoff-template.md`（Step 7 套用）
 - Context SSOT: `docs/CONTEXT.md`
 - Decision records: `docs/adr/NNNN-slug.md`
-- Sanitization guard: `.claude/hooks/pre-context-write-guard.cjs`
+- 脱敏自检: Verification 段的 secret grep
