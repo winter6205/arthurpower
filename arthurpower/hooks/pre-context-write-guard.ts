@@ -91,6 +91,11 @@ function hasHeading(content: string, re: RegExp): boolean {
   return content.split(/\r?\n/).some((line) => re.test(line.trim()));
 }
 
+// 2026-07-24 Fix (gh-68): Status/Date line regexes shared by validateAdr
+// (write path, full-file) and validateAdrFragment (edit path, diff fragment).
+const STATUS_LINE_RE = /^Status:\s*(proposed|accepted|deprecated|superseded\s+by\s+\d{4})\s*$/;
+const DATE_LINE_RE = /^Date:\s*\d{4}-\d{2}-\d{2}\s*$/;
+
 function fail(reason: string): never {
   // 2026-07-15 Fix: the block envelope is written via the runtime's exitBlock
   // (SC7: stderr-only block emission). The runtime prepends "BLOCKED: ".
@@ -296,15 +301,16 @@ function validateContext(content: string, label: string, mode: 'write' | 'edit')
   if (!hasTerm) fail(label + ' 缺少 **Term**: definition. 格式词条');
 }
 
-function validateAdr(content: string, expectedNumber: string): void {
+function validateAdr(content: string, expectedNumber: string, mode: 'write' | 'edit'): void {
+  // 2026-07-24 Fix (gh-68): mode='edit' (Edit/MultiEdit) validates only fields
+  // present in the diff fragment — mirrors validateContext's edit branch.
+  // mode='write' retains the full 5-check below.
+  if (mode === 'edit') { validateAdrFragment(content); return; }
   const lines = content.split(/\r?\n/);
   const titleRe = new RegExp('^#\\s+' + expectedNumber + '\\.\\s+.+');
   const hasTitle = lines.some((line) => titleRe.test(line.trim()));
-  const hasDate = lines.some((line) => /^Date:\s*\d{4}-\d{2}-\d{2}\s*$/.test(line.trim()));
-  const hasStatus = lines.some((line) => {
-    const t = line.trim();
-    return /^Status:\s*(proposed|accepted|deprecated|superseded\s+by\s+\d{4})\s*$/.test(t);
-  });
+  const hasDate = lines.some((line) => DATE_LINE_RE.test(line.trim()));
+  const hasStatus = lines.some((line) => STATUS_LINE_RE.test(line.trim()));
   const hasContext = hasHeading(content, /^##\s+Context\b/i);
   const hasDecision = hasHeading(content, /^##\s+Decision\b/i);
   const hasConsequences = hasHeading(content, /^##\s+Consequences\b/i);
@@ -323,6 +329,24 @@ function validateAdr(content: string, expectedNumber: string): void {
     if (!hasContext) fail('ADR 缺少 ## Context 章节');
     if (!hasDecision) fail('ADR 缺少 ## Decision 章节');
     if (!hasConsequences) fail('ADR 缺少 ## Consequences 章节');
+  }
+}
+
+// 2026-07-24 Fix (gh-68): fragment-level ADR validation for Edit/MultiEdit.
+// A diff fragment (new_string) is not the whole file, so file-level checks
+// (title line, section headings) are irrelevant — the full file was validated
+// at creation time. Validate only fields PRESENT in the fragment: any Status:
+// line must match the enum, any Date: line must match the format. Absence of
+// fields is fine. Mirrors validateContext's mode='edit' branch (hasTerm only).
+function validateAdrFragment(content: string): void {
+  for (const raw of content.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (/^Status:/.test(line) && !STATUS_LINE_RE.test(line)) {
+      fail('ADR Status 不在 proposed/accepted/deprecated/superseded by NNNN 枚举内');
+    }
+    if (/^Date:/.test(line) && !DATE_LINE_RE.test(line)) {
+      fail('ADR 缺少 Date: YYYY-MM-DD 行');
+    }
   }
 }
 
@@ -531,7 +555,11 @@ defineHook({
           fail('ADR 写入内容为空');
         }
         checkAdrUniqueness(filePath, adrMatch[2]);
-        validateAdr(content, adrMatch[2]);
+        // 2026-07-24 Fix (gh-68): mode='edit' for Edit/MultiEdit (fragment-level
+        // validation); mode='write' for Write (full 5-check). Mirrors the
+        // CONTEXT.md branch above.
+        const mode = (toolName === 'Edit' || toolName === 'MultiEdit') ? 'edit' : 'write';
+        validateAdr(content, adrMatch[2], mode);
         return { kind: 'allow' };
       }
 
