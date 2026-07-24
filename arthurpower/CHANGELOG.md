@@ -1,5 +1,34 @@
 # arthurpower changelog
 
+## 2026-07-25 — v0.8.1: session-handoff 断链修复 + skill-authoring 规范对齐
+
+### Summary
+
+修复 session-handoff 技能的断链引用（SKILL.md:126 引 `references/handoff-template.md` 但文件不存在，invoke 时报错）。新增精益交接模板，并按 skill-authoring 规范整理：description 删冗余触发词、删 tags 字段、Red Flags 改写为「反模式 → 正确动作」配对（negation 防御）、修正错误的 sanitization guard 引用。插件版本 0.8.0 → 0.8.1。
+
+### Bug fix: session-handoff dangling reference
+
+- **根因**: SKILL.md:126 引 `references/handoff-template.md`，但技能目录无 `references/`，invoke 技能报错。
+- **修复**: 新增 `references/handoff-template.md`（填空式瘦骨架：「已固化工件」指针表强制引用不复制，吸收 baseline handoff 的 suggested skills 段）；Step 7 改为「套用模板」。
+
+### skill-authoring 规范对齐
+
+| 改动 | 依据 |
+|------|------|
+| description 328→196 字符，删 4 个枚举触发词 | user-invoked 技能（disable-model-invocation），触发词不服务路由 |
+| 删除 `tags` 字段 | 同上；validator 不读 tags，router 按名字引用 |
+| Red Flags 8 条改写为「反模式 → 正确动作」配对 | skill-authoring negation 防御（prohibition 配正确动作） |
+| Step 6 / References 删错误 guard 引用 | 原 `.claude/hooks/pre-context-write-guard.cjs` 路径错、且按 M4 不拦 handoff；改指 Verification 的 secret grep |
+
+### Validation
+
+- `validate_skill.py` PASSED (EXIT=0)
+- `run_skill_eval.py` 20/20 (100%)，无回归
+
+### Note
+
+- CHANGELOG 缺 v0.7.0 / 0.7.1 / 0.8.0 记录（pre-existing gap，本条不回填）。
+
 ## 2026-07-15 — v0.6.0: stdin-hang hook fix + agents/commands 补全
 
 ### Summary
