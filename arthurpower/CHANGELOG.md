@@ -1,5 +1,27 @@
 # arthurpower changelog
 
+## 2026-07-26 — v0.8.2: skill audit cleanup — 死技能删除 + 幽灵引用清零
+
+### Summary
+
+审计 30 个技能的闭环归属，删除 2 个死技能（intent-inference, issue-triage-validator），清理 router mirror list 5 个幽灵条目 + quick-reference 表 8 个幽灵条目，context-loop.md 补 Stage→Skill 映射表，归档 6 个已完成 wayfinder tickets。技能数 30 → 28，版本 0.8.1 → 0.8.2。
+
+### Changes
+
+| Commit | 内容 |
+|--------|------|
+| `5e60dc4` | Router mirror list 删 5 个幽灵条目 (codebase-memory, documentation-and-adrs, gbrain-dispatch, interview-me, serena) |
+| `277322e` | 删除 intent-inference + issue-triage-validator 技能目录，同步 router/deep-dive/README/flowchart/quick-ref |
+| `38bb6eb` | context-loop.md 加 Stage→Skill 映射表 (9 阶段正面陈述) |
+| `22ba11d` | 6 个已完成 wayfinder map 归档到 docs/wayfinder/archive/ |
+| `8900f07` | quick-reference 表删 8 个幽灵条目 |
+
+### Validation
+
+- `ls arthurpower/skills/ | wc -l` → 28 ✅
+- 幽灵引用 grep (7 patterns) → 0 matches ✅
+- `sync-marketplace-cache.py audit` → EXIT=0 ✅
+
 ## 2026-07-25 — v0.8.1: session-handoff 断链修复 + skill-authoring 规范对齐
 
 ### Summary
