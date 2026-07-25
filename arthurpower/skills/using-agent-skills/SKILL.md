@@ -115,13 +115,10 @@ gates) see `references/quick-reference.md`.
 - defend-claim
 - defensive-contract-validator
 - dispatching-parallel-agents
-- documentation-and-adrs
 - domain-modeling
 - error-handling-enforcer
 - frontend-ui-engineering
-- gbrain-dispatch
 - intent-inference
-- interview-me
 - issue-triage-validator
 - minimal-change-verifier
 - performance-optimization
@@ -198,7 +195,7 @@ If any of these three is missing, the router MUST halt and either reclassify or 
 
 Halt and re-classify if any of the following appear:
 
-- About to invoke a symlink skill (skill-authoring, self-evolving-rules, dispatching-parallel-agents, gbrain-dispatch) without the user naming it explicitly.
+- About to invoke a symlink skill (skill-authoring, self-evolving-rules, dispatching-parallel-agents) without the user naming it explicitly.
 - Skipped the flowchart for a multi-file change.
 - Selecting a comprehensive / catch-all skill when a focused one suffices.
 - Treating a refactor as part of a feature commit (1 commit = 1 logical task violation).
