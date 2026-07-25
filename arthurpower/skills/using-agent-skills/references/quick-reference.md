@@ -27,8 +27,8 @@
 | Phase | Skill | Trigger |
 |-------|-------|---------|
 | Defining | spec-driven-development | "new project", "no spec yet", "multi-file scope" |
-| Defining | intent-inference | "vague request", "under-specified", "infer intent" |
-| Defining | issue-triage-validator | "inbound issue", "external PR", "triage" |
+| Defining | deep-dive-protocol | "vague request", "under-specified", "don't know what you want" |
+| Defining | wayfinder | "rough concept", "too big for one session", "need variants" |
 
 ## Team SSOT
 

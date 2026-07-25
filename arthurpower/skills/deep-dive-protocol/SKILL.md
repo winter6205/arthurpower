@@ -4,7 +4,7 @@ description: "Use when a long interview, 长访谈, 盘问, 质询, or 深度盘
 bucket: engineering
 version: 3.1.0
 tags: [Interview, Questioning, Alignment, Context, Driver, Requirement, StopGate, 盘问, 质询, 厘清, 澄清, 问清]
-related_skills: [domain-modeling, intent-inference]
+related_skills: [domain-modeling]
 ---
 
 # Deep Dive Protocol
@@ -35,7 +35,6 @@ This skill is an **interview driver**, not a planner and not an implementer.
 - 需求精确，可直接 implement
 - 单文件微调，无歧义
 - 用户明确说"别问了，直接干"
-- 意图本身尚未推断 → 先走 `intent-inference`
 
 ## How to Run
 
@@ -128,7 +127,7 @@ deep-dive 自身在 Step 2 不弹 AskUserQuestion (除三条件提示外)。所�
 |----------|---------------------|---------|-----------------|
 | "对齐完了，顺手开 writing-plans" | 减少一次往返 | 顺手启动 = 跳过 operator 选择；stop gate 就是为这一刻设的 | 输出摘要 + AskUserQuestion，停 |
 | "用户已经说了下一步，不必再问" | 字面已指向 plan | 字面下一步仍可能含未声明假设；ack 是 1 次结构化确认 | 仍开 stop gate；选项预选用户提到的 skill |
-| "AskUserQuestion 太重" | 文字问也行 | 文字确认易被淹没；与 intent-inference 纪律一致 | 弹窗，不埋文 |
+| "AskUserQuestion 太重" | 文字问也行 | 文字确认易被淹没 | 弹窗，不埋文 |
 | "domain-modeling 写完就等于完成" | 写入是硬产出 | 写入是中间产物；session 边界在 stop gate | 写完后仍走 Step 3–4 |
 | "我只是建议下一步，不算 invoke" | 建议无害 | 若同时调 Skill tool 就是 invoke；建议只许出现在摘要与 ack 后叙述 | 禁止 Skill tool 调下游 |
 
@@ -143,7 +142,6 @@ deep-dive 自身在 Step 2 不弹 AskUserQuestion (除三条件提示外)。所�
 ## References
 
 - `domain-modeling` — 唯一写入主权
-- `intent-inference` — 上游意图确认（AskUserQuestion 纪律同源）
 - `writing-plans` / `spec-driven-development` — 仅作候选下一步名称，不由本技能 invoke
 - `docs/agents/context-contract.md`
 - `pre-context-write-guard.cjs`

@@ -118,8 +118,6 @@ gates) see `references/quick-reference.md`.
 - domain-modeling
 - error-handling-enforcer
 - frontend-ui-engineering
-- intent-inference
-- issue-triage-validator
 - minimal-change-verifier
 - performance-optimization
 - security-and-hardening

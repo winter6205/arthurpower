@@ -9,11 +9,10 @@ Task arrives
 │   └── Scope 未定 + multi-session ──────────→ architecture-change-reviewer + writing-plans + session-handoff
 │
 ├── Defining what to build
-│   ├── Vague / under-specified request ──→ intent-inference (then deep-dive-protocol)
+│   ├── Vague / under-specified request ──→ deep-dive-protocol
 │   ├── Glossary / ADR / SSOT decision ───→ domain-modeling
-│   ├── External issue / PR triage ───────→ issue-triage-validator
-│   ├── Don't know what you want yet ────→ interview-me
-│   ├── Have rough concept, need variants → idea-refine
+│   ├── Don't know what you want yet ────→ deep-dive-protocol
+│   ├── Have rough concept, need variants → wayfinder
 │   └── New project/feature/change ───────→ spec-driven-development
 │
 ├── Planning implementation
