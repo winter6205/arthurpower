@@ -6,6 +6,26 @@
 
 ---
 
+## 0. Stage→Skill 映射 (Arthurpower 落地)
+
+全局方法论 9 阶段在 Arthurpower 的技能对应:
+
+| Stage | 模板名 | Arthurpower 技能 |
+|------:|--------|-----------------|
+| 1 | setup-* | `setup-arthurpower` |
+| 2 | ticket-distill | `wayfinder` (多会话决策图) + router 直接澄清 (单次模糊请求) |
+| 3 | spec-writer | `spec-driven-development` |
+| 4 | domain-modeling | `domain-modeling` |
+| 5 | domain-modeling (ADR) | `domain-modeling` |
+| 6 | task-router | `using-agent-skills` |
+| 7 | tdd / bug-diagnose / deep-dive | `test-driven-development` / `systematic-debugging` / `deep-dive-protocol` |
+| 8 | context-bus | `session-handoff` |
+| 9 | arch-improve | `bounded-context-guardian` (边界漂移 + ADR 矛盾标注) + `domain-modeling` (ADR 更新/supersede) + `self-evolving-rules` (规则演化) |
+
+Stage 7 读侧契约按写主权分级: 写 context artifacts 的技能 (`deep-dive-protocol` → `domain-modeling`) 必须先读 CONTEXT.md + ADR; 只写代码/测试的技能 (`test-driven-development`, `systematic-debugging`) 由 review 侧 (`bounded-context-guardian`, `architecture-change-reviewer`) 兜底。
+
+---
+
 ## 1. 写入主权 (唯一)
 
 | 文件 | 唯一写入者 | 其他技能行为 |
