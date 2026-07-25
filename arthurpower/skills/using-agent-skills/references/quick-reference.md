@@ -5,7 +5,7 @@
 | Meta | skill-authoring | "creating SKILL.md", "edit router skill" |
 | Meta | self-evolving-rules | "记住 X", "以后 X", "规则是 X" |
 | Meta | dispatching-parallel-agents | "parallel subagent", "concurrent dispatch" |
-| Meta | gbrain-dispatch | "GBrain KB", "read page" |
+
 | Build | bounded-context-guardian | "拆模块", "circular import" |
 | Build | defensive-contract-validator | "加接口", "修个 bug", "补验证" |
 | Build | error-handling-enforcer | "改错误处理", "加 try-catch" |
@@ -64,8 +64,3 @@
 
 | Phase | Skill | Trigger |
 |-------|-------|---------|
-| Restricted | browser-testing-with-devtools | "browser test", "Chrome DevTools", "DOM inspect" |
-| Restricted | documentation-and-adrs | "ADR", "decision record", "write docs" |
-| Restricted | interview-me | "interview me", "grill me", "stress-test thinking" |
-| Restricted | shipping-and-launch | "pre-launch checklist", "rollback", "production" |
-| Restricted | source-driven-development | "official docs", "framework code", "verified code" |
