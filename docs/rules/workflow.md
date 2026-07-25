@@ -25,10 +25,10 @@
 
 | 场景 | 必 invoke 的技能 |
 |------|------------------|
-| 接手新项目 / 理解陌生架构 | `codebase-memory` (get_architecture / search_graph) |
-| 改前摸调用链 / 找引用 | `serena` (find_symbol / find_referencing_symbols) |
-| 全局检索 / 多跳依赖 / 死代码 | `codebase-memory` (trace_path / query_graph / search_graph max_degree=0) |
-| 改代码 / 重构 / LSP 精准编辑 | `serena` (replace_symbol_body / insert_* / rename_symbol) |
+| 接手新项目 / 理解陌生架构 | 原生 `Read` + `Grep` + `Glob` 深度组合 (阅读 README / 入口 / 关键模块) |
+| 改前摸调用链 / 找引用 | 原生 `Grep` / `Glob` (按 symbol / 路径模式搜索) |
+| 全局检索 / 多跳依赖 / 死代码 | 原生 `Grep` + `Glob` + `Read` 深度组合 (多轮 ripgrep + 阅读确认) |
+| 改代码 / 重构 / 精准编辑 | 原生 `Read` + `Edit` / `Write` (surgical change) |
 | 查库 / 框架 / SDK / API 文档 | web MCP tools already enabled (`exa` EN / `minimax-search` CN); cite retrieved snippets; do not invent version-pinned APIs from memory alone |
 | 改前先写测试 | `arthurpower:test-driven-development` (transplanted T2; SKILL.md + 5 references in arthurpower skill tree) |
 | 新功能 / 创意 / 模糊需求 | `brainstorming` |
@@ -47,20 +47,20 @@
 
 | 任务级别 | 判据 | 推荐工具 | 禁忌 |
 |----------|------|----------|------|
-| **L1 局部/简单** | 单文件修改 / 简单 Bug 修复 / UI 微调 / 配置项微调 / 文档修正 | 原生文件系统工具 (`Grep` / `Glob` / `Read` / `Write`) | 不得强制调用 Serena/Codebase |
-| **L2 结构/复杂** | 跨模块重构 / 调用链追踪 / 多态/接口实现查找 / 大型遗留系统分析 / 新增核心业务链路 | **Codebase Memory 先** (全局拓扑/多跳调用/死代码) → **Serena 后** (浅跳引用/精准编辑/LSP 诊断) | 不得降级用原生工具盲改; 不得跳过 Codebase 直接用 Serena 盲改 |
+| **L1 局部/简单** | 单文件修改 / 简单 Bug 修复 / UI 微调 / 配置项微调 / 文档修正 | 原生文件系统工具 (`Grep` / `Glob` / `Read` / `Write`) | 不得跳工具栈直接盲改 |
+| **L2 结构/复杂** | 跨模块重构 / 调用链追踪 / 多态/接口实现查找 / 大型遗留系统分析 / 新增核心业务链路 | 原生 `Read` + `Grep` + `Glob` 深度组合 (多轮 ripgrep + 阅读调用图) | 不得降级用通用搜索盲改; 不得跳过上下文建立直接动手 |
 
 ### 2. 前置上下文闭环 (Pre-Execution Context Validation)
 
 - 任何代码变更 (增/删/改/移) 执行前, 必须建立完整的上下文依赖链.
-- **L2 任务**: 必须先通过 Codebase/Serena 确认全局拓扑、接口契约和副作用边界.
+- **L2 任务**: 必须先通过原生 `Read` / `Grep` / `Glob` 确认全局拓扑、接口契约和副作用边界.
 - **L1 任务**: 必须通过原生 `Read/Grep` 确认局部上下文与变量作用域.
 
 ### 3. 熔断与安全降级机制 (Fallback & Halt)
 
 | 熔断类型 | 触发条件 | 强制动作 |
 |----------|----------|----------|
-| **L2 工具熔断** | L2 任务执行时, Serena/Codebase 不可访问 / 超时 / 查询失败 | 暂停并输出 `[NEED_STRUCTURAL_INFO]` |
+| **L2 工具熔断** | L2 任务执行时, 原生工具组合 (Read/Grep/Glob) 超时 / 查询失败 | 暂停并输出 `[NEED_STRUCTURAL_INFO]` |
 | **通用上下文缺失** | 任何任务, 目标文件 / 核心逻辑 / 业务意图无法确认 | 暂停并输出 `[NEED_MORE_INFO]` |
 
 ### 4. 业务与结构双轨对齐 (Dual-Track Alignment)
@@ -89,6 +89,3 @@ CLAUDE.md 是唯一 always-on 入口（2026-07-20 进一步压缩：`.claude/rul
 - **全局 boundary-testing 两轴 agent** (`arthurpower:boundary-testing-axis1-agent` / `axis2-agent`) — 跨多文件 / 多 hook / 多状态改动前；T6 driver-level smoke 写时
 
 > 加载机制: `.claude/rules/` 已空（2026-07-20 reorg）；`docs/rules/` 下文件不自动加载，须按上表触发条件显式 Read。
-
-- Serena 工具文档: 触发 Skill `serena`
-- Codebase Memory 工具文档: 触发 Skill `codebase-memory`

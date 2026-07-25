@@ -44,7 +44,7 @@ Do not load this skill when:
 - `verification-before-completion` — applies after Phase 4 FIX succeeds; the failing test must be observed green before claiming fix verified. Evidence before assertions.
 - `dispatching-parallel-agents` — applies when systematic-debugging Phase 2 ISOLATE needs parallel subagent investigation (>= 2 independent hypotheses).
 - `writing-plans` — applies when debugging reveals a multi-step fix requiring ordered task decomposition.
-- `serena` / `codebase-memory` — multi-hop impact + dead code during isolation (Phase 2)
+- `Grep` + `Glob` + `Read` 深度组合 — multi-hop impact + dead code during isolation (Phase 2)
 
 ## Cross-references
 

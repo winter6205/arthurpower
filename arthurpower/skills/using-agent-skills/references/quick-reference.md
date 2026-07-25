@@ -5,8 +5,6 @@
 | Meta | skill-authoring | "creating SKILL.md", "edit router skill" |
 | Meta | self-evolving-rules | "记住 X", "以后 X", "规则是 X" |
 | Meta | dispatching-parallel-agents | "parallel subagent", "concurrent dispatch" |
-| Meta | codebase-memory | "explore architecture", "trace call chain" |
-| Meta | serena | "LSP edit", "replace_symbol_body" |
 | Meta | gbrain-dispatch | "GBrain KB", "read page" |
 | Build | bounded-context-guardian | "拆模块", "circular import" |
 | Build | defensive-contract-validator | "加接口", "修个 bug", "补验证" |
