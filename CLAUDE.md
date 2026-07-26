@@ -44,7 +44,11 @@ Use as default bias, not strict checklist.
 
 ## Skill routing
 
-非平凡任务开始前，通过 Skill 工具 invoke 对应技能：
+非平凡任务开始前，通过 Skill 工具 invoke 对应技能。自主审/修（`@claude` 触发：a/b 门走 CI、c 门走本地 CLI）按下表三档分级执行——本表是 agent 可读契约 SSOT（CI 中 Claude Code 自动加载本文件），人类手册见 `docs/autonomous-coding-loop.md`：
+
+- **放手改**（lint / 格式化 / typo / 依赖升级 / 补测试 / 有明确报错的 bug）→ 允许直接改 + 提交分支
+- **只审**（业务逻辑 / 算法 / 数据结构）→ 仅评论建议，不改代码
+- **只提醒**（安全 / 认证 / 权限 / 支付 / 数据迁移）→ 仅提醒，禁开 PR
 
 ## On-demand rules
 
