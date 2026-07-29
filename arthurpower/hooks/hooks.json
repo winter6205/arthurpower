@@ -1,16 +1,6 @@
 {
-  "description": "arthurpower SessionStart constraint bootstrap + PreToolUse context-闭环 gates + PostToolUse defend-claim gates",
+  "description": "arthurpower PreToolUse context-闭环 gates + PostToolUse defend-claim gates. SessionStart bootstrap removed (ADR-0021); S1-S6 rules now carried by each verifier agent's description.",
   "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\""
-          }
-        ]
-      }
-    ],
     "PreToolUse": [
       {
         "matcher": "Skill",

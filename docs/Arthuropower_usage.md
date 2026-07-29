@@ -100,10 +100,9 @@ C:\Users\<user>\.claude\plugins\marketplaces\arthurpower-local\plugins\arthurpow
 ├── commands\                            # 2 个斜杠命令
 │   ├── audit.md
 │   └── fanout.md
-├── hooks\                               # 5 个 PostToolUse + 1 SessionStart
+├── hooks\                               # 5 个 PostToolUse + PreToolUse 闭环 gates
 │   ├── hooks.json                       # hook 注册清单
 │   ├── defend-claim-*.cjs (5 个)
-│   ├── session-start.sh
 │   └── lib\read-stdin-with-timeout.cjs  # 共享 stdin 读取器
 ├── SKILL.md                             # plugin 根 umbrella skill
 ├── CHANGELOG.md
@@ -297,7 +296,6 @@ plugin 里的 skill 自动加 plugin 名前缀:
 | **defend-claim-report-triple** | PostToolUse | Write | Q3 报告三元组: 源码文件含"完成/成功/done/fixed"等叙事词时, 必须含 action-verb+artifact+outcome | 叙事词无证据三元组 -> REJECTED |
 | **defend-claim-dumb-zone** | PostToolUse | Edit/Write | Q4 实体一致: 每 10 turn 提示重新 grep 引用实体检测漂移 | 仅 advisory(每 10 turn), 不阻断 |
 | **defend-claim-silent-fail** | PostToolUse | Write | Q5 无静默失败: 检测 `except: pass` / `catch {}` / `=> null;` | 空 except:pass / 空 catch{} -> REJECTED; null return -> warning |
-| **session-start.sh** | SessionStart | - | 会话启动打印约束提醒 | 不阻断, echo 2 行 |
 
 ### 7.2 user-level hook (12 个, 在 ~/.claude/hooks/, settings.json 注册)
 
@@ -447,7 +445,7 @@ arthurpower-audit-agent / arthurpower-dispatcher
 /audit / /fanout
 
 ### Hook (5 plugin + 12 user)
-plugin: defend-claim-execution / -cite-integrity / -dumb-zone / -report-triple / -silent-fail + session-start.sh
+plugin: defend-claim-execution / -cite-integrity / -dumb-zone / -report-triple / -silent-fail
 user: pre-context-write-guard / pre-stale-read / pre-read-contract / post-ssot-priority / post-conflict-annotation / post-tool-no-empty-catch / post-push-task-end / pre-tool-s1-bounded-context / pre-tool-supply-chain / pre-tool-s2-test-gate / token-counter / lifecycle-hook
 
 ### 相关文档
