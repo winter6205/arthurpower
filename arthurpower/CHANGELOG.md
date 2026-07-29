@@ -1,5 +1,45 @@
 # arthurpower changelog
 
+## 2026-07-29 — v0.9.0: SessionStart bootstrap 移除 — 主会话上下文清洁化
+
+### Summary
+
+删除 `arthurpower/hooks/session-start.sh` + `hooks.json` 中 `SessionStart` 注册块。该脚本的 3 行 `echo` 输出本质上是 S1-S6 规则的一句话概括，与各 verifier agent 自身的 description + body 定义冗余、术语已漂移（S5 在 bootstrap 中称"complexity control"，在 agent 中称"Anti-Drift"）、且污染所有 session 的主 agent system context。Plugin hook 数 13 → 12，符合 CLAUDE.md "10-hook 不可 regress" 的 ADR-0021 显式 carve-out。版本 0.8.2 → 0.9.0（minor bump：面向 consumer 的行为变更）。
+
+### BREAKING CHANGE
+
+主 agent 不再收到 SessionStart 启动时注入的 S1-S6 概括两行 `<system-reminder>`。S 规则现在由各 verifier agent 的 description 按需载入（always-on progressive disclosure，ADR-0008）：
+
+| S 规则 | 承载 agent | 载入时机 |
+|---|---|---|
+| S1 bounded context | `bounded-context-guardian-agent` | invoke 时按 description 自动 reach |
+| S2 defensive contract | `defensive-contract-validator-agent` | 同上 |
+| S3 error handling | `error-handling-enforcer-agent` | 同上 |
+| S4 architecture review | `architecture-change-reviewer-agent` | 同上 |
+| S5 complexity anti-drift | `complexity-anti-drift-agent` | 同上 |
+| S6 minimal change | `minimal-change-verifier-agent` | 同上 |
+
+对使用 arthurpower 的 operator 而言：之前每个 session 启动时主 agent 看到"S1-S6 约束"两行；之后只在 dispatcher 派发到 verifier agent 时才看到完整规则定义。Human-facing 行为不变；agent 行为不变。
+
+### Changes
+
+| Commit | 内容 |
+|--------|------|
+| `f4763fe` | 删除 `session-start.sh` + `hooks.json` SessionStart 块；4 个 active 文档同步；新增 ADR-0021 |
+
+### Validation
+
+- `python scripts/sync-marketplace-cache.py audit` → EXIT=1（drift present，预期：本地 SRC 已改，MKT/CACHE 未跟）
+- `python -c "import json; json.load(open('arthurpower/hooks/hooks.json'))"` → valid JSON ✅
+- `git ls-files arthurpower/hooks/session-start.sh` → empty（文件已删） ✅
+- `plugin.json` version: 0.8.2 → 0.9.0 ✅
+
+### Rollback
+
+- 本 commit revert → `git revert f4763fe`
+- 手动恢复：`echo "arthurpower active: ..." > arthurpower/hooks/session-start.sh` + 在 `hooks.json` 加 `SessionStart` 块 + 跑 broadcast sync
+- broadcast MKT/CACHE 残留的孤儿 `session-start.sh` 文件需要手动删除（sync 脚本 no-delete）
+
 ## 2026-07-26 — v0.8.2: skill audit cleanup — 死技能删除 + 幽灵引用清零
 
 ### Summary
