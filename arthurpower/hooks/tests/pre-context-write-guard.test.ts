@@ -1,10 +1,11 @@
-// Driver-level tests for pre-context-write-guard.ts (gh-68: ADR edit-mode leniency).
+// Driver-level tests for pre-context-write-guard.ts (gh-68: ADR edit-mode leniency,
+// ADR-0022: transcript-primary skill-identity).
 // Protocol: spawn the hook with a PreToolUse envelope on stdin; assert exit code
 // (0=allow, 2=block) + stderr BLOCKED message.
 // Isolation: CLAUDE_CONFIG_DIR → per-suite mkdtempSync tmpdir so readActiveSkill()
-// finds no routing-state → identity check fails open (identityCheckDisabled = true).
-// Structural validation (validateAdr / validateAdrFragment) is the only layer under
-// test here; identity enforcement is out of scope for this suite.
+// finds no routing-state → identity check falls back to transcript (or fully
+// fails open if no transcript path provided). Structural validation
+// (validateAdr / validateAdrFragment) is enforced when activeSkill is unresolved.
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
@@ -19,10 +20,19 @@ let cfgDir: string;
 before(() => { cfgDir = fs.mkdtempSync(path.join(os.tmpdir(), 'guard-test-')); });
 after(() => { fs.rmSync(cfgDir, { recursive: true, force: true }); });
 
-function runHook(envelope: unknown): { status: number; stderr: string } {
+function runHook(envelope: unknown, opts?: { cfgDir?: string; transcriptPath?: string }): { status: number; stderr: string } {
+  const targetCfg = opts?.cfgDir ?? cfgDir;
+  const env: NodeJS.ProcessEnv = { ...process.env, CLAUDE_CONFIG_DIR: targetCfg };
+  let payload: string;
+  if (opts?.transcriptPath) {
+    const env2 = envelope as Record<string, unknown>;
+    payload = JSON.stringify({ ...env2, transcript_path: opts.transcriptPath });
+  } else {
+    payload = JSON.stringify(envelope);
+  }
   const r = spawnSync(process.execPath, ['--experimental-strip-types', HOOK], {
-    input: JSON.stringify(envelope),
-    env: { ...process.env, CLAUDE_CONFIG_DIR: cfgDir },
+    input: payload,
+    env,
     encoding: 'utf8',
     timeout: 10000,
   });
@@ -252,4 +262,132 @@ test('edits array with non-string new_string coerced to empty → allow', () => 
     },
   });
   assert.equal(r.status, 0, 'status was ' + r.status + ' stderr=' + r.stderr);
+});
+
+// ----------------------------------------------------------------------------
+// ADR-0022: transcript-primary skill-identity (C1 / C5 failure tests)
+//
+// These two tests pin the bug fixed by ADR-0022: the allow path skipped the
+// transcript check, so a stale / unauthorized skill activation could write a
+// guarded file as long as routing-state happened to show a whitelisted skill
+// (C1) or routing-state TTL expired and the structural layer passed (C5).
+//
+// Test isolation: each test builds its own CLAUDE_CONFIG_DIR tmpdir with a
+// mocked .routing-state.json (signed via the same sha256 algorithm as
+// lib/ipc-core.ts) plus a real transcript file on disk. The hook is spawned
+// with transcript_path pointing at that file.
+// ----------------------------------------------------------------------------
+
+import crypto from 'node:crypto';
+
+// Mirrors lib/ipc-core.writeRoutingState's signature algorithm exactly:
+//   rest = zod-parsed object with keys in schema-declared order
+//          (skill, timestamp, then passthrough extras), and
+//   signature = sha256(JSON.stringify(rest)).
+function writeSignedRoutingState(cfgDir: string, skill: string, timestamp: number): void {
+  const rest = {
+    skill,
+    timestamp,
+    schemaVersion: 1,
+    id: 'test-id',
+    phase: 'initial',
+  };
+  const signature = crypto.createHash('sha256').update(JSON.stringify(rest)).digest('hex');
+  const full = { ...rest, signature };
+  fs.writeFileSync(path.join(cfgDir, '.routing-state.json'), JSON.stringify(full, null, 2));
+}
+
+type TranscriptMarker =
+  | { kind: 'skill'; name: string }
+  | { kind: 'slash'; name: string };
+
+function writeTranscript(transcriptPath: string, markers: TranscriptMarker[]): void {
+  const parts: string[] = [];
+  // Throwaway filler so the 64KB tail-read still sees the markers in order.
+  parts.push('{"type":"user","message":{"role":"user","content":"session start"}}\n');
+  for (const m of markers) {
+    if (m.kind === 'skill') {
+      parts.push(JSON.stringify({ type: 'assistant', message: { role: 'assistant', content: [{ type: 'tool_use', name: 'Skill', input: { skill: m.name } }] } }) + '\n');
+    } else {
+      parts.push(`<command-name>${m.name}</command-name>\n`);
+    }
+  }
+  fs.writeFileSync(transcriptPath, parts.join(''));
+}
+
+const CONTEXT_PATH = 'docs/CONTEXT.md';
+const VALID_CONTEXT_WRITE = '# Project Glossary\n\n## Language\n\n**Term**: A definition.\n';
+
+// C1: routing-state is fresh and shows domain-modeling (whitelisted), but a
+// slash command later activates code-review. Pre-fix behavior: allow path
+// skips transcript, returns allow -> false negative. ADR-0005 requires block.
+test('C1: routing-state=domain-modeling but transcript latest=code-review slash -> block', () => {
+  const localCfg = fs.mkdtempSync(path.join(os.tmpdir(), 'guard-c1-'));
+  try {
+    writeSignedRoutingState(localCfg, 'domain-modeling', Date.now());
+    const transcriptPath = path.join(localCfg, 'transcript.jsonl');
+    writeTranscript(transcriptPath, [
+      { kind: 'skill', name: 'domain-modeling' },
+      { kind: 'slash', name: '/arthurpower:code-review' },
+    ]);
+    const r = runHook(
+      { tool_name: 'Write', tool_input: { file_path: CONTEXT_PATH, content: VALID_CONTEXT_WRITE } },
+      { cfgDir: localCfg, transcriptPath },
+    );
+    assert.equal(r.status, 2, 'status was ' + r.status + ' stderr=' + r.stderr);
+    assert.ok(blockedMessage(r.stderr).includes('active skill'),
+      'expected identity-layer block, got: ' + r.stderr);
+  } finally {
+    fs.rmSync(localCfg, { recursive: true, force: true });
+  }
+});
+
+// C5: routing-state TTL has expired (readRoutingState returns null). Transcript
+// shows tdd-protocol slash was the most-recent activation. With routing-state
+// unusable, identityCheckDisabled=true pre-fix -> structural Edit-mode layer
+// accepted the glossary line and allowed. ADR-0005 requires block.
+test('C5: routing-state expired + transcript latest=tdd-protocol slash + Edit glossary -> block', () => {
+  const localCfg = fs.mkdtempSync(path.join(os.tmpdir(), 'guard-c5-'));
+  try {
+    // 30s in the past: well past the 5s STATE_TTL_MS in ipc-core.
+    writeSignedRoutingState(localCfg, 'domain-modeling', Date.now() - 30_000);
+    const transcriptPath = path.join(localCfg, 'transcript.jsonl');
+    writeTranscript(transcriptPath, [
+      { kind: 'skill', name: 'domain-modeling' },
+      { kind: 'slash', name: '/arthurpower:tdd-protocol' },
+    ]);
+    const r = runHook(
+      { tool_name: 'Edit', tool_input: { file_path: CONTEXT_PATH, old_string: 'old', new_string: '**SomeTerm**: test entry.' } },
+      { cfgDir: localCfg, transcriptPath },
+    );
+    assert.equal(r.status, 2, 'status was ' + r.status + ' stderr=' + r.stderr);
+    assert.ok(blockedMessage(r.stderr).includes('active skill'),
+      'expected identity-layer block, got: ' + r.stderr);
+  } finally {
+    fs.rmSync(localCfg, { recursive: true, force: true });
+  }
+});
+
+// C6: transcript is readable but contains NO skill-activation marker (neither
+// Skill-tool call nor <command-name> slash). routing-state is also absent.
+// ADR-0022 Decision 5: readable + no marker -> non-authorized -> BLOCK.
+// Pre-fix bug caught by code-review: identityCheckDisabled was computed before
+// the override, so this case fell into fail-open branch and allowed.
+test('C6: transcript readable with no skill activation marker + Write CONTEXT -> block', () => {
+  const localCfg = fs.mkdtempSync(path.join(os.tmpdir(), 'guard-c6-'));
+  try {
+    const transcriptPath = path.join(localCfg, 'transcript.jsonl');
+    fs.writeFileSync(transcriptPath,
+      '{"type":"user","message":{"role":"user","content":"hello"}}\n' +
+      '{"type":"assistant","message":{"role":"assistant","content":"hi"}}\n');
+    const r = runHook(
+      { tool_name: 'Write', tool_input: { file_path: CONTEXT_PATH, content: VALID_CONTEXT_WRITE } },
+      { cfgDir: localCfg, transcriptPath },
+    );
+    assert.equal(r.status, 2, 'status was ' + r.status + ' stderr=' + r.stderr);
+    assert.ok(blockedMessage(r.stderr).includes('no skill activation'),
+      'expected no-activation block, got: ' + r.stderr);
+  } finally {
+    fs.rmSync(localCfg, { recursive: true, force: true });
+  }
 });

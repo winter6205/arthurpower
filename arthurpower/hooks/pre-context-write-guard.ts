@@ -233,20 +233,32 @@ async function readActiveSkill(): Promise<string | null> {
 // The session transcript is the authoritative record of BOTH invocation paths:
 //   - Skill tool:   assistant tool_use  {"name":"Skill","input":{"skill":X}}
 //   - slash command: user message text  <command-name>X</command-name>
-// When routing-state is fresh-but-unauthorized and a guarded write is targeted,
-// corroborate against the transcript's most-recent skill activation:
-//   - it is authorized            -> routing-state was a stale residual; allow
-//   - it is unauthorized / absent -> genuinely unauthorized; block
-//   - transcript unreadable       -> no authoritative signal; fail-open (candidate A)
-// This fires only on the block path (rare), so it adds no per-tool-call cost,
-// and structural validation below still runs either way.
+//
+// 2026-07-29 Fix (ADR-0022): transcript is now the PRIMARY identity signal, not
+// a block-path-only corroboration. The previous design consulted the transcript
+// ONLY when routing-state showed an unauthorized skill (the block path). When
+// routing-state showed a whitelisted skill (the allow path) - including stale
+// residuals left by a slash-command switch - the transcript was never read, so
+// a slash switch from domain-modeling to code-review followed by a Write to
+// CONTEXT.md was silently allowed (C1). Likewise, when routing-state TTL
+// expired (identityCheckDisabled) the structural layer became the de-facto
+// authority and any glossary-shaped Edit passed (C5).
+//
+// Resolution: compute the most-recent skill activation from the transcript
+// unconditionally; routing-state is consulted only as a fallback when the
+// transcript itself is unreadable. See ADR-0022.
 const TRANSCRIPT_TAIL_BYTES = 64 * 1024;
 const SKILL_TOOL_RE = /"name"\s*:\s*"Skill"\s*,\s*"input"\s*:\s*\{\s*"skill"\s*:\s*"([^"]+)"/g;
 const SLASH_CMD_RE = /<command-name>\s*([^<\s][^<]*?)\s*<\/command-name>/g;
 
-function transcriptCorroborates(transcriptPath: string): boolean | null {
+// readLatestSkillFromTranscript: returns the normalized id of the most-recent
+// skill activation in the transcript tail.
+//   { readable: true,  skill: string }  -> transcript readable, latest activation is `skill`
+//   { readable: true,  skill: null }    -> transcript readable, NO activation marker (treat as non-authorized)
+//   { readable: false, skill: null }    -> transcript missing/corrupt/unreadable -> fall back to routing-state
+function readLatestSkillFromTranscript(transcriptPath: string): { readable: boolean; skill: string | null } {
   try {
-    if (!transcriptPath || !fs.existsSync(transcriptPath)) return null;
+    if (!transcriptPath || !fs.existsSync(transcriptPath)) return { readable: false, skill: null };
     const stat = fs.statSync(transcriptPath);
     const start = Math.max(0, stat.size - TRANSCRIPT_TAIL_BYTES);
     const fd = fs.openSync(transcriptPath, 'r');
@@ -269,13 +281,12 @@ function transcriptCorroborates(transcriptPath: string): boolean | null {
     while ((m = SLASH_CMD_RE.exec(tail)) !== null) {
       hits.push({ pos: m.index, skill: normalizeSkillId(m[1]) });
     }
-    if (hits.length === 0) return false; // readable, no skill activation -> unauthorized
+    if (hits.length === 0) return { readable: true, skill: null };
     // Most recent activation wins (transcript is append-ordered).
     hits.sort((a, b) => a.pos - b.pos);
-    const latest = hits[hits.length - 1].skill;
-    return AUTHORIZED_SKILLS.has(latest);
+    return { readable: true, skill: hits[hits.length - 1].skill };
   } catch (_) {
-    return null; // unreadable -> fail-open
+    return { readable: false, skill: null }; // unreadable -> fall back to routing-state
   }
 }
 
@@ -448,8 +459,30 @@ defineHook({
       // state is missing, unreadable, malformed, or skill field is
       // missing/empty -> skip identity check entirely (structural validation
       // below still runs).
-      const activeSkill = await readActiveSkill();
-      const identityCheckDisabled = activeSkill === null;
+      const routingSkill = await readActiveSkill();
+      // ADR-0022: transcript is the primary identity signal. routing-state is a
+      // fallback used only when the transcript itself is unreadable.
+      const transcript = readLatestSkillFromTranscript(transcriptPath);
+
+      // Resolve the effective active skill. Three mutually exclusive cases:
+      //   transcript readable + has skill  -> transcript.skill (ground truth)
+      //   transcript readable + no marker  -> null  + transcriptHasMarker=false
+      //                                       (treated as non-authorized below;
+      //                                       does NOT enter fail-open branch)
+      //   transcript unreadable            -> routingSkill (fallback, may be null)
+      let activeSkill: string | null;
+      let transcriptHasMarker: boolean;
+      if (transcript.readable) {
+        activeSkill = transcript.skill; // string | null
+        transcriptHasMarker = transcript.skill !== null;
+      } else {
+        activeSkill = routingSkill; // null when routing-state also unreadable
+        transcriptHasMarker = false;
+      }
+      // Recompute AFTER resolution so the "readable but no marker" case does not
+      // silently fall into the fail-open branch (security regression fixed by
+      // review feedback on ADR-0022 initial implementation).
+      const identityCheckDisabled = activeSkill === null && !transcript.readable;
 
       // Resolve the targeted file path for the identity check. For Bash tool
       // we treat the entire bashCommand as the "intent surface" - if the
@@ -471,57 +504,49 @@ defineHook({
         return null;
       }
 
-      // Apply identity check: if a guarded file is targeted AND we know the
-      // active skill AND that skill is not in the white-list -> block.
-      // setup-arthurpower has an escape hatch only when docs/adr/ is empty
-      // (template bootstrap).
+      // Apply identity check (ADR-0022): if a guarded file is targeted, the
+      // effective active skill (transcript-primary, routing-state fallback)
+      // must be in the white-list. setup-arthurpower has an escape hatch only
+      // when docs/adr/ is empty (template bootstrap).
       //
-      // gh-43: a fresh-but-unauthorized routing-state may be a stale
-      // residual (slash-command / subagent / session-start activation never
-      // refreshes it). Before blocking, corroborate against the session
-      // transcript; if the transcript shows an authorized skill, allow
-      // (routing-state was stale).
+      // Diagnostics: surface which signal resolved the identity, so a stale
+      // residual or a transcript override is observable in stderr.
       if (!identityCheckDisabled) {
-        // Resolve the corroboration verdict lazily, once, only when a
-        // guarded write by an unauthorized skill is about to be blocked.
-        let corroboration: boolean | null | undefined = undefined;
-        const corroborate = (): boolean | null => {
-          if (corroboration === undefined) {
-            corroboration = transcriptCorroborates(transcriptPath);
-            if (corroboration === true) {
-              process.stderr.write('[guard] routing-state skill "' + activeSkill +
-                '" overridden by transcript (authorized skill active); allowing (gh-43)\n');
-            } else if (corroboration === null) {
-              process.stderr.write('[guard] transcript unreadable; identity check skipped (fail-open, gh-43)\n');
-            }
-          }
-          return corroboration;
-        };
+        // Label for block messages: null activeSkill (transcript readable but no
+        // marker) is rendered as a human-readable hint rather than the literal
+        // string "null".
+        const skillLabel = activeSkill ?? '(no skill activation in transcript)';
+
+        if (transcript.readable && transcript.skill !== null) {
+          process.stderr.write('[guard] identity from transcript: "' + transcript.skill + '"\n');
+        } else if (transcript.readable && transcript.skill === null) {
+          process.stderr.write('[guard] transcript readable but no skill activation; blocking non-authorized\n');
+        } else {
+          process.stderr.write('[guard] transcript unreadable; identity from routing-state: "' + (routingSkill ?? 'null') + '"\n');
+        }
 
         if (toolName === 'Bash') {
           const guardedKind = bashPathFromCommand(bashCommand);
-          if (guardedKind && !AUTHORIZED_SKILLS.has(activeSkill) && corroborate() === false) {
-            failIdentity(activeSkill, 'docs/CONTEXT*.md | docs/team-glossary.md | docs/adr/*.md (via Bash)');
+          if (guardedKind && !AUTHORIZED_SKILLS.has(activeSkill)) {
+            failIdentity(skillLabel, 'docs/CONTEXT*.md | docs/team-glossary.md | docs/adr/*.md (via Bash)');
           }
           if (guardedKind && activeSkill === 'setup-arthurpower' && !isSetupBootstrapAllowed(process.cwd())) {
-            failIdentity(activeSkill, 'docs/CONTEXT*.md | docs/team-glossary.md | docs/adr/*.md (via Bash; bootstrap already done)');
+            failIdentity(skillLabel, 'docs/CONTEXT*.md | docs/team-glossary.md | docs/adr/*.md (via Bash; bootstrap already done)');
           }
         } else if (typeof filePath === 'string' && filePath) {
           const guardedKind = pathGuarded(filePath);
           if (guardedKind) {
             if (!AUTHORIZED_SKILLS.has(activeSkill)) {
-              if (corroborate() === false) {
-                failIdentity(activeSkill, filePath);
-              }
+              failIdentity(skillLabel, filePath);
             } else if (activeSkill === 'setup-arthurpower' && !isSetupBootstrapAllowed(filePath)) {
-              failIdentity(activeSkill, filePath + ' (bootstrap already done)');
+              failIdentity(skillLabel, filePath + ' (bootstrap already done)');
             }
           }
         }
       } else {
-        // Fail-open visibility: one-line stderr hint when routing-state is
-        // missing. Mirrors the original .cjs behavior.
-        process.stderr.write('[guard] routing-state unreadable; identity check skipped\n');
+        // Fail-open visibility: one-line stderr hint when BOTH transcript and
+        // routing-state are unreadable. Structural validation below still runs.
+        process.stderr.write('[guard] routing-state + transcript both unreadable; identity check skipped\n');
       }
 
       // Bash path: detect write/destroy redirection to context-guarded files.
