@@ -73,10 +73,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node --experimental-strip-types \"${CLAUDE_PLUGIN_ROOT}/hooks/defend-claim-cite-integrity.ts\""
-          },
-          {
-            "type": "command",
             "command": "node --experimental-strip-types \"${CLAUDE_PLUGIN_ROOT}/hooks/defend-claim-dumb-zone.ts\""
           },
           {
