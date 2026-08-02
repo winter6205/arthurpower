@@ -308,7 +308,7 @@ plugin 里的 skill 自动加 plugin 名前缀:
 | **pre-read-contract** | PreToolUse Write/Edit/Bash | 读侧契约: 非平凡任务前必读 CONTEXT.md + ADR |
 | **post-ssot-priority** | PostToolUse Write/Edit/Bash | SSOT 优先级: 同事实多处记载时提示单一事实源 |
 | **post-conflict-annotation** | PostToolUse .* | 输出与 ADR 矛盾时强制标注 "Contradicts ADR-NNNN" |
-| **post-tool-no-empty-catch** | PostToolUse Write/Edit | 物理拦截空 catch(与 plugin defend-claim-silent-fail 互补) |
+| **post-tool-no-empty-catch** | (已删除) | 空 catch 检测已合并进 plugin defend-claim-silent-fail |
 | **post-push-task-end** | PostToolUse Bash | git push 后提示任务收尾 |
 | **pre-tool-s1-bounded-context** | PreToolUse Bash | S1 限界上下文检查 |
 | **pre-tool-supply-chain** | PreToolUse Bash | 供应链检查(新依赖) |
@@ -348,7 +348,7 @@ plugin 里的 skill 自动加 plugin 名前缀:
 
 | Claude 想做... | 被哪个 hook 拦 |
 |---------------|--------------|
-| 写空 `catch {}` | post-tool-no-empty-catch (user) + defend-claim-silent-fail (plugin) |
+| 写空 `catch {}` / `catch (e) {}` | defend-claim-silent-fail (plugin, 已合并) |
 | 写 `except: pass` | defend-claim-silent-fail (plugin) |
 | 报告"完成"但无证据 | defend-claim-report-triple (plugin) + defend-claim (skill) |
 | 引用不存在的 file:line | defend-claim-cite-integrity (plugin) |
@@ -446,7 +446,7 @@ arthurpower-audit-agent / arthurpower-dispatcher
 
 ### Hook (5 plugin + 12 user)
 plugin: defend-claim-execution / -cite-integrity / -dumb-zone / -report-triple / -silent-fail
-user: pre-context-write-guard / pre-stale-read / pre-read-contract / post-ssot-priority / post-conflict-annotation / post-tool-no-empty-catch / post-push-task-end / pre-tool-s1-bounded-context / pre-tool-supply-chain / pre-tool-s2-test-gate / token-counter / lifecycle-hook
+user: pre-context-write-guard / pre-stale-read / pre-read-contract / post-ssot-priority / post-conflict-annotation / post-push-task-end / pre-tool-s1-bounded-context / pre-tool-supply-chain / pre-tool-s2-test-gate / token-counter / lifecycle-hook
 
 ### 相关文档
 - `docs/version_diff.md` - the baseline 1.0/1.1/1.2 调研
