@@ -1,5 +1,32 @@
 # arthurpower changelog
 
+## 2026-08-02 -- v0.10.0: hooks.json 死注册清理 + empty-catch 职责合并
+
+### Summary
+
+3 commits 自 v0.9.0 起累积发布。TB0 删 `hooks.json` Edit 块中 cite-integrity 死注册（脚本只读 `tool_input.content`，但 Edit 提供 `new_string`，永远 early-allow）。TB3 加 `.gitattributes` 强制 `*.ts`/`*.cjs` LF 入 index（`core.autocrlf=true` 的 Windows 环境下防止未来 CRLF 污染 index 导致 Linux `env: 'node\r'`）。TB4 把空 catch 检测从「全局 hook + 插件 hook 互补」合并到「插件 hook 单一 owner」，并删全局 `post-tool-no-empty-catch` 及对应 settings.json 注册。
+
+### BREAKING CHANGE
+
+`post-tool-no-empty-catch` 全局 hook 已删除。绑定形式 `catch (e) {}` 的拦截职责由插件 hook `defend-claim-silent-fail` 接管（其正则已扩到 `(^|\})\s*catch\s*(?:\([^)]*\))?\s*\{\s*\}/`，且由逐行改为整段匹配以保留多行 `catch (e) {\n}` 覆盖）。settings.json 中对应的 PostToolUse matcher `"Write|Edit"` 注册块同步移除。备份：~/.claude/.backup/20260802-133847/。
+
+### Consumer 行为变化
+
+| 场景 | v0.9.0 行为 | v0.10.0 行为 |
+|---|---|---|
+| Write 含 `catch {}` | 插件 hook BLOCK | 插件 hook BLOCK（不变） |
+| Write 含 `catch (e) {}` | 全局 hook BLOCK | **插件 hook BLOCK（owner 切换）** |
+| Write 含多行 `catch (e) {\n}` | 全局 hook BLOCK | 插件 hook BLOCK（整段匹配） |
+| Write 含非空 catch `log(e)` | allow | allow（不变） |
+| `defend-claim-cite-integrity` 在 Edit 工具下 | 注册存在但永远 allow（死） | Edit 注册移除（Write 仍 BLOCK） |
+
+### Commits included
+
+- `ab0760a` fix(hooks): remove dead Edit registration for defend-claim-cite-integrity
+- `503c520` chore(repo): add .gitattributes enforcing LF for .ts and .cjs
+- `385b11c` refactor(hooks): consolidate empty-catch detection into defend-claim-silent-fail
+- (本次 docs commit) docs(usage): reflect empty-catch consolidation into defend-claim-silent-fail
+
 ## 2026-07-29 — v0.9.0: SessionStart bootstrap 移除 — 主会话上下文清洁化
 
 ### Summary
