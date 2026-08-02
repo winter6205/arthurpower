@@ -46,22 +46,26 @@ defineHook({
           message: '[defend-claim Q5] REJECTED: empty except:pass detected. Require typed exception + logging per S3. Consider: except SpecificError as e: logger.error(e); raise',
         };
       }
-      // Require `catch` to be at line start or preceded by `}` — real code
-      // is `} catch {}` (same line) or `}` on previous line + `catch {}`
-      // here. Avoids matching `'empty catch {} detected'` inside test
-      // assertion strings.
-      if (/(^|\})\s*catch\s*\{\s*\}/.test(line)) {
-        return {
-          kind: 'block',
-          message: '[defend-claim Q5] REJECTED: empty catch {} detected. Require error handling: log, rethrow, or convert to typed error per S3.',
-        };
-      }
       if (/=>\s*null\s*;/.test(line)) {
         return {
           kind: 'advisory',
           message: '[defend-claim Q5] WARNING: silent null return detected. Consider returning Optional/default or throwing typed exception per S3.',
         };
       }
+    }
+
+    // Whole-content catch check: must span lines because a bound catch can
+    // open on one line and close on the next:
+    //   } catch (e) {
+    //   }
+    // The (^|\}) anchor is preserved to avoid matching `'empty catch {} detected'`
+    // inside test assertion strings (regression: defend-claim.test.ts:368-375).
+    // Group (?:\([^)]*\))? covers both bare `catch {}` and bound `catch (e) {}`.
+    if (/(^|\})\s*catch\s*(?:\([^)]*\))?\s*\{\s*\}/.test(content)) {
+      return {
+        kind: 'block',
+        message: '[defend-claim Q5] REJECTED: empty catch {} detected. Require error handling: log, rethrow, or convert to typed error per S3.',
+      };
     }
 
     return { kind: 'allow' };
