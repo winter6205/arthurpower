@@ -19,9 +19,13 @@ only report.
 | S1 Bounded context | No `controllers/services/repositories` top-level dirs; no reverse deps to impl detail; no circular imports; `docs/context-map.md` exists when >1 bounded context | bounded-context-guardian |
 | S2 Defensive contract | Empty / negative / overflow / concurrent / exception boundaries each tested; line cov >= 80%, branch >= 70% | defensive-contract-validator |
 | S3 Error handling | No empty catch; failures throw typed exceptions not return null/-1/""; no magic error strings; every fallback has `// EXIT:` | error-handling-enforcer |
-| S5 Anti-drift | cyclomatic <= 10/fn; nesting <= 4; params <= 3; fn <= 30 lines; file <= 300 lines; clone <= 3% | complexity-anti-drift |
+| S5 Anti-drift | cyclomatic <= 10/fn; nesting <= 4; clone <= 3% (hard); fn <= 40 lines; file <= 500 lines; params <= 4 (soft) | complexity-anti-drift |
 | S4 Spec-as-test | Tests committed before impl; spec acceptance points covered; no mock substituting real code unless external dep | (s4-spec-as-test rule) |
 | S6 Minimal change | 1 commit = 1 logical task; new dep has YAGNI justification in PR; diff scope = task scope; pre-commit tests exit 0; dep change has lockfile update | minimal-change-verifier |
+
+## Status
+
+> Sole owner — no corresponding skill. Cross-cutting composite over S1-S6 skills; not a duplicate. Governance: docs/agents/harness-map.md + code-review/references/protocol.md.
 
 ## Procedure
 

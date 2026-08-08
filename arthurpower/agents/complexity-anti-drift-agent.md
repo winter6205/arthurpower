@@ -75,7 +75,6 @@ plus a one-line overall verdict:
 ## Reference
 
 - Rule source: `~/.claude/plugins/marketplaces/arthurpower-local/plugins/arthurpower/skills/complexity-anti-drift/SKILL.md`
-- Provenance: McCabe 1976 (cyclomatic ≤ 10) | 《Clean Code》Ch.3 Functions (SLA / do-one-thing; line count is proxy) | Fowler 《Refactoring》2nd ed. Ch.3 (extract on comprehension cost, not line count) | golangci-lint defaults: funlen 60 lines / 40 statements, gocyclo 30 (soft thresholds calibrated below these) | SonarQube "Clean as You Code" (diff-scoped gate) | `//nolint` / `eslint-disable-line` (S5-EXEMPT annotation model)
 - Common LLM failure mode: cramming multiple responsibilities into one function (one generation pass emits a whole use-case handler), copy-pasting similar code rather than abstracting.
 
 ---

@@ -18,7 +18,7 @@ Write exactly one line per dimension: `<name>: yes | no | unclear — <one-claus
 | bounded-context-guardian | Are module boundaries respected? No technical-layer slicing, no reverse deps, no circular imports? |
 | defensive-contract-validator | Is the change covered by tests for the 5 boundary classes (empty / negative / overflow / concurrent / exception)? |
 | error-handling-enforcer | Is every failure path typed, non-empty, and EXIT-documented? |
-| complexity-anti-drift | Does the diff keep every metric under threshold (≤30 lines/function, ≤4 nesting, ≤3 params, ≤300 lines/file)? |
+| complexity-anti-drift | Does the diff keep every metric under threshold (≤10 CC, ≤4 nesting, ≤3% clone hard; ≤40 lines/function, ≤500 lines/file, ≤4 params soft)? |
 | minimal-change-verifier | Is this 1 logical task? Will it land in 1 commit? |
 
 ## Procedure
