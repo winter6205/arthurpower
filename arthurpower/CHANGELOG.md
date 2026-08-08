@@ -1,5 +1,22 @@
 # arthurpower changelog
 
+## 2026-08-08 -- v0.11.0: agent provenance/conflict resolution + dispatcher wiring
+
+### Summary
+
+Wayfinder map `agent-provenance-resolution` (#88) cleared. 7 tickets resolved + applied. 治理对齐, 非功能重构:
+
+1. **S5 阈值三源对齐** — complexity-anti-drift agent / ACR / audit-agent 统一到 40/500/4 (soft review-triggers) + 3 hard gates (cyclomatic≤10, nesting≤4, clone≤3%)。skill `thresholds.md` 拆分为 Hard/Soft 两表。原 30/300/3 全硬口径废弃。
+2. **边界类第 3 类命名统一 `overflow`** — defensive-contract-validator SKILL.md 5 处 (When to use / Procedure / Acceptance / Example / Verification) 从 `long` 归一。
+3. **Provenance 残留清理** — complexity-anti-drift-agent `:78` 文献引用行删除 (ADR-0016: citations have no runtime effect)。boundary-testing-axis2 `:99` operational rationale 保留。
+4. **dispatcher 接线** — dispatching-parallel-agents SKILL.md 新增 `## Dispatch` 段委托 `arthurpower:arthurpower-dispatcher`; dispatcher agent 加 `## Reference` footer。
+5. **sole-owner 标注** — arthurpower-audit-agent 加 `## Status` 段 (cross-cutting composite, 无对应 skill, 非重复)。
+
+### Commits included
+
+- `c4954e7` refactor(s5): align complexity thresholds to 40/500/4 soft + 3 hard
+- `bc77b89` feat(dispatch): wire arthurpower-dispatcher into dispatching-parallel-agents skill
+
 ## 2026-08-02 -- v0.10.0: hooks.json 死注册清理 + empty-catch 职责合并
 
 ### Summary
