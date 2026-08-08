@@ -61,3 +61,7 @@ rules.
 - No cross-subagent communication: each subagent is isolated. If task B depends on task A's result, they are NOT independent - run A then B, do not fan out.
 - No silent truncation: if you cap the fan-out (e.g. >16 tasks queue), say so in the report.
 - Fail-open at the dispatch layer, fail-closed at the evidence layer: a crashed subagent is reported, not hidden; but a subagent claiming PASS without evidence is downgraded to FAIL.
+
+## Reference
+
+- Rule source: `skills/dispatching-parallel-agents/SKILL.md`

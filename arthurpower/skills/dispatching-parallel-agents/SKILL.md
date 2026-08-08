@@ -21,6 +21,10 @@ bucket: engineering
 - **user 明确说顺序跑** ("先 X 再 Y" → 不要自作主张 dispatch)
 - **subagent 会并发改同一文件** (conflict 风险, 走 sequence)
 
+## Dispatch
+
+本环节由 `arthurpower:arthurpower-dispatcher` 承接。识别到 2+ 真正独立任务（无共享可变状态 / 无跨任务文件重叠 / 无依赖 peer 输出）需并行派发时，用 Agent 工具以 `subagent_type: "arthurpower:arthurpower-dispatcher"` 派发，而非在主线程自跑。派发时传：独立任务清单 + 本 skill 7 字段 prompt 判据 + 证据格式（dispatched N, passed M, failed K）。软触发：应当派，非必须派；偶发主线程自跑属可接受降级，不视为违规。
+
 ## Procedure
 
 1. **Identify independent tasks** — confirm no shared mutable state, no cross-task file overlap, no dependency on peer outputs.
