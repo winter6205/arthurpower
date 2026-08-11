@@ -1,5 +1,52 @@
 # arthurpower changelog
 
+## v0.12.1 — 2026-08-12: 三工程纪律 skill 迁出插件到全局 user-invoked (SC-02 closure)
+
+### Summary
+
+按 operator 裁定（discussion #111 thread）：`frontend-ui-engineering`、`performance-optimization`、`security-and-hardening` 三个工程纪律 skill 从 `arthurpower/skills/` 迁出到全局 `~/.claude/skills/`，并改为 `disable-model-invocation: true`（user-invoked only），只能由操作者手动触发。三 skill 在 arthurpower 仓库内的全部引用同步摘除。
+
+### Rationale
+
+三个 skill 都有独立能力面但在本仓库 0 实调（evidence ledger sc-r0-evidence-ledger.md §1a）。SC-02 原案对 `performance-optimization` 主张"domain mismatch"；经讨论明确：真正原因是"本仓库无触发场景"——区别于 `frontend-ui-engineering`（其 description 不限定 Web，可由任何含 user-facing interface 的下游项目触发）以及 `security-and-hardening`（跨项目资产，operator 已确认有下游 HTTP-auth 项目作为触发场景）。三者**统一采取"迁出 + user-invoked"**形态而非差异化处置，是因为：操作者不清楚其他两件 skill 的用途（明示），与其让模型错误触发不如收回触发权。
+
+### BREAKING CHANGE
+
+`using-agent-skills` router 不再分派三件套。任何会话语义需要这三条 skill 时，操作者须手动调用 `/arthurpower:frontend-ui-engineering` / `/arthurpower:performance-optimization` / `/arthurpower:security-and-hardening`（已搬到全局 `~/.claude/skills/`，Claude Code 自动从全局目录加载 user-invoked skill）。
+
+### Consumer 行为变化
+
+| 场景 | v0.10.0 行为 | v0.12.1 行为 |
+|---|---|---|
+| 模型自动 reach frontend-ui-engineering | description 命中即触发 | **不触发**（disable-model-invocation: true，需手动） |
+| 模型自动 reach performance-optimization | description 命中即触发 | **不触发**（disable-model-invocation: true，需手动） |
+| 模型自动 reach security-and-hardening | description 命中即触发 | **不触发**（disable-model-invocation: true，需手动） |
+| 操作者手动 `/arthurpower:<name>` 触发三件套 | 触发 | 触发（从全局目录加载，正文未改） |
+
+### 同步面
+
+- `arthurpower/.claude-plugin/plugin.json` description 改 21 + 家族重述（Engineering disciplines 家族 → 1 个）+ version 0.11.0 → 0.12.1
+- `arthurpower/README.md` 头部 25→21 + 删除 Model-invoked 段三件套 3 行 + 末尾 "All 25 skills" → "All 21 skills"
+- `arthurpower/skills/using-agent-skills/SKILL.md` router mirror 字母序列表移除 frontend-ui-engineering / performance-optimization / security-and-hardening 三行
+- `arthurpower/skills/using-agent-skills/references/quick-reference.md` Build 段三行删除
+- `docs/Arthuropower_usage.md` §4.5 工程学科族 4→1 + 加 v0.12.1 迁出说明 + Skill 清单 v0.6.0 附录同步
+- `arthurpower/docs/agents/harness-map.md` §1 行 19 `security-auditor` 配对说明措辞更新（指向 user-invoked 形态 + 全局路径）
+- `arthurpower/CHANGELOG.md` 历史段保留不动（v0.6.0 入库记录），与本次迁出不冲突
+
+### Skill count reconciliation
+
+| 时间点 | 插件内 skill 数 |
+|---|---|
+| v0.6.0 起始（CHANGELOG §v0.6.0 入库） | 28（含三件套） |
+| v0.12.0 落地后（SC-01 + SC-03） | 24（28 − 3 SC-01 − 1 SC-03） |
+| **本票 v0.12.1 落地后** | **21**（24 − 3 SC-02） |
+
+### Commits included
+
+- (本次 chore commit) chore(skills): move three engineering-discipline skills to global user-invoked
+
+---
+
 ## v0.12.0 — 2026-08-11
 
 ### Skill curation (SC-01 / SC-03)
@@ -28,8 +75,9 @@ carried context load with no trigger surface. Hook layer untouched —
    when-to-reach / peers).
 2. **Router + manifest re-sync** — `using-agent-skills/SKILL.md` skill list
    and `references/quick-reference.md` Verify row both drop `defend-claim`;
-   `plugin.json` description drops the "claim-time anti-self-cert gate" line
-   and corrects the skill count (28 → 27). README skill index row removed.
+   `plugin.json` description drops the "claim-time anti-self-cert gate" line.
+   README skill index row removed. (Plugin skill count under SC-01 + SC-03
+   combined: 28 → 24; further reduced to 21 by SC-02 in v0.12.1.)
 3. **Hook layer verified intact** — all 5 `defend-claim-*.ts` pass
    `--self-test`; `pre-release-validate.ts` router invariant exits 0.
 4. **ADR-0025** — decision record: α (keep + rewrite) / β (user-invoked) /
@@ -52,56 +100,6 @@ Wayfinder map `agent-provenance-resolution` (#88) cleared. 7 tickets resolved + 
 
 - `c4954e7` refactor(s5): align complexity thresholds to 40/500/4 soft + 3 hard
 - `bc77b89` feat(dispatch): wire arthurpower-dispatcher into dispatching-parallel-agents skill
-
-## 2026-08-12 -- v0.12.1: 三工程纪律 skill 迁出插件到全局 user-invoked (SC-02 closure)
-
-### Summary
-
-按 operator 裁定（discussion #111 thread）：`frontend-ui-engineering`、`performance-optimization`、`security-and-hardening` 三个工程纪律 skill 从 `arthurpower/skills/` 迁出到全局 `~/.claude/skills/`，并改为 `disable-model-invocation: true`（user-invoked only），只能由操作者手动触发。三 skill 在 arthurpower 仓库内的全部引用同步摘除。Skill 数 28 → 25。
-
-### Rationale
-
-三个 skill 都有独立能力面但在本仓库 0 实调（evidence ledger sc-r0-evidence-ledger.md §1a）。SC-02 原案对 `performance-optimization` 主张"domain mismatch"；经讨论明确：真正原因是"本仓库无触发场景"——区别于 `frontend-ui-engineering`（其 description 不限定 Web，可由任何含 user-facing interface 的下游项目触发）以及 `security-and-hardening`（跨项目资产，operator 已确认有下游 HTTP-auth 项目作为触发场景）。三者**统一采取"迁出 + user-invoked"**形态而非差异化处置，是因为：操作者不清楚其他两件 skill 的用途（明示），与其让模型错误触发不如收回触发权。
-
-### BREAKING CHANGE
-
-`using-agent-skills` router 不再分派三件套。任何会话语义需要这三条 skill 时，操作者须手动调用 `/arthurpower:frontend-ui-engineering` / `/arthurpower:performance-optimization` / `/arthurpower:security-and-hardening`（已搬到全局 `~/.claude/skills/`，Claude Code 自动从全局目录加载 user-invoked skill）。
-
-### Consumer 行为变化
-
-| 场景 | v0.10.0 行为 | v0.12.1 行为 |
-|---|---|---|
-| 模型自动 reach frontend-ui-engineering | description 命中即触发 | **不触发**（disable-model-invocation: true，需手动） |
-| 模型自动 reach performance-optimization | description 命中即触发 | **不触发**（disable-model-invocation: true，需手动） |
-| 模型自动 reach security-and-hardening | description 命中即触发 | **不触发**（disable-model-invocation: true，需手动） |
-| 操作者手动 `/arthurpower:<name>` 触发三件套 | 触发 | 触发（从全局目录加载，正文未改） |
-| router mirror 列表（L108-135 using-agent-skills/SKILL.md） | 28 个含三件套 | 25 个，移除三件套三行 |
-| quick-reference.md Build 段（frontend/perf/security 三行） | 含触发短语 | 三行删除 |
-| README 技能数声称 | "30 skills" 漂移 | "25 skills"，含 v0.6.0 同步起算的真实数 |
-
-### 同步面
-
-- `arthurpower/.claude-plugin/plugin.json` description 改 25 + 家族重述（Engineering disciplines 家族 → 1 个）+ version 0.10.0 → 0.12.1
-- `arthurpower/README.md` 头部 30→25 + 删除 Model-invoked 段三件套 3 行 + 末尾 "All 30 skills" → "All 25 skills"
-- `arthurpower/skills/using-agent-skills/SKILL.md` router mirror L108-135 字母序列表移除 frontend-ui-engineering / performance-optimization / security-and-hardening 三行
-- `arthurpower/skills/using-agent-skills/references/quick-reference.md` Build 段 L15-L17 三行删除
-- `docs/Arthuropower_usage.md` §4.5 工程学科族 4→1 + 加 v0.12.1 迁出说明 + Skill 清单 v0.6.0 附录同步
-- `arthurpower/docs/agents/harness-map.md` §1 行 19 `security-auditor` 配对说明措辞更新（指向 user-invoked 形态 + 全局路径）
-- `arthurpower/CHANGELOG.md` 历史段（L416/L418/L419）保留不动（v0.6.0 入库记录），与本次迁出不冲突
-
-### Skill count reconciliation
-
-| 时间点 | 插件内 skill 数 |
-|---|---|
-| v0.6.0 起始（CHANGELOG §v0.6.0 入库） | 28（含三件套） |
-| SC-01 EXEC-01 计划落地后 | 25（三件套 commit-revert/team-glossary/codebase-onboarding 处置） |
-| **本票 v0.12.1 落地后** | **25**（SC-01 与本票独立分支未合 master，本票落地后仍为 25；未来 SC-01 合并时 README/usage 数字可能再调整） |
-
-### Commits included
-
-- (本次 chore commit) chore(skills): move three engineering-discipline skills to global user-invoked
-
----
 
 ## 2026-08-02 -- v0.10.0: hooks.json 死注册清理 + empty-catch 职责合并
 
