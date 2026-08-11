@@ -27,14 +27,14 @@ bucket: engineering
 
 ## Procedure
 
-1. **Identify independent tasks** — confirm no shared mutable state, no cross-task file overlap, no dependency on peer outputs.
+1. **Identify independent tasks** — confirm no shared mutable state, no cross-task file overlap, no dependency on peer outputs. 派发数量由 agent 按任务形状判定：独立模块/编译耦合边界各 1 个，数量按模块数定；非模块化任务按 cost/scope/dependency 判定。
 2. **Write 7-field subagent prompts** — ROLE / SCOPE / PERMISSION / REFERENCE / CONSTRAINTS / DELIVERABLE / OUTPUT RULES.
 3. **Parallel dispatch in 1 message** — multiple Agent invokes in a single message, not sequential.
 4. **Collect structured results** — each subagent returns verifiable output (test results, file paths, diff stats).
 5. **Cross-check** — run scope-creep / file-conflict / commit-atomicity checks before integration.
 6. **Integrate** — final commit only after all subagents complete and cross-check passes.
 
-See [`references/procedure-details.md`](references/procedure-details.md) for the full 6-step workflow expansion.
+See [`references/procedure-details.md`](references/procedure-details.md) for the full 7-step workflow expansion (incl. shape-driven quantity judgment).
 
 ## Subagent Prompt Template
 
@@ -88,7 +88,7 @@ Then run the manual cross-check table (scope creep / file conflict / commit atom
 |---------------|----------|-------------------|
 | "trivial 任务也派 subagent" | Setup cost > 任务本身. 主代理 30 秒搞定, subagent 5 分钟起 | Sequence, 不要 dispatch |
 | "Subagent 能读其他 subagent 的输出" | Cross-subagent 依赖 = sequential, 不是 parallel. 派单 = 假并行 | 改成 sequence |
-| "派 10 个 subagent 加速" | 10 subagents = 10× context cost. unless explicit user requirement, 2-3 ceiling | 2-3 subagents |
+| "派 N 个 subagent 加速" | N = N× context cost. 按 (a) 任务形状: 独立模块/编译耦合边界数; (b) cost: 上下文膨胀 vs 加速收益; (c) dependency: 是否有共享可变状态 | 主代理按任务形状判定派发数; 模块化派发默认（独立模块各 1 个） |
 | "Subagent 不读源码直接改" | Blind work = 必出错. 子代理没看代码 = 凭印象改 | 强制 REFERENCE 段 |
 | "我不 cross-check 直接合" | Cross-check = integration step. 跳过 = 静默 conflict 落地 | 走 §5 cross-check |
 | "user 说 dispatch, 不用验证" | user dispatch request = dispatch permission, 不是允许跳过 verification | 跑 Verification 4 条 |
@@ -103,7 +103,6 @@ Then run the manual cross-check table (scope creep / file conflict / commit atom
 - "I'll just merge the subagent outputs" — 不合成 = 不集成 = 表面完成
 - 并行 dispatch 后立刻 commit (subagent 可能 in-flight)
 - Subagent prompt 含 "think aloud" / "explain your approach" — preamble 禁
-- "I'll dispatch 5 subagents to be safe" — 5 = 浪费, 2-3 顶到天
 
 ## Required Baseline
 

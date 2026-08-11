@@ -1,6 +1,16 @@
 # Procedure — Detailed Steps
 
-### 1. 识别 2+ 真正独立的任务
+### 1. 派发数量按任务形状判定
+
+派发数量由三类输入决定:
+
+1. **任务形状**: 独立模块/编译耦合边界数 → 模块化派发默认 (独立模块各 1 个, 数量按模块数定). 探索与实施均适用.
+2. **成本**: N× context cost vs 加速收益. trivial 任务 setup cost > 任务本身 → 走 sequence, 不 dispatch.
+3. **依赖**: 是否存在共享可变状态 / 跨任务文件重叠 / peer 输出依赖. 命中任意一条 → 走 sequence.
+
+判定优先级: 任务形状 > 成本 > 依赖. 模块化场景下, 模块数即派发数; 非模块化场景按 cost / dependency 二维判定.
+
+### 2. 识别 2+ 真正独立的任务
 
 共享状态判定 — 任意一条命中 = **不能并行**:
 
@@ -9,7 +19,7 @@
 - 同一 git branch 的同一 commit
 - task B 依赖 task A 的中间产物 (编译产物 / 临时文件 / 内存对象)
 
-### 2. 为每个任务写 self-contained subagent prompt
+### 3. 为每个任务写 self-contained subagent prompt
 
 每个 prompt 必含:
 
@@ -18,10 +28,10 @@
 - **PERMISSION**: read-only / write 1 file / write N files in `<scope>` (明确)
 - **REFERENCE**: paths or skill names to read first (e.g. `<project-rules>/serena.md`)
 - **CONSTRAINTS**: 协作规范: surgical change, no extra work, no 顺手优化, 1 commit = 1 逻辑任务
-- **DELIVERABLE**: 结构化输出格式 (下面 §5 模板)
+- **DELIVERABLE**: 结构化输出格式 (下面 §6 模板)
 - **OUTPUT RULES**: 无思考独白, 无前言, deliverable IS the output
 
-### 3. 并行 dispatch
+### 4. 并行 dispatch
 
 **1 条 message, 多个 Agent tool invokes** (不是串行 3 条 message = 错):
 
@@ -35,7 +45,7 @@ Agent(subagent_type="general-purpose", description="review rag-customer-service 
 // Agent 1 → 等结果 → Agent 2 → 等结果 → Agent 3  ← 这是 sequence, 不是 parallel
 ```
 
-### 4. 每个 subagent 返回 structured result
+### 5. 每个 subagent 返回 structured result
 
 必含 verification step (不是"看起来好了"):
 
@@ -43,7 +53,7 @@ Agent(subagent_type="general-purpose", description="review rag-customer-service 
 - 跑了哪些 test (命令 + 输出, 不是"tests pass")
 - 任何 deviation from scope (顺手优化 / 范围扩张)
 
-### 5. 主代理 cross-check 结果
+### 6. 主代理 cross-check 结果
 
 合成前必查:
 
@@ -52,6 +62,6 @@ Agent(subagent_type="general-purpose", description="review rag-customer-service 
 - **Dependency violation**: subagent 引用了另一个 subagent 的 in-flight 输出?
 - **协作规范**: 单文件 > 500 行? 含顺手优化? 1 commit 混了多个逻辑任务?
 
-### 6. 应用最终集成 (commit / push / document)
+### 7. 应用最终集成 (commit / push / document)
 
 **仅在所有 subagent 完成 + cross-check 通过后** — 不可 subagent 还在跑就开始 commit (race condition)。
