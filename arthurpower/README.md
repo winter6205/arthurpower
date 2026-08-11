@@ -1,9 +1,9 @@
 # Arthurpower Skills
 
-Arthurpower is a Claude Code plugin that ships 30 skills across two
+Arthurpower is a Claude Code plugin that ships 25 skills across two
 **promoted** buckets — `engineering` (code work, architecture, testing,
-security, debugging, performance, authoring) and `productivity` (non-code
-workflow tools: cross-session handoff, team-glossary sync). The bucket
+debugging, authoring) and `productivity` (non-code workflow tools:
+cross-session handoff, team-glossary sync). The bucket
 discipline, `scripts/link-skills.sh` installer, and this README are ported and
 adapted from
 `the upstream skills repo` (see
@@ -47,10 +47,7 @@ Each skill below is grouped first by bucket, then by invocation class:
 - [dispatching-parallel-agents](skills/dispatching-parallel-agents/SKILL.md) — Use when 2+ independent tasks can run without shared mutable state, when context isolation is needed between tasks, when parallel subagent dispatch is requested, when batch review of multiple files is
 - [domain-modeling](skills/domain-modeling/SKILL.md) — Use when another skill needs to write project terminology, or the user requests glossary alignment, an ADR, or decision persistence. Handles ambiguous or overloaded terms and hard-to-reverse decisions.
 - [error-handling-enforcer](skills/error-handling-enforcer/SKILL.md) — Use when modifying error handling in a diff, adding try/catch blocks, returning null/-1/empty string on failure, introducing magic error codes or string codes, adding fallback branches without exit cr
-- [frontend-ui-engineering](skills/frontend-ui-engineering/SKILL.md) — Use when building a component, page, or user-facing interface; modifying layout, state container, or visual design; adding keyboard, focus, or screen-reader interaction; reviewing a UI diff before mer
 - [minimal-change-verifier](skills/minimal-change-verifier/SKILL.md) — Use when preparing a commit, splitting a commit, adding a dependency, a commit message starts with refactor, a commit touches files outside task scope, a new dependency appears without justification,
-- [performance-optimization](skills/performance-optimization/SKILL.md) — Use when optimizing page speed, API latency, or Core Web Vitals. Triggers: slow LCP/INP/CLS, bundle-size growth, render-blocking scripts, images without width/height, N+1 queries, unbounded list endpo
-- [security-and-hardening](skills/security-and-hardening/SKILL.md) — Use when adding an endpoint, handler, RPC, web form, auth flow, file upload, third-party API integration, or secret-handling code path, or when input validation, authentication, authorization, rate li
 - [systematic-debugging](skills/systematic-debugging/SKILL.md) — Use when debugging a test failure, build break, unexpected runtime error, flaky test, hanging process, or seeing "fix this bug"/"getting an error"/"failing test"/"flaky"/"hanging
 - [test-driven-development](skills/test-driven-development/SKILL.md) — Use when implementing any logic, fixing any bug, or changing any behavior — write the failing test first, then minimal code to pass, then refactor. Use when proving code works, when a bug report arriv
 - [using-agent-skills](skills/using-agent-skills/SKILL.md) — Use when starting a new session, switching tasks, or unsure which arthurpower skill applies. Routes incoming work to the matching skill via flowchart before invoking. Activates on phrases like "which skill should I use", "skill check", "pre-task skill check", "how to start", "router", "skill routing", or when multiple competing skills could apply. Does NOT auto-trigger symlink skills.
@@ -73,7 +70,7 @@ shipped through the plugin:
 - `in-progress` — drafts not yet ready to ship
 - `deprecated` — no longer used
 
-Arthurpower currently has **zero** skills in any of these buckets. All 30
+Arthurpower currently has **zero** skills in any of these buckets. All 25
 skills ship in the two promoted buckets above. If a future skill should not
 be linked into local harnesses (for example, an experimental draft), set its
 frontmatter `bucket:` to one of these values and `scripts/link-skills.sh`

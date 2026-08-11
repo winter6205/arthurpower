@@ -12,9 +12,6 @@
 | Build | complexity-anti-drift | "重构", "减复杂度", "拆函数" |
 | Build | minimal-change-verifier | "提交前", "准备 commit", "1 commit" |
 | Build | test-driven-development | "write failing test first", "TDD" |
-| Build | frontend-ui-engineering | "build component", "UI", "design tokens" |
-| Build | performance-optimization | "slow LCP", "bundle size", "N+1 query" |
-| Build | security-and-hardening | "add endpoint", "auth flow", "secret handling" |
 | Build | codebase-onboarding | "onboarding", "newcomer guide", "learning path" |
 | Verify | systematic-debugging | "修 bug", "系统调试" |
 | Verify | verification-before-completion | Pre-merge acceptance |

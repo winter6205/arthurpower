@@ -193,14 +193,13 @@ plugin 里的 skill 自动加 plugin 名前缀:
 |-------|------|---------|
 | **dispatching-parallel-agents** | M | 2+ 独立任务无共享可变状态/要上下文隔离/批量审多文件时 reach。派并行子代理 |
 
-### 4.5 工程学科族 (4 个, v0.3.0 晋升)
+### 4.5 工程学科族 (1 个, v0.3.0 晋升)
 
 | Skill | 触发 | 使用方法 |
 |-------|------|---------|
 | **spec-driven-development** | M | 新项目/功能无 spec/需求模糊/跨文件跨天时 reach。SPECIFY 阶段产出可验证 spec |
-| **frontend-ui-engineering** | M | 建组件/页面/UI/改布局状态/加键盘焦点 a11y 时 reach。生产 UI + 无障碍 |
-| **performance-optimization** | M | 优化页面速度/API 延迟/Core Web Vitals 时 reach。LCP/INP/CLS + bundle size |
-| **security-and-hardening** | M | 加 endpoint/handler/auth/文件上传/第三方 API 时 reach。3 层边界防御 |
+
+> v0.12.0 起 frontend-ui-engineering / performance-optimization / security-and-hardening 三个工程纪律 skill 迁出本插件到全局 `~/.claude/skills/` 并标记为 user-invoked（`disable-model-invocation: true`），需操作者手动触发。详见 arthurpower/CHANGELOG.md v0.12.0 条目。
 
 ### 4.6 上下文工程族 (4 个)
 
@@ -436,7 +435,9 @@ plugin 里的 skill 自动加 plugin 名前缀:
 ## 附录: 文件清单 (v0.6.0)
 
 ### Skill (25)
-architecture-change-reviewer / bounded-context-guardian / codebase-onboarding / commit-revert-protocol / complexity-anti-drift / deep-dive-protocol / defend-claim / defensive-contract-validator / dispatching-parallel-agents / domain-modeling / error-handling-enforcer / frontend-ui-engineering / intent-inference / issue-triage-validator / minimal-change-verifier / performance-optimization / security-and-hardening / session-handoff / skill-authoring (U) / spec-driven-development / systematic-debugging / team-glossary-sync / using-agent-skills / verification-before-completion / writing-plans
+architecture-change-reviewer / bounded-context-guardian / codebase-onboarding / commit-revert-protocol / complexity-anti-drift / deep-dive-protocol / defend-claim / defensive-contract-validator / dispatching-parallel-agents / domain-modeling / error-handling-enforcer / intent-inference / issue-triage-validator / minimal-change-verifier / session-handoff / skill-authoring (U) / spec-driven-development / systematic-debugging / team-glossary-sync / using-agent-skills / verification-before-completion / writing-plans
+
+> 注：v0.12.0 起 frontend-ui-engineering / performance-optimization / security-and-hardening 三件套已迁出插件至全局 user-invoked（手动触发），不在本表。intent-inference / issue-triage-validator 为历史漂移残留（76868e3 已删），归 SC-05 清理。
 
 ### Agent (2)
 arthurpower-audit-agent / arthurpower-dispatcher
