@@ -71,6 +71,13 @@ Adopt β for OD-00 A(b):
 5. **Boundaries preserved:** no new agent/skill; dispatcher 3-condition gate +
    7-field template untouched; `boundary-testing` skill not revived (APR-06);
    map #96 out-of-scope list respected.
+6. **Restricted discipline reframed.** `Restricted` in `using-agent-skills`
+   (symlink / Red Flag list / "requires explicit user trigger" step) is an
+   **escape hatch**, not the default level for promoted skills. β is the first
+   deliberate departure from `Restricted` for a promoted skill; future
+   departures follow the same ADR pattern (gate check + 3-layer re-sync).
+   (Operator ratification: 2026-08-11, map #96 fog item → OD-00 Resolution
+   comment on #98.)
 
 Status flows to `accepted` when OD-00 closes. Execution lands in OD-01
 (dispatch-rule SSOT) / OD-02 (CLAUDE.md L5 pointer) task tickets.
