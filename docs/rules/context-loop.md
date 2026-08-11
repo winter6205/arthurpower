@@ -125,7 +125,7 @@ Stage 7 读侧契约按写主权分级: 写 context artifacts 的技能 (`deep-d
 
 ### 7.2 Cross-session handoff
 
-当 session token 用量 > 80% 时, 走 `context-bus` skill 生成 handoff package, 含:
+当 session token 用量 > 80% 时, 走 `session-handoff` skill 生成 handoff package, 含:
 - 当前 task id + goal
 - 相关 CONTEXT.md / ADR / SPEC 文件指针
 - 待定决策 + 已知阻塞
