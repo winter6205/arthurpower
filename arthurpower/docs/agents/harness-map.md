@@ -16,7 +16,7 @@ slash commands (`/review`, `/ship`, `/audit`) and from
 | `quick-reviewer` | `~/.claude/agents/quick-reviewer.md` | Fast lightweight reviewer | lint pass, small diffs, quick correctness | suitable substitute for `code-reviewer` when wall-clock matters more than depth |
 | `maintainability-reviewer` | `~/.claude/agents/maintainability-reviewer.md` | Third-stage reviewer | spec + code quality both approved, before merge | audits S1-S6 maintainability rules; generic project scope |
 | `project-code-quality-auditor` | `~/.claude/agents/project-code-quality-auditor.md` | Project-level auditor | full round of changes complete, before reporting up | seven-dimension architecture-grade audit via Serena MCP |
-| `security-auditor` | `~/.claude/agents/security-auditor.md` | Security Engineer | vulnerability detection, OWASP-style audit | pair with `security-and-hardening` skill for hard review |
+| `security-auditor` | `~/.claude/agents/security-auditor.md` | Security Engineer | vulnerability detection, OWASP-style audit | pair with `security-and-hardening` user-invoked skill (v0.12.0 moved to `~/.claude/skills/`) for hard review |
 | `test-engineer` | `~/.claude/agents/test-engineer.md` | QA Engineer | test strategy, coverage analysis, Prove-It pattern | pair with `defensive-contract-validator` for boundary coverage |
 
 **Personas do not invoke other personas.** Composition is the job of slash
