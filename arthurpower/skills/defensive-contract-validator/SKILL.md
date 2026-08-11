@@ -1,6 +1,6 @@
 ---
 name: defensive-contract-validator
-description: Use when adding a public API or CLI command, fixing a bug, introducing an external dependency, or a PR misses a coverage class. Triggers on "add boundary tests", "test the edge cases", "what if input is empty", "fix the regression", "concurrent case failed", "explain the 5 boundary classes". Not for prototypes, generated code, or formatting.
+description: Use when adding a public API or CLI command, fixing a bug, introducing an external dependency, or a PR misses a coverage class. Triggers on "add boundary tests", "test the edge cases", "what if input is empty", "fix the regression", "concurrent case failed", "explain the 5 boundary classes". Not for prototypes, generated code, or formatting. Note: this skill's 5 boundary classes are input-value classes (empty / negative / overflow / concurrent / exception) covering per-function unit inputs; NOT to be confused with the boundary-testing protocol's trigger-semantics classes (A positive / B negation / C ambiguous / D out-of-domain / E reverse-semantic), which are owned by boundary-testing-axis1/axis2 agents.
 bucket: engineering
 ---
 
