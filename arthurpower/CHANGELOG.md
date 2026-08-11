@@ -2,15 +2,56 @@
 
 ## v0.12.0 — 2026-08-11
 
-### Skill curation (SC-01)
+### Skill curation (SC-01 / SC-03)
 
-- `commit-revert-protocol` archived on 2026-08-11 (76868e3 hard-delete; capability absorbed by `docs/rules/git.md` §251-272)
-- `team-glossary-sync` archived on 2026-08-11 (ADR-0019 de-integrate; REVIVAL conditions in archive REVIVAL.md)
-- `codebase-onboarding` archived on 2026-08-11 (ADR-0019 de-integrate; REVIVAL conditions in archive REVIVAL.md)
+SC-01 — zero-trace trio archive (operator "完全没用" + SC-R0 #109 evidence):
+
+- `commit-revert-protocol` archived (76868e3 hard-delete; capability absorbed by `docs/rules/git.md` §251-272)
+- `team-glossary-sync` archived (ADR-0019 de-integrate; REVIVAL conditions in archive REVIVAL.md)
+- `codebase-onboarding` archived (ADR-0019 de-integrate; REVIVAL conditions in archive REVIVAL.md)
 - Router mirror sync (`using-agent-skills/SKILL.md` — 3 entries removed)
 - Quick-reference sync (3 rows removed)
 - README sync: skill count 30 → 25
 - usage doc sync
+
+SC-03 — defend-claim skill de-integrated to docs page (ADR-0025). Wayfinder
+map `skill-and-agent-curation` (#97) SC-03 rewrite (#114) re-opened during
+the rewrite discussion: `defend-claim` was 0-invocation (SC-R0) and its 5
+PostToolUse hooks fire independently of any skill layer, so the skill slot
+carried context load with no trigger surface. Hook layer untouched —
+`hooks.json` / 5 `.ts` filenames / archive `.cjs` unchanged. Dead
+`team-glossary` match in `pre-context-write-guard.ts` removed.
+
+1. **defend-claim skill → docs page** — `arthurpower/skills/defend-claim/`
+   (SKILL.md + references/ + iteration/) deleted. Operator exposition now
+   lives at `docs/engineering/defend-claim.md` (Quickstart / hook table /
+   when-to-reach / peers).
+2. **Router + manifest re-sync** — `using-agent-skills/SKILL.md` skill list
+   and `references/quick-reference.md` Verify row both drop `defend-claim`;
+   `plugin.json` description drops the "claim-time anti-self-cert gate" line
+   and corrects the skill count (28 → 27). README skill index row removed.
+3. **Hook layer verified intact** — all 5 `defend-claim-*.ts` pass
+   `--self-test`; `pre-release-validate.ts` router invariant exits 0.
+4. **ADR-0025** — decision record: α (keep + rewrite) / β (user-invoked) /
+   γ (de-integrate) with 3-condition gate check; de-integration follows
+   ADR-0019 (SC-02) precedent; REVIVAL path documented.
+
+## 2026-08-08 -- v0.11.0: agent provenance/conflict resolution + dispatcher wiring
+
+### Summary
+
+Wayfinder map `agent-provenance-resolution` (#88) cleared. 7 tickets resolved + applied. 治理对齐, 非功能重构:
+
+1. **S5 阈值三源对齐** — complexity-anti-drift agent / ACR / audit-agent 统一到 40/500/4 (soft review-triggers) + 3 hard gates (cyclomatic≤10, nesting≤4, clone≤3%)。skill `thresholds.md` 拆分为 Hard/Soft 两表。原 30/300/3 全硬口径废弃。
+2. **边界类第 3 类命名统一 `overflow`** — defensive-contract-validator SKILL.md 5 处 (When to use / Procedure / Acceptance / Example / Verification) 从 `long` 归一。
+3. **Provenance 残留清理** — complexity-anti-drift-agent `:78` 文献引用行删除 (ADR-0016: citations have no runtime effect)。boundary-testing-axis2 `:99` operational rationale 保留。
+4. **dispatcher 接线** — dispatching-parallel-agents SKILL.md 新增 `## Dispatch` 段委托 `arthurpower:arthurpower-dispatcher`; dispatcher agent 加 `## Reference` footer。
+5. **sole-owner 标注** — arthurpower-audit-agent 加 `## Status` 段 (cross-cutting composite, 无对应 skill, 非重复)。
+
+### Commits included
+
+- `c4954e7` refactor(s5): align complexity thresholds to 40/500/4 soft + 3 hard
+- `bc77b89` feat(dispatch): wire arthurpower-dispatcher into dispatching-parallel-agents skill
 
 ## 2026-08-02 -- v0.10.0: hooks.json 死注册清理 + empty-catch 职责合并
 

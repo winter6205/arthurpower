@@ -28,6 +28,9 @@ _Avoid_: 无状态, 纯函数.
 **无状态化技能**: 同一输入在任意 session 输出等效, 不依赖本地运行环境状态; 典型例子: defensive-contract-validator 给一段代码出测试、minimal-change-verifier 仅看当前 diff 出"是否规范".
 _Avoid_: 状态耦合, 跨 session 副作用.
 
+**测试三级语义**: 仓库里"测试"一词指三种不同对象, 按语义严格区分, 不混淆. (1) **元测试 (evals)**: detector / rule / hook 改动的 10-30 条触发语义样例 (A 阳性 / B 否定 / C 歧义 / D 域外 / E 反语义), 由 `boundary-testing-axis1` 起草、`boundary-testing-axis2` driver 验收. (2) **边界测试 (S2 input coverage)**: 产品代码 diff 的 5 类输入覆盖 (empty / negative / overflow / concurrent / exception) 验证, 由 `defensive-contract-validator-agent` 只验证不编写. (3) **产品测试 (product tests)**: 代码的单测 / 集成 / E2E, 唯一会写它的 persona 是全局 `test-engineer`. 三者的触发者都是 main, 但产出/验证/编写主权互斥. 撞名后果: 误把元测试当产品测试 (TDD skill L140-142 旧病), 或把边界测试当编写. 本词条是对 OD-00 B(a)/B(b) 决议 (map #96) 的词汇落盘.
+_Avoid_: 用同一"测试"词指代元测试 / 边界测试 / 产品测试三者而不声明层级; 让 subagent 越权"写"本属验证或探测的测试类.
+
 **状态边界清单**: 在 skill 的 references/ 文档里加一个两栏 checklist (有状态化步骤打勾 + 无状态化前提打勾), 写 skill 时按需查, 不分两套 skill 模板.
 _Avoid_: 按有/无状态硬切两套 skill, 双模板.
 

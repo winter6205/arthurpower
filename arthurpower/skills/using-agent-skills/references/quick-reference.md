@@ -17,7 +17,6 @@
 | Build | security-and-hardening | "add endpoint", "auth flow", "secret handling" |
 | Verify | systematic-debugging | "修 bug", "系统调试" |
 | Verify | verification-before-completion | Pre-merge acceptance |
-| Verify | defend-claim | "Q1 evidence", "raw exit code", "before commit" |
 | Review | arthurpower:code-review | "review", "PR", "审代码", "dual-axis" |
 
 ## Defining (early-stage)

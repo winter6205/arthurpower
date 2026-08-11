@@ -6,7 +6,7 @@ disable-model-invocation: true
 version: 3.0.0
 tags: [Setup, Bootstrap, ContextMap, Contract, OneShot, Hooks, Dedupe, Migration, GithubPull]
 author: Arthurpower
-related_skills: [domain-modeling, deep-dive-protocol, boundary-testing, self-evolving-rules]
+related_skills: [domain-modeling, deep-dive-protocol, self-evolving-rules]
 ---
 
 # Setup Arthurpower - 结构声明入口 (一次性)
