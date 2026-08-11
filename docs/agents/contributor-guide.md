@@ -20,7 +20,8 @@ update the router in the **same** commit. Trigger cases:
   `SKILL.md` (and `references/flowchart.md` if named there).
 - **Remove** — a skill directory is removed. Remove its row from
   `references/quick-reference.md` and strip prose mentions. History
-  hygiene goes through `commit-revert-protocol`.
+  hygiene goes through `docs/rules/git.md` (revert/reset/supersede
+  discipline).
 - **Flow-placement** — an existing skill moves to a different phase
   (Defining / Build / Verify / Review / SSOT / Setup / Restricted /
   User-invoked / Model-invoked). Update the phase column and the

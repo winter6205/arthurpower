@@ -175,8 +175,6 @@ plugin 里的 skill 自动加 plugin 名前缀:
 |-------|------|---------|
 | **architecture-change-reviewer** | M | 加新功能/新模块/跨模块重构(3+ 文件)前 reach。5-verdict 前置 gate (approve/reject/needs-info/split/defer) |
 | **writing-plans** | M | 新项目/加功能/跨文件改动/多步变更时 reach。把工作拆成有序可验证任务 |
-| **codebase-onboarding** | M | 新人要学代码库/要 onboarding/学习路径时 reach。生成引导式课程 |
-| **commit-revert-protocol** | M | commit 要回滚/坏改动推了/ADR 废弃时 reach。驱动 revert vs reset vs supersede 决策 |
 
 ### 4.3 流程门族 (4 个)
 
@@ -207,7 +205,6 @@ plugin 里的 skill 自动加 plugin 名前缀:
 | Skill | 触发 | 使用方法 |
 |-------|------|---------|
 | **domain-modeling** | M | **唯一**可写 docs/CONTEXT.md + 提议 ADR。术语歧义/难逆决策时 reach |
-| **team-glossary-sync** | M | 同术语跨项目/跨人不同义时 reach。驱动 docs/team-glossary.md 生命周期 |
 | **session-handoff** | M | session 要结束/新 agent 继续/token 压力时 reach。压缩线程成交接文档 |
 | **intent-inference** | M | 请求模糊/欠指定/混合多目标时 reach。推断意图 + 确认问题, 交接给 deep-dive-protocol |
 
@@ -436,7 +433,7 @@ plugin 里的 skill 自动加 plugin 名前缀:
 ## 附录: 文件清单 (v0.6.0)
 
 ### Skill (25)
-architecture-change-reviewer / bounded-context-guardian / codebase-onboarding / commit-revert-protocol / complexity-anti-drift / deep-dive-protocol / defend-claim / defensive-contract-validator / dispatching-parallel-agents / domain-modeling / error-handling-enforcer / frontend-ui-engineering / intent-inference / issue-triage-validator / minimal-change-verifier / performance-optimization / security-and-hardening / session-handoff / skill-authoring (U) / spec-driven-development / systematic-debugging / team-glossary-sync / using-agent-skills / verification-before-completion / writing-plans
+architecture-change-reviewer / bounded-context-guardian / complexity-anti-drift / deep-dive-protocol / defend-claim / defensive-contract-validator / dispatching-parallel-agents / domain-modeling / error-handling-enforcer / frontend-ui-engineering / intent-inference / issue-triage-validator / minimal-change-verifier / performance-optimization / security-and-hardening / session-handoff / skill-authoring (U) / spec-driven-development / systematic-debugging / using-agent-skills / verification-before-completion / writing-plans
 
 ### Agent (2)
 arthurpower-audit-agent / arthurpower-dispatcher
