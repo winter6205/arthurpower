@@ -111,7 +111,7 @@ Full code examples: [`references/testing-patterns.md`](references/testing-patter
 
 ## Dispatch
 
-本环节由 `arthurpower:test-driven-development-agent` 承接。识别到实现新逻辑 / 修 bug / 改行为前的 S4 Spec-as-Test 验证时机（测试先于实现、测试覆盖 spec 验收点、mock 不替代真实代码、重构保持既有测试通过）时，用 Agent 工具以 `subagent_type: "arthurpower:test-driven-development-agent"` 派发，而非在主线程自跑。派发时传：diff 范围 + 本 skill 判据 + 证据格式（file:line + PASS/FAIL）。软触发：应当派，非必须派；偶发主线程自跑属可接受降级，不视为违规。
+本环节由 `arthurpower:test-driven-development-agent` 承接。识别到实现新逻辑 / 修 bug / 改行为前的 S4 Spec-as-Test 验证时机（测试先于实现、测试覆盖 spec 验收点、mock 不替代真实代码、重构保持既有测试通过）时，用 Agent 工具以 `subagent_type: "arthurpower:test-driven-development-agent"` 派发，而非在主线程自跑。派发时传：diff 范围 + 本 skill 判据 + 证据格式（file:line + PASS/FAIL）。软触发：应当派，非必须派；偶发主线程自跑属可接受降级，不视为违规。`test-driven-development-agent` 为只读 verifier；复现测试编写派 `test-engineer`（见下节）。
 
 ## Procedure
 
@@ -122,8 +122,7 @@ Full code examples: [`references/testing-patterns.md`](references/testing-patter
 5. **Run the test to confirm GREEN.** If it fails, fix the implementation, not the test (unless the test itself is wrong).
 6. **Run the full suite.** No regressions allowed.
 7. **Refactor with confidence.** Clean up names, extract helpers, remove duplication. Re-run tests after every change.
-8. **For bug fixes: write the reproduction test first (Prove-It Pattern).** Do not attempt a fix without a failing test that demonstrates the bug.
-9. **Commit only when green.** A red test in the commit means broken code shipped.
+8. **Commit only when green.** A red test in the commit means broken code shipped.
 
 ## Acceptance Criteria
 
@@ -140,6 +139,8 @@ Full code examples: [`references/testing-patterns.md`](references/testing-patter
 ## When to Use Subagents for Testing
 
 For complex bug fixes, spawn a subagent to write the reproduction test without knowledge of the fix — the subagent has no bias toward the fix, making the test more robust. Main agent: spawn subagent with bug description → subagent writes failing reproduction test → main agent verifies RED, implements fix, verifies GREEN.
+
+Dispatch to `subagent_type: test-engineer` (QA persona, `~/.claude/agents/test-engineer.md`). Pass the bug description, **not** the fix; it returns a failing reproduction test.
 
 ## Verification
 

@@ -6,9 +6,10 @@
 
 ## 1. Six user-level review agents
 
-These personas live in `~/.claude/agents/` and are reachable from plugin
-slash commands (`/review`, `/ship`, `/audit`) and from
-`arthurpower-dispatcher` fan-out.
+These personas live in `~/.claude/agents/` and are reachable from slash
+commands (`/review`, `/audit`, `/fanout`; `/test` `/ship` are **dead refs** —
+no such command exists, see OD-03) and from `arthurpower-dispatcher`
+fan-out.
 
 | Persona | File | Role | Primary trigger | Notes |
 |---------|------|------|-----------------|-------|
