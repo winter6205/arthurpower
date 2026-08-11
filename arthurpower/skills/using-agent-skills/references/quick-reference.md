@@ -15,11 +15,9 @@
 | Build | frontend-ui-engineering | "build component", "UI", "design tokens" |
 | Build | performance-optimization | "slow LCP", "bundle size", "N+1 query" |
 | Build | security-and-hardening | "add endpoint", "auth flow", "secret handling" |
-| Build | codebase-onboarding | "onboarding", "newcomer guide", "learning path" |
 | Verify | systematic-debugging | "修 bug", "系统调试" |
 | Verify | verification-before-completion | Pre-merge acceptance |
 | Verify | defend-claim | "Q1 evidence", "raw exit code", "before commit" |
-| Verify | commit-revert-protocol | "rollback", "supersede ADR", "revert commit" |
 | Review | arthurpower:code-review | "review", "PR", "审代码", "dual-axis" |
 
 ## Defining (early-stage)
@@ -35,7 +33,6 @@
 | Phase | Skill | Trigger |
 |-------|-------|---------|
 | SSOT | domain-modeling | "glossary", "ADR", "CONTEXT.md" |
-| SSOT | team-glossary-sync | "team-level term", "docs/team-glossary.md" |
 
 ## Setup / bootstrap
 

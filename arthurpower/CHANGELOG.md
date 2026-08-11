@@ -1,5 +1,17 @@
 # arthurpower changelog
 
+## v0.12.0 — 2026-08-11
+
+### Skill curation (SC-01)
+
+- `commit-revert-protocol` archived on 2026-08-11 (76868e3 hard-delete; capability absorbed by `docs/rules/git.md` §251-272)
+- `team-glossary-sync` archived on 2026-08-11 (ADR-0019 de-integrate; REVIVAL conditions in archive REVIVAL.md)
+- `codebase-onboarding` archived on 2026-08-11 (ADR-0019 de-integrate; REVIVAL conditions in archive REVIVAL.md)
+- Router mirror sync (`using-agent-skills/SKILL.md` — 3 entries removed)
+- Quick-reference sync (3 rows removed)
+- README sync: skill count 30 → 25
+- usage doc sync
+
 ## 2026-08-02 -- v0.10.0: hooks.json 死注册清理 + empty-catch 职责合并
 
 ### Summary

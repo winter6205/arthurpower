@@ -1,9 +1,9 @@
 # Arthurpower Skills
 
-Arthurpower is a Claude Code plugin that ships 30 skills across two
+Arthurpower is a Claude Code plugin that ships 25 skills across two
 **promoted** buckets — `engineering` (code work, architecture, testing,
 security, debugging, performance, authoring) and `productivity` (non-code
-workflow tools: cross-session handoff, team-glossary sync). The bucket
+workflow tools: cross-session handoff). The bucket
 discipline, `scripts/link-skills.sh` installer, and this README are ported and
 adapted from
 `the upstream skills repo` (see
@@ -26,8 +26,6 @@ Each skill below is grouped first by bucket, then by invocation class:
 
 ### User-invoked
 
-- [codebase-onboarding](skills/codebase-onboarding/SKILL.md) — Use when a newcomer asks to learn a codebase through guided lessons, asks for onboarding, a learning path, a newcomer guide, or systematic study of how a project works.
-- [commit-revert-protocol](skills/commit-revert-protocol/SKILL.md) — Use when a commit must be rolled back, a bad change was pushed, a feature toggle must disable a commit, or an ADR is superseded. Drives the revert decision (revert vs reset vs ADR supersede), executes
 - [deep-dive-protocol](skills/deep-dive-protocol/SKILL.md) — Use when a long interview, 长访谈, 盘问, 质询, or 深度盘问 is needed to resolve project terms and hard-to-reverse decisions through domain-modeling — then STOP at an explicit operator stop gate before any downstream skill runs.
 - [self-evolving-rules](skills/self-evolving-rules/SKILL.md) — Use when the operator manually runs memory or rule evolution — "add a memory", "merge memories", "archive", "rewrite the rule", "move across layers", "clean stale memory", "sync L1 + rule + skill".
 - [setup-arthurpower](skills/setup-arthurpower/SKILL.md) — Use when bootstrapping an Arthurpower project for the first time, migrating an existing repo onto Arthurpower (preserving prior content), gap-filling against a partial setup, or switching a multi-cont
@@ -61,7 +59,6 @@ Each skill below is grouped first by bucket, then by invocation class:
 ### User-invoked
 
 - [session-handoff](skills/session-handoff/SKILL.md) — Use when a session is ending, a new agent must continue the same task, or the operator mentions session continuity, cross-session relay, token pressure, or next-agent pickup. Compresses the live thread into a project-local handoff document in docs/handoff/ and references already-committed artifacts instead of duplicating them.
-- [team-glossary-sync](skills/team-glossary-sync/SKILL.md) — Use when the same term carries different meanings across projects or team members and a team-level SSOT must be established. Drives the lifecycle of docs/team-glossary.md from propose, conflict detect, merge, to deprecate; writes via domain-modeling so the team-level SSOT stays under the same write authority as project-level CONTEXT.md.
 
 ## Non-promoted buckets
 
@@ -73,7 +70,7 @@ shipped through the plugin:
 - `in-progress` — drafts not yet ready to ship
 - `deprecated` — no longer used
 
-Arthurpower currently has **zero** skills in any of these buckets. All 30
+Arthurpower currently has **zero** skills in any of these buckets. All 25
 skills ship in the two promoted buckets above. If a future skill should not
 be linked into local harnesses (for example, an experimental draft), set its
 frontmatter `bucket:` to one of these values and `scripts/link-skills.sh`

@@ -67,7 +67,7 @@ Trigger cases (all four require a router update in the same commit):
 
 - **Add** — a new directory under `arthurpower/skills/<name>/SKILL.md` is added at promotion time. Add a row in `references/quick-reference.md` and reference the name in `SKILL.md` prose.
 - **Rename** — a skill directory is renamed. Update the row in `references/quick-reference.md` and replace prose mentions in `SKILL.md` (and the flowchart in `references/flowchart.md` if the skill was named there).
-- **Remove** — a skill directory is removed. Remove its row from `references/quick-reference.md` and strip prose mentions from `SKILL.md`. See also `commit-revert-protocol` for history hygiene.
+- **Remove** — a skill directory is removed. Remove its row from `references/quick-reference.md` and strip prose mentions from `SKILL.md`. See also git workflow history hygiene in `docs/rules/git.md`.
 - **Flow-placement** — an existing skill moves to a different phase (Defining / Build / Verify / Review / SSOT / Setup / Restricted / User-invoked / Model-invoked). Update the phase column in `references/quick-reference.md` and the corresponding branch in `references/flowchart.md` if the skill is named in the tree.
 
 Cross-reference: `docs/agents/contributor-guide.md` for the full contributor contract (router rule + docs-page presence for promoted skills, the latter to be enforced by the docs-page-frame extension in T9).
@@ -107,9 +107,7 @@ gates) see `references/quick-reference.md`.
 
 - architecture-change-reviewer
 - bounded-context-guardian
-- codebase-onboarding
 - code-review
-- commit-revert-protocol
 - complexity-anti-drift
 - deep-dive-protocol
 - defend-claim
@@ -127,7 +125,6 @@ gates) see `references/quick-reference.md`.
 - skill-authoring
 - spec-driven-development
 - systematic-debugging
-- team-glossary-sync
 - test-driven-development
 - using-agent-skills
 - verification-before-completion
