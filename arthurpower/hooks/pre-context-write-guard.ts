@@ -17,12 +17,12 @@
 //  - Comment block updated to reflect Bash tool gate.
 //  - Fail-open crash now writes one line to daemon.log instead of silent exit.
 
-import fs from 'node:fs';
-import path from 'node:path';
-import os from 'node:os';
-import { z } from 'zod';
-import { defineHook } from './runtime/defineHook.ts';
-import { readRoutingState } from './lib/ipc-core.ts';
+import fs from "node:fs";
+import path from "node:path";
+import os from "node:os";
+import { z } from "zod";
+import { defineHook } from "./runtime/defineHook.ts";
+import { readRoutingState } from "./lib/ipc-core.ts";
 
 // BlockError: typed carry for `fail()` / `failIdentity()` semantics. The
 // original .cjs called process.exit(2) + stderr writes from deep inside
@@ -34,13 +34,14 @@ import { readRoutingState } from './lib/ipc-core.ts';
 class BlockError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'BlockError';
+    this.name = "BlockError";
   }
 }
 
-const TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'Bash']);
+const TOOLS = new Set(["Write", "Edit", "MultiEdit", "Bash"]);
 
-const CONTEXT_RE = /(^|[/\\])docs[/\\](CONTEXT\.md|CONTEXT-MAP\.md|team-glossary\.md)$/i;
+const CONTEXT_RE =
+  /(^|[/\\])docs[/\\](CONTEXT\.md|CONTEXT-MAP\.md|team-glossary\.md)$/i;
 const ADR_RE = /(^|[/\\])docs[/\\]adr[/\\](\d{4})-[^/\\]+\.md$/i;
 
 // ----------------------------------------------------------------------------
@@ -59,7 +60,7 @@ const SEP = String.raw`(?:^|[\s;&|(])`;
 // The target MUST immediately follow the redirect operator (with optional quotes).
 const BASH_REDIRECT_RE = new RegExp(
   SEP + String.raw`[^|;&]*?>>?\s*` + TARGET,
-  'i'
+  "i",
 );
 
 // Form B: command keyword + optional flags + path = target.
@@ -69,21 +70,27 @@ const BASH_REDIRECT_RE = new RegExp(
 // Middle args (e.g. `cp foo TARGET`, `mv foo TARGET`) are optional - `rm TARGET`
 // directly (no middle arg) also matches.
 const BASH_KEYWORD_RE = new RegExp(
-  SEP + String.raw`(?:rm(?:\s+-\w+)?|rmdir|tee|cp|mv)\s+(?:[^|;&]*?\s+)?` + TARGET + String.raw`(?:\s|$|[|;&)])`,
-  'i'
+  SEP +
+    String.raw`(?:rm(?:\s+-\w+)?|rmdir|tee|cp|mv)\s+(?:[^|;&]*?\s+)?` +
+    TARGET +
+    String.raw`(?:\s|$|[|;&)])`,
+  "i",
 );
 
 // Form C: `sed -i [optional s/foo/bar/] TARGET` - special because -i precedes path.
 const BASH_SED_RE = new RegExp(
-  SEP + String.raw`sed\s+(?:-i\s+)?[^|;&]*?` + TARGET + String.raw`(?:\s|$|[|;&)])`,
-  'i'
+  SEP +
+    String.raw`sed\s+(?:-i\s+)?[^|;&]*?` +
+    TARGET +
+    String.raw`(?:\s|$|[|;&)])`,
+  "i",
 );
 
 function detectBashViolation(command: string): string | null {
   if (!command) return null;
-  if (BASH_REDIRECT_RE.test(command)) return 'redirect';
-  if (BASH_KEYWORD_RE.test(command)) return 'keyword';
-  if (BASH_SED_RE.test(command)) return 'sed';
+  if (BASH_REDIRECT_RE.test(command)) return "redirect";
+  if (BASH_KEYWORD_RE.test(command)) return "keyword";
+  if (BASH_SED_RE.test(command)) return "sed";
   return null;
 }
 
@@ -93,13 +100,16 @@ function hasHeading(content: string, re: RegExp): boolean {
 
 // 2026-07-24 Fix (gh-68): Status/Date line regexes shared by validateAdr
 // (write path, full-file) and validateAdrFragment (edit path, diff fragment).
-const STATUS_LINE_RE = /^Status:\s*(proposed|accepted|deprecated|superseded\s+by\s+\d{4})\s*$/;
+const STATUS_LINE_RE =
+  /^Status:\s*(proposed|accepted|deprecated|superseded\s+by\s+\d{4})\s*$/;
 const DATE_LINE_RE = /^Date:\s*\d{4}-\d{2}-\d{2}\s*$/;
 
 function fail(reason: string): never {
   // 2026-07-15 Fix: the block envelope is written via the runtime's exitBlock
   // (SC7: stderr-only block emission). The runtime prepends "BLOCKED: ".
-  throw new BlockError('context-write-guard - ' + reason + '. 走 domain-modeling skill 落盘');
+  throw new BlockError(
+    "context-write-guard - " + reason + ". 走 domain-modeling skill 落盘",
+  );
 }
 
 function failIdentity(activeSkill: string, filePath: string): never {
@@ -115,13 +125,15 @@ function failIdentity(activeSkill: string, filePath: string): never {
   // being blocked when the lifecycle router has not yet recorded
   // domain-modeling as the active skill.
   throw new BlockError(
-    'pre-context-write-guard - active skill "' + activeSkill +
-    '" is not authorized to write ' + filePath +
-    ' (write authority per ADR-0005 belongs to domain-modeling). Run `domain-modeling` first.'
+    'pre-context-write-guard - active skill "' +
+      activeSkill +
+      '" is not authorized to write ' +
+      filePath +
+      " (write authority per ADR-0005 belongs to domain-modeling). Run `domain-modeling` first.",
   );
 }
 
-const AUTHORIZED_SKILLS = new Set(['domain-modeling', 'setup-arthurpower']);
+const AUTHORIZED_SKILLS = new Set(["domain-modeling", "setup-arthurpower"]);
 
 function isSetupBootstrapAllowed(filePath: string): boolean {
   // Escape-hatch condition for setup-arthurpower: only allowed when docs/adr/
@@ -146,12 +158,16 @@ function isSetupBootstrapAllowed(filePath: string): boolean {
     for (let i = 0; i < 8; i++) {
       // Case B: current dir IS docs/adr/ (ends in /adr).
       const base = path.basename(dir).toLowerCase();
-      if (base === 'adr' && fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
+      if (
+        base === "adr" &&
+        fs.existsSync(dir) &&
+        fs.statSync(dir).isDirectory()
+      ) {
         const entries = fs.readdirSync(dir);
         return entries.filter((e) => /^\d{4}-.+\.md$/.test(e)).length === 0;
       }
       // Case A: sibling "adr" under current dir.
-      const sibling = path.join(dir, 'adr');
+      const sibling = path.join(dir, "adr");
       if (fs.existsSync(sibling) && fs.statSync(sibling).isDirectory()) {
         const entries = fs.readdirSync(sibling);
         return entries.filter((e) => /^\d{4}-.+\.md$/.test(e)).length === 0;
@@ -178,7 +194,7 @@ function normalizeSkillId(s: string): string {
   if (!s) return s;
   // Take the last ':'-segment ("arthurpower:domain-modeling" -> "domain-modeling").
   // Bare names pass through unchanged.
-  const parts = s.split(':');
+  const parts = s.split(":");
   return parts[parts.length - 1];
 }
 
@@ -208,11 +224,11 @@ async function readActiveSkill(): Promise<string | null> {
   //   { schemaVersion, id, skill, phase, timestamp, signature }.
   try {
     const state = await readRoutingState();
-    if (!state || typeof state.skill !== 'string') return null;
+    if (!state || typeof state.skill !== "string") return null;
     // Stale-read guard (2026-07-20): defensive secondary check. ipc-core
     // returns null for stale states, but if it ever loosens its TTL this
     // 60-min gate preserves the original fail-open-on-stale semantics.
-    if (typeof state.timestamp === 'number' && state.timestamp > 0) {
+    if (typeof state.timestamp === "number" && state.timestamp > 0) {
       const ageMs = Date.now() - state.timestamp;
       if (ageMs > MAX_STATE_AGE_MS) return null;
     }
@@ -247,8 +263,34 @@ async function readActiveSkill(): Promise<string | null> {
 // Resolution: compute the most-recent skill activation from the transcript
 // unconditionally; routing-state is consulted only as a fallback when the
 // transcript itself is unreadable. See ADR-0022.
-const TRANSCRIPT_TAIL_BYTES = 64 * 1024;
-const SKILL_TOOL_RE = /"name"\s*:\s*"Skill"\s*,\s*"input"\s*:\s*\{\s*"skill"\s*:\s*"([^"]+)"/g;
+// 2026-08-06 Fix (false-block root cause): 64KB was far too small. A single
+// session transcript routinely exceeds 1MB (measured: 1.4MB, 2.6MB), and a
+// skill invoked via slash command (`/arthurpower:domain-modeling`) leaves its
+// activation marker near the START of the transcript (measured: byte 1110).
+// With a 64KB tail window the marker fell OUTSIDE the window, so every later
+// guarded write resolved "no skill activation" and was hard-blocked even
+// though domain-modeling had legitimately been invoked. 4MB covers essentially
+// all sessions while keeping a bounded read on the tail.
+const TRANSCRIPT_TAIL_BYTES = 4 * 1024 * 1024;
+// 2026-08-03 Fix (skill-input key order): the transcript is serialized by the
+// model, and JSON object key order is NOT guaranteed. A Skill invocation that
+// carries `args` can serialize as "input":{"args":"…","skill":"X"} (args
+// BEFORE skill) — this is exactly what happened in production for a
+// domain-modeling ADR proposal. The previous regex required "skill" to be the
+// FIRST key right after "input":{ , so it never matched an args-first record.
+// Since ADR-0022 made the transcript the PRIMARY identity signal, "readable
+// but no marker" is a hard block — so every legit domain-modeling write that
+// followed an args-first invocation was false-blocked.
+//
+// Fix: match the Skill tool_use, then the nearest "skill":"…" key regardless of
+// its position among the input keys. The captured skill value is
+// charset-constrained to the [a-z0-9-] identifier grammar (plus ':' namespace
+// segments) so the non-greedy span cannot latch onto a "skill" word inside
+// free-text args. The {0,16000} bound keeps the span within a single tool_use
+// input (args can be long) while bounding worst-case backtracking on a tail
+// that contains no match.
+const SKILL_TOOL_RE =
+  /"name"\s*:\s*"Skill"[\s\S]{0,16000}?"skill"\s*:\s*"((?:[a-z0-9-]+:)*[a-z0-9-]+)"/g;
 const SLASH_CMD_RE = /<command-name>\s*([^<\s][^<]*?)\s*<\/command-name>/g;
 
 // readLatestSkillFromTranscript: returns the normalized id of the most-recent
@@ -256,12 +298,16 @@ const SLASH_CMD_RE = /<command-name>\s*([^<\s][^<]*?)\s*<\/command-name>/g;
 //   { readable: true,  skill: string }  -> transcript readable, latest activation is `skill`
 //   { readable: true,  skill: null }    -> transcript readable, NO activation marker (treat as non-authorized)
 //   { readable: false, skill: null }    -> transcript missing/corrupt/unreadable -> fall back to routing-state
-function readLatestSkillFromTranscript(transcriptPath: string): { readable: boolean; skill: string | null } {
+function readLatestSkillFromTranscript(transcriptPath: string): {
+  readable: boolean;
+  skill: string | null;
+} {
   try {
-    if (!transcriptPath || !fs.existsSync(transcriptPath)) return { readable: false, skill: null };
+    if (!transcriptPath || !fs.existsSync(transcriptPath))
+      return { readable: false, skill: null };
     const stat = fs.statSync(transcriptPath);
     const start = Math.max(0, stat.size - TRANSCRIPT_TAIL_BYTES);
-    const fd = fs.openSync(transcriptPath, 'r');
+    const fd = fs.openSync(transcriptPath, "r");
     let buf: Buffer;
     try {
       buf = Buffer.alloc(Math.min(stat.size, TRANSCRIPT_TAIL_BYTES));
@@ -269,7 +315,7 @@ function readLatestSkillFromTranscript(transcriptPath: string): { readable: bool
     } finally {
       fs.closeSync(fd);
     }
-    const tail = buf.toString('utf8');
+    const tail = buf.toString("utf8");
     // Collect (position, normalizedSkill) for both activation markers.
     const hits: Array<{ pos: number; skill: string }> = [];
     let m: RegExpExecArray | null;
@@ -297,28 +343,52 @@ function readLatestSkillFromTranscript(transcriptPath: string): { readable: bool
 //                           where new_string is a diff fragment, not the full
 //                           file. hasTitle/hasLanguage are file-level checks
 //                           irrelevant to a single-term patch.
-function validateContext(content: string, label: string, mode: 'write' | 'edit'): void {
+// 2026-08-06 Fix (over-strict hasTerm): the real docs/CONTEXT.md (and the
+// CONTEXT-FORMAT.md template) mixes TWO entry shapes:
+//   inline  `**Term**: A one-line definition ending in a period.`
+//   two-line `**Term**:\n  A definition that may span multiple lines.`
+// The previous regex required a SINGLE line matching the inline shape, so any
+// file containing even one two-line entry (or an entry whose definition line
+// did not end with '.') was rejected — causing the "every edit gets bounced
+// back" loop. Fix: any `**Term**:` marker counts as a term; punctuation /
+// content on the same or following line is no longer required. Title +
+// Language section remain the file-level invariants.
+const hasTerm = (lines: string[]): boolean =>
+  lines.some((line) => /^\*\*[^*]+\*\*\s*:/m.test(line.trim()));
+
+function validateContext(
+  content: string,
+  label: string,
+  mode: "write" | "edit",
+): void {
   const lines = content.split(/\r?\n/);
-  const hasTerm = lines.some((line) => /^\*\*[^*]+\*\*\s*:\s*[^\s].*[.。]\s*$/.test(line.trim()));
-  if (mode === 'edit') {
-    if (!hasTerm) fail(label + ' 缺少 **Term**: definition. 格式词条');
+  const term = hasTerm(lines);
+  if (mode === "edit") {
+    if (!term) fail(label + " 缺少 **Term**: definition. 格式词条");
     return;
   }
   // mode === 'write' (default)
   const hasTitle = lines.some((line) => /^#\s+.+/.test(line.trim()));
   const hasLanguage = hasHeading(content, /^##\s+Language\b/i);
-  if (!hasTitle) fail(label + ' 缺少 # 标题行');
-  if (!hasLanguage) fail(label + ' 缺少 ## Language 章节');
-  if (!hasTerm) fail(label + ' 缺少 **Term**: definition. 格式词条');
+  if (!hasTitle) fail(label + " 缺少 # 标题行");
+  if (!hasLanguage) fail(label + " 缺少 ## Language 章节");
+  if (!term) fail(label + " 缺少 **Term**: definition. 格式词条");
 }
 
-function validateAdr(content: string, expectedNumber: string, mode: 'write' | 'edit'): void {
+function validateAdr(
+  content: string,
+  expectedNumber: string,
+  mode: "write" | "edit",
+): void {
   // 2026-07-24 Fix (gh-68): mode='edit' (Edit/MultiEdit) validates only fields
   // present in the diff fragment — mirrors validateContext's edit branch.
   // mode='write' retains the full 5-check below.
-  if (mode === 'edit') { validateAdrFragment(content); return; }
+  if (mode === "edit") {
+    validateAdrFragment(content);
+    return;
+  }
   const lines = content.split(/\r?\n/);
-  const titleRe = new RegExp('^#\\s+' + expectedNumber + '\\.\\s+.+');
+  const titleRe = new RegExp("^#\\s+" + expectedNumber + "\\.\\s+.+");
   const hasTitle = lines.some((line) => titleRe.test(line.trim()));
   const hasDate = lines.some((line) => DATE_LINE_RE.test(line.trim()));
   const hasStatus = lines.some((line) => STATUS_LINE_RE.test(line.trim()));
@@ -326,9 +396,12 @@ function validateAdr(content: string, expectedNumber: string, mode: 'write' | 'e
   const hasDecision = hasHeading(content, /^##\s+Decision\b/i);
   const hasConsequences = hasHeading(content, /^##\s+Consequences\b/i);
 
-  if (!hasTitle) fail('ADR 标题行缺少 NNNN. 前缀');
-  if (!hasDate) fail('ADR 缺少 Date: YYYY-MM-DD 行');
-  if (!hasStatus) fail('ADR Status 不在 proposed/accepted/deprecated/superseded by NNNN 枚举内');
+  if (!hasTitle) fail("ADR 标题行缺少 NNNN. 前缀");
+  if (!hasDate) fail("ADR 缺少 Date: YYYY-MM-DD 行");
+  if (!hasStatus)
+    fail(
+      "ADR Status 不在 proposed/accepted/deprecated/superseded by NNNN 枚举内",
+    );
   // 2026-07-20 Fix (gh-21): align with ADR-FORMAT.md "single-paragraph is
   // the default". If NONE of the optional section headings are present, the
   // ADR is valid as a single-paragraph record (skip the 3-heading check).
@@ -337,9 +410,9 @@ function validateAdr(content: string, expectedNumber: string, mode: 'write' | 'e
   // missing in a multi-section ADR still blocks).
   const multiSectionPresent = hasContext || hasDecision || hasConsequences;
   if (multiSectionPresent) {
-    if (!hasContext) fail('ADR 缺少 ## Context 章节');
-    if (!hasDecision) fail('ADR 缺少 ## Decision 章节');
-    if (!hasConsequences) fail('ADR 缺少 ## Consequences 章节');
+    if (!hasContext) fail("ADR 缺少 ## Context 章节");
+    if (!hasDecision) fail("ADR 缺少 ## Decision 章节");
+    if (!hasConsequences) fail("ADR 缺少 ## Consequences 章节");
   }
 }
 
@@ -353,10 +426,12 @@ function validateAdrFragment(content: string): void {
   for (const raw of content.split(/\r?\n/)) {
     const line = raw.trim();
     if (/^Status:/.test(line) && !STATUS_LINE_RE.test(line)) {
-      fail('ADR Status 不在 proposed/accepted/deprecated/superseded by NNNN 枚举内');
+      fail(
+        "ADR Status 不在 proposed/accepted/deprecated/superseded by NNNN 枚举内",
+      );
     }
     if (/^Date:/.test(line) && !DATE_LINE_RE.test(line)) {
-      fail('ADR 缺少 Date: YYYY-MM-DD 行');
+      fail("ADR 缺少 Date: YYYY-MM-DD 行");
     }
   }
 }
@@ -374,12 +449,18 @@ function checkAdrUniqueness(filePath: string, expectedNumber: string): void {
     }
     const newBase = path.basename(filePath);
     const entries = fs.readdirSync(dir);
-    const collisionRe = new RegExp('^' + expectedNumber + '-.+\\.md$', 'i');
+    const collisionRe = new RegExp("^" + expectedNumber + "-.+\\.md$", "i");
     for (const entry of entries) {
       if (!collisionRe.test(entry)) continue;
       if (entry.toLowerCase() === newBase.toLowerCase()) continue; // same file, allow
       // Different filename, same number -> collision
-      fail('ADR 编号 ' + expectedNumber + ' 已被 ' + entry + ' 占用。走 domain-modeling skill 取最大号+1 落盘');
+      fail(
+        "ADR 编号 " +
+          expectedNumber +
+          " 已被 " +
+          entry +
+          " 占用。走 domain-modeling skill 取最大号+1 落盘",
+      );
     }
   } catch (err) {
     // Re-throw BlockError so a block is not swallowed by the fs-error handler.
@@ -394,13 +475,18 @@ function checkAdrUniqueness(filePath: string, expectedNumber: string): void {
 // .cjs's logFatal, retained so handler-side crashes are still surfaced even
 // when defineHook's runtime catch also writes to stderr.
 function logFatal(err: unknown): void {
-  const msg = '[pre-context-write-guard.ts FATAL] ' +
-    (err instanceof Error ? (err.stack ?? err.message) : String(err)) + '\n';
+  const msg =
+    "[pre-context-write-guard.ts FATAL] " +
+    (err instanceof Error ? (err.stack ?? err.message) : String(err)) +
+    "\n";
   process.stderr.write(msg);
   try {
-    const logPath = path.join(os.homedir(), '.claude', 'daemon.log');
-    fs.appendFileSync(logPath,
-      '[' + new Date().toISOString() + '] ' + msg, 'utf8');
+    const logPath = path.join(os.homedir(), ".claude", "daemon.log");
+    fs.appendFileSync(
+      logPath,
+      "[" + new Date().toISOString() + "] " + msg,
+      "utf8",
+    );
   } catch (_) {
     // If daemon.log is unwritable, stderr write above is the fallback.
   }
@@ -411,47 +497,85 @@ function logFatal(err: unknown): void {
 // ----------------------------------------------------------------------------
 
 defineHook({
-  schema: z.object({
-    file_path: z.string().optional(),
-    command: z.string().optional(),
-    cmd: z.string().optional(),
-    // The schema accepts null for content/new_string because the original
-    // .cjs treated a non-string content (e.g. `payload(path, null)`) as
-    // empty and then blocked on "写入内容为空". A strict `z.string()` would
-    // reject null and fail-open (exit 0) instead of letting the guard
-    // surface the empty-write block. .nullish() preserves the original
-    // fail-NOT-open semantics on null content.
-    content: z.string().nullish(),
-    new_string: z.string().nullish(),
-    edits: z.array(z.unknown()).nullish(),
-  }).passthrough(),
+  schema: z
+    .object({
+      file_path: z.string().optional(),
+      command: z.string().optional(),
+      cmd: z.string().optional(),
+      // The schema accepts null for content/new_string because the original
+      // .cjs treated a non-string content (e.g. `payload(path, null)`) as
+      // empty and then blocked on "写入内容为空". A strict `z.string()` would
+      // reject null and fail-open (exit 0) instead of letting the guard
+      // surface the empty-write block. .nullish() preserves the original
+      // fail-NOT-open semantics on null content.
+      content: z.string().nullish(),
+      new_string: z.string().nullish(),
+      edits: z.array(z.unknown()).nullish(),
+    })
+    .passthrough(),
   failOpen: true,
   handler: async ({ tool_name, tool_input, envelope }) => {
     try {
       const toolName = tool_name;
-      const filePath = (typeof tool_input.file_path === 'string' ? tool_input.file_path : '');
-      const bashCommand = (typeof tool_input.command === 'string' && tool_input.command)
-        || (typeof tool_input.cmd === 'string' && tool_input.cmd) || '';
-      const transcriptPath = (typeof envelope.transcript_path === 'string' ? envelope.transcript_path : '');
+      const filePath =
+        typeof tool_input.file_path === "string" ? tool_input.file_path : "";
+      const bashCommand =
+        (typeof tool_input.command === "string" && tool_input.command) ||
+        (typeof tool_input.cmd === "string" && tool_input.cmd) ||
+        "";
+      const transcriptPath =
+        typeof envelope.transcript_path === "string"
+          ? envelope.transcript_path
+          : "";
 
       // Content extraction — preserve original precedence: content > new_string > edits.
-      let content = '';
-      if (typeof tool_input.content === 'string' && tool_input.content.length > 0) {
+      let content = "";
+      if (
+        typeof tool_input.content === "string" &&
+        tool_input.content.length > 0
+      ) {
         content = tool_input.content;
-      } else if (typeof tool_input.new_string === 'string' && tool_input.new_string.length > 0) {
+      } else if (
+        typeof tool_input.new_string === "string" &&
+        tool_input.new_string.length > 0
+      ) {
         content = tool_input.new_string;
       } else if (Array.isArray(tool_input.edits)) {
         content = (tool_input.edits as Array<unknown>)
           .map((e) => {
-            const ns = (e && typeof e === 'object')
-              ? (e as { new_string?: unknown }).new_string
-              : undefined;
-            return typeof ns === 'string' ? ns : '';
+            const ns =
+              e && typeof e === "object"
+                ? (e as { new_string?: unknown }).new_string
+                : undefined;
+            return typeof ns === "string" ? ns : "";
           })
-          .join('\n');
+          .join("\n");
       }
 
-      if (!TOOLS.has(toolName)) return { kind: 'allow' };
+      if (!TOOLS.has(toolName)) return { kind: "allow" };
+
+      // --------------------------------------------------------------------
+      // Early resolution of the guarded-target check, BEFORE the identity
+      // read. Two purposes:
+      //   1) PERF (2026-08-06): readActiveSkill() acquires a file lock on
+      //      ~/.claude/.routing-state.json and readLatestSkillFromTranscript()
+      //      reads up to TRANSCRIPT_TAIL_BYTES of the transcript on EVERY
+      //      Write/Edit/Bash — even for non-guarded files. Real sessions run
+      //      this guard ~90+ times at 0.5–3.9s each (5s timeout). Non-guarded
+      //      writes are ~95% of traffic and need none of that; bail before
+      //      paying the lock + read.
+      //   2) Resolve the Bash "intent surface" (the whole command) up front so
+      //      the identity white-list check below can reuse it.
+      // --------------------------------------------------------------------
+      let bashIntent: string | null = null;
+      if (toolName === "Bash" && bashCommand) {
+        bashIntent = bashPathFromCommand(bashCommand);
+      }
+      const pathGuard = pathGuarded(filePath);
+      const isGuarded = pathGuard !== null || bashIntent !== null;
+      if (!isGuarded) {
+        return { kind: "allow" };
+      }
 
       // 2026-07-17 Fix (T9 active-skill identity check): read the lifecycle
       // router state BEFORE path matching so we can apply the white-list
@@ -459,6 +583,10 @@ defineHook({
       // state is missing, unreadable, malformed, or skill field is
       // missing/empty -> skip identity check entirely (structural validation
       // below still runs).
+      //
+      // 2026-08-06: now reached ONLY for guarded paths (see early-exit
+      // above), so the lock + transcript read is paid only on writes that
+      // actually need the identity white-list.
       const routingSkill = await readActiveSkill();
       // ADR-0022: transcript is the primary identity signal. routing-state is a
       // fallback used only when the transcript itself is unreadable.
@@ -482,7 +610,8 @@ defineHook({
       // Recompute AFTER resolution so the "readable but no marker" case does not
       // silently fall into the fail-open branch (security regression fixed by
       // review feedback on ADR-0022 initial implementation).
-      const identityCheckDisabled = activeSkill === null && !transcript.readable;
+      const identityCheckDisabled =
+        activeSkill === null && !transcript.readable;
 
       // Resolve the targeted file path for the identity check. For Bash tool
       // we treat the entire bashCommand as the "intent surface" - if the
@@ -490,17 +619,17 @@ defineHook({
       // regardless of which file_path the harness supplies (Bash's
       // tool_input.file_path is empty).
       function pathGuarded(p: string): string | null {
-        if (typeof p !== 'string' || !p) return null;
-        if (CONTEXT_RE.test(p)) return 'CONTEXT';
-        if (ADR_RE.test(p)) return 'ADR';
+        if (typeof p !== "string" || !p) return null;
+        if (CONTEXT_RE.test(p)) return "CONTEXT";
+        if (ADR_RE.test(p)) return "ADR";
         return null;
       }
 
       function bashPathFromCommand(cmd: string): string | null {
         if (!cmd) return null;
-        if (BASH_REDIRECT_RE.test(cmd)) return 'CONTEXT';
-        if (BASH_KEYWORD_RE.test(cmd)) return 'CONTEXT';
-        if (BASH_SED_RE.test(cmd)) return 'CONTEXT';
+        if (BASH_REDIRECT_RE.test(cmd)) return "CONTEXT";
+        if (BASH_KEYWORD_RE.test(cmd)) return "CONTEXT";
+        if (BASH_SED_RE.test(cmd)) return "CONTEXT";
         return null;
       }
 
@@ -515,86 +644,118 @@ defineHook({
         // Label for block messages: null activeSkill (transcript readable but no
         // marker) is rendered as a human-readable hint rather than the literal
         // string "null".
-        const skillLabel = activeSkill ?? '(no skill activation in transcript)';
+        const skillLabel = activeSkill ?? "(no skill activation in transcript)";
 
         if (transcript.readable && transcript.skill !== null) {
-          process.stderr.write('[guard] identity from transcript: "' + transcript.skill + '"\n');
+          process.stderr.write(
+            '[guard] identity from transcript: "' + transcript.skill + '"\n',
+          );
         } else if (transcript.readable && transcript.skill === null) {
-          process.stderr.write('[guard] transcript readable but no skill activation; blocking non-authorized\n');
+          process.stderr.write(
+            "[guard] transcript readable but no skill activation; blocking non-authorized\n",
+          );
         } else {
-          process.stderr.write('[guard] transcript unreadable; identity from routing-state: "' + (routingSkill ?? 'null') + '"\n');
+          process.stderr.write(
+            '[guard] transcript unreadable; identity from routing-state: "' +
+              (routingSkill ?? "null") +
+              '"\n',
+          );
         }
 
-        if (toolName === 'Bash') {
-          const guardedKind = bashPathFromCommand(bashCommand);
+        if (toolName === "Bash") {
+          const guardedKind = bashIntent; // precomputed above (early-exit path)
           if (guardedKind && !AUTHORIZED_SKILLS.has(activeSkill)) {
-            failIdentity(skillLabel, 'docs/CONTEXT*.md | docs/team-glossary.md | docs/adr/*.md (via Bash)');
+            failIdentity(
+              skillLabel,
+              "docs/CONTEXT*.md | docs/team-glossary.md | docs/adr/*.md (via Bash)",
+            );
           }
-          if (guardedKind && activeSkill === 'setup-arthurpower' && !isSetupBootstrapAllowed(process.cwd())) {
-            failIdentity(skillLabel, 'docs/CONTEXT*.md | docs/team-glossary.md | docs/adr/*.md (via Bash; bootstrap already done)');
+          if (
+            guardedKind &&
+            activeSkill === "setup-arthurpower" &&
+            !isSetupBootstrapAllowed(process.cwd())
+          ) {
+            failIdentity(
+              skillLabel,
+              "docs/CONTEXT*.md | docs/team-glossary.md | docs/adr/*.md (via Bash; bootstrap already done)",
+            );
           }
-        } else if (typeof filePath === 'string' && filePath) {
-          const guardedKind = pathGuarded(filePath);
+        } else if (typeof filePath === "string" && filePath) {
+          const guardedKind = pathGuard; // precomputed above (early-exit path)
           if (guardedKind) {
             if (!AUTHORIZED_SKILLS.has(activeSkill)) {
               failIdentity(skillLabel, filePath);
-            } else if (activeSkill === 'setup-arthurpower' && !isSetupBootstrapAllowed(filePath)) {
-              failIdentity(skillLabel, filePath + ' (bootstrap already done)');
+            } else if (
+              activeSkill === "setup-arthurpower" &&
+              !isSetupBootstrapAllowed(filePath)
+            ) {
+              failIdentity(skillLabel, filePath + " (bootstrap already done)");
             }
           }
         }
       } else {
         // Fail-open visibility: one-line stderr hint when BOTH transcript and
         // routing-state are unreadable. Structural validation below still runs.
-        process.stderr.write('[guard] routing-state + transcript both unreadable; identity check skipped\n');
+        process.stderr.write(
+          "[guard] routing-state + transcript both unreadable; identity check skipped\n",
+        );
       }
 
       // Bash path: detect write/destroy redirection to context-guarded files.
-      if (toolName === 'Bash' && bashCommand) {
+      // (bashIntent is non-null here — we already early-exited non-guarded
+      // Bash commands above.)
+      if (toolName === "Bash" && bashCommand && bashIntent) {
         const violation = detectBashViolation(bashCommand);
         if (violation) {
-          fail('Bash 命令尝试直接写/删 docs/CONTEXT.md | docs/CONTEXT-MAP.md | docs/team-glossary.md | docs/adr/*.md，绕过 domain-modeling 写入主权。走 domain-modeling skill 落盘');
+          fail(
+            "Bash 命令尝试直接写/删 docs/CONTEXT.md | docs/CONTEXT-MAP.md | docs/team-glossary.md | docs/adr/*.md，绕过 domain-modeling 写入主权。走 domain-modeling skill 落盘",
+          );
         }
       }
 
-      if (typeof filePath !== 'string' || !filePath) {
-        return { kind: 'allow' };
+      if (typeof filePath !== "string" || !filePath) {
+        return { kind: "allow" };
       }
 
       const ctxMatch = CONTEXT_RE.exec(filePath);
       if (ctxMatch) {
-        if (typeof content !== 'string' || !content) {
-          fail('CONTEXT.md 写入内容为空');
+        if (typeof content !== "string" || !content) {
+          fail("CONTEXT.md 写入内容为空");
         }
-        const label = /team-glossary\.md$/i.test(filePath) ? 'team-glossary.md' : 'CONTEXT.md';
+        const label = /team-glossary\.md$/i.test(filePath)
+          ? "team-glossary.md"
+          : "CONTEXT.md";
         // 2026-07-15 Fix: mode='edit' for Edit/MultiEdit (fragment-level
         // hasTerm only); mode='write' for Write (full 3-check).
-        const mode = (toolName === 'Edit' || toolName === 'MultiEdit') ? 'edit' : 'write';
+        const mode =
+          toolName === "Edit" || toolName === "MultiEdit" ? "edit" : "write";
         validateContext(content, label, mode);
-        return { kind: 'allow' };
+        return { kind: "allow" };
       }
 
       const adrMatch = ADR_RE.exec(filePath);
       if (adrMatch) {
-        if (typeof content !== 'string' || !content) {
-          fail('ADR 写入内容为空');
+        if (typeof content !== "string" || !content) {
+          fail("ADR 写入内容为空");
         }
         checkAdrUniqueness(filePath, adrMatch[2]);
         // 2026-07-24 Fix (gh-68): mode='edit' for Edit/MultiEdit (fragment-level
         // validation); mode='write' for Write (full 5-check). Mirrors the
         // CONTEXT.md branch above.
-        const mode = (toolName === 'Edit' || toolName === 'MultiEdit') ? 'edit' : 'write';
+        const mode =
+          toolName === "Edit" || toolName === "MultiEdit" ? "edit" : "write";
         validateAdr(content, adrMatch[2], mode);
-        return { kind: 'allow' };
+        return { kind: "allow" };
       }
 
-      return { kind: 'allow' };
+      return { kind: "allow" };
     } catch (err) {
-      if (err instanceof BlockError) return { kind: 'block', message: err.message };
+      if (err instanceof BlockError)
+        return { kind: "block", message: err.message };
       // Fail-open: hook failures must never block legitimate tool use.
       // Preserve 2026-07-13 daemon.log visibility fix, then allow.
       logFatal(err);
-      return { kind: 'allow' };
+      return { kind: "allow" };
     }
   },
 });
