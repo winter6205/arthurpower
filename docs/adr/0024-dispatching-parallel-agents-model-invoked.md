@@ -1,7 +1,7 @@
 # 0024. dispatching-parallel-agents unlocked to model-invoked; Dispatch branch added to router
 
 Date: 2026-08-11
-Status: proposed
+Status: accepted
 
 ## Gate check
 
