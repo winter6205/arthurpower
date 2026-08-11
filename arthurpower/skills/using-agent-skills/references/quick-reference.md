@@ -15,6 +15,7 @@
 | Verify | systematic-debugging | "修 bug", "系统调试" |
 | Verify | verification-before-completion | Pre-merge acceptance |
 | Review | arthurpower:code-review | "review", "PR", "审代码", "dual-axis" |
+| Review | boundary-testing | "边界测试", "boundary test", "跨文件改动", "跨 hook 状态", "实施前验证", "force smoke" |
 
 ## Defining (early-stage)
 

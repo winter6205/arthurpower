@@ -106,6 +106,7 @@ skill directory. For full per-phase routing (auto-trigger vs restricted vs
 gates) see `references/quick-reference.md`.
 
 - architecture-change-reviewer
+- boundary-testing
 - bounded-context-guardian
 - code-review
 - complexity-anti-drift
