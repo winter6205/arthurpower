@@ -18,7 +18,6 @@
 | Build | codebase-onboarding | "onboarding", "newcomer guide", "learning path" |
 | Verify | systematic-debugging | "修 bug", "系统调试" |
 | Verify | verification-before-completion | Pre-merge acceptance |
-| Verify | defend-claim | "Q1 evidence", "raw exit code", "before commit" |
 | Verify | commit-revert-protocol | "rollback", "supersede ADR", "revert commit" |
 | Review | arthurpower:code-review | "review", "PR", "审代码", "dual-axis" |
 

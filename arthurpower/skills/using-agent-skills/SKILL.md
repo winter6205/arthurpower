@@ -112,7 +112,6 @@ gates) see `references/quick-reference.md`.
 - commit-revert-protocol
 - complexity-anti-drift
 - deep-dive-protocol
-- defend-claim
 - defensive-contract-validator
 - dispatching-parallel-agents
 - domain-modeling

@@ -1,5 +1,34 @@
 # arthurpower changelog
 
+## 2026-08-12 -- v0.12.0: defend-claim skill de-integrated to docs page (ADR-0025)
+
+### Summary
+
+Wayfinder map `skill-and-agent-curation` (#97) SC-03 rewrite (#114) re-opened
+during the rewrite discussion: `defend-claim` was 0-invocation (SC-R0) and its
+5 PostToolUse hooks fire independently of any skill layer, so the skill slot
+carried context load with no trigger surface. De-integrated to
+`docs/engineering/defend-claim.md` (ADR-0025). Hook layer untouched —
+`hooks.json` / 5 `.ts` filenames / archive `.cjs` unchanged.
+
+1. **defend-claim skill → docs page** — `arthurpower/skills/defend-claim/`
+   (SKILL.md + references/ + iteration/) deleted. Operator exposition now
+   lives at `docs/engineering/defend-claim.md` (Quickstart / hook table /
+   when-to-reach / peers).
+2. **Router + manifest re-sync** — `using-agent-skills/SKILL.md` skill list
+   and `references/quick-reference.md` Verify row both drop `defend-claim`;
+   `plugin.json` description drops the "claim-time anti-self-cert gate" line
+   and corrects the skill count (28 → 27). README skill index row removed.
+3. **Hook layer verified intact** — all 5 `defend-claim-*.ts` pass
+   `--self-test`; `pre-release-validate.ts` router invariant exits 0.
+4. **ADR-0025** — decision record: α (keep + rewrite) / β (user-invoked) /
+   γ (de-integrate) with 3-condition gate check; de-integration follows
+   ADR-0019 (SC-02) precedent; REVIVAL path documented.
+
+### Commits included
+
+- (PR commit message will reference ADR-0025 + #114)
+
 ## 2026-08-08 -- v0.11.0: agent provenance/conflict resolution + dispatcher wiring
 
 ### Summary
