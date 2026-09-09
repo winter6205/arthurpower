@@ -95,11 +95,11 @@ Why this exists (ADR-0012 §Why no implement skill): an orchestrator skill adds 
 
 The `Per-ticket loop` line is mandatory — review of `plans/<feature>.md` is a loop-completeness check per ticket, not a generic style review.
 
-## Tracker = GitHub (main path)
+## Tracker
 
-The default tracker for plans produced by this skill is **GitHub issues** — not local markdown. Map tickets carry the `wayfinder:map` label; plan tickets carry `ready-for-agent`. Local markdown (`plans/<feature>.md` + `docs/wayfinder/tickets/`) is a **fallback only**, used when the `gh` CLI is unavailable (no GitHub remote configured, or `gh` not installed). When the fallback is used, the plan header must state the fallback explicitly (e.g. `**Tracker**: local markdown — gh CLI unavailable`).
+Default storage is local markdown: `plans/<feature>.md` is the plan. Acceptance does not require GitHub issues. A GitHub remote or a working `gh` is not a trigger.
 
-Full `gh issue create` commands, the GraphQL `addBlockedBy` mutation mechanics, the fallback rules, and the gh-22 handoff-boundary interaction are disclosed to [`references/tracker.md`](references/tracker.md) — load that file when applying the tracker, not before.
+Load [`references/tracker.md`](references/tracker.md) only when the operator this run names GitHub issues (「用 issue」「发到 GitHub」). Then publish per that file.
 
 ## Acceptance Criteria
 

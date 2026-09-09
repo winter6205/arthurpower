@@ -1,5 +1,14 @@
 # arthurpower changelog
 
+## Unreleased — tracker default is local markdown
+
+`writing-plans` and `wayfinder` default to local files (`plans/<feature>.md`,
+`docs/wayfinder/tickets/`). GitHub issues fire only when the operator this run
+names 「用 issue」/「发到 GitHub」. `gh` installed or origin on GitHub is not a
+trigger. `spec-driven-development` unchanged. Design note:
+`docs/design/2026-09-09-local-tracker-default.md`.
+
+
 ## v0.12.1 — 2026-08-12: 三工程纪律 skill 迁出插件到全局 user-invoked (SC-02 closure)
 
 ### Summary
