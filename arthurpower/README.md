@@ -139,9 +139,15 @@ npm run lint:s5:all    # full audit: whole files, hard gates + soft metrics
   an unrelated refactor.
 
 `--changed` keeps existing `.ts/.tsx/.js/.jsx/.mjs/.cjs` only. No matches, or a
-diff that adds no lines → exit 0. Tests, `dist`, and `node_modules` are ignored
-by the config. Clone rate (jscpd ≤ 3%) is not in this script — add jscpd
-separately if you want that gate.
+diff that adds no lines → exit 0. The config also ignores `dist`, `build`,
+`node_modules`, `coverage`, and `*.test.ts` / `*.test.tsx` / `*.spec.ts` — other
+test extensions are linted like any other file. Clone rate (jscpd ≤ 3%) is not in
+this script — add jscpd separately if you want that gate.
+
+Two limits on scope: the runner covers TypeScript and JavaScript only (the rules
+are ESLint core rules, the parser is `typescript-eslint`), and nothing in the
+plugin runs it for you — none of the 13 hook commands invoke `check.mjs`. You run
+it as an npm script, or the `complexity-anti-drift` skill asks the agent to.
 
 A pre-commit hook, if you add one, should use `--changed --staged`. Do not hook
 `lint:s5:all` while historical files still trip the gates.

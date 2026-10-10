@@ -136,6 +136,10 @@ node "$S5" --changed   # ratchet over diff-touched functions
 node "$S5" src         # full audit
 ```
 
+The runner covers TypeScript and JavaScript only, and no hook invokes it: none of
+the 13 `hooks.json` commands call `check.mjs`, so it runs when you call it or when
+the `complexity-anti-drift` skill tells the agent to.
+
 ## Known state
 
 - No CI runs the tests. The only workflow is
@@ -151,8 +155,8 @@ node "$S5" src         # full audit
   `## Procedure` as an L2 section and 20 shipped skills have one. The two checks
   contradict each other; the driver assertion is the stale side.
 - `arthurpower/scripts/run_skill_eval.py` resolves skills through a hardcoded
-  maintainer path (`C:/Users/dev/...`) and cannot run from a fresh clone. The
-  eval driver documented at
+  Windows maintainer path (`run_skill_eval.py:21`) and cannot run from a fresh
+  clone. The eval driver documented at
   `arthurpower/skills/skill-authoring/references/verification.md:60` therefore
   does not work out of the box.
 
