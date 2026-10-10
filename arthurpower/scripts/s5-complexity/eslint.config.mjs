@@ -18,7 +18,7 @@ export default tseslint.config(
     ],
   },
   {
-    files: ["**/*.{ts,tsx,js,mjs,cjs}"],
+    files: ["**/*.{ts,tsx,js,jsx,mjs,cjs}"],
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: { ecmaVersion: 2022, sourceType: "module" },
