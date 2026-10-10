@@ -154,17 +154,16 @@ the `complexity-anti-drift` skill tells the agent to.
   `arthurpower/skills/skill-authoring/scripts/validate_skill.py:33` *requires*
   `## Procedure` as an L2 section and 20 shipped skills have one. The two checks
   contradict each other; the driver assertion is the stale side.
-- `arthurpower/scripts/run_skill_eval.py` resolves skills through a hardcoded
-  Windows maintainer path (`run_skill_eval.py:21`) and cannot run from a fresh
-  clone. The driver that takes its evals path as an argument is
-  `arthurpower/skills/skill-authoring/scripts/run_skill_eval.py` (`--dry-run`
-  runs a deterministic mock, no model); the two usage examples in
+- Both eval drivers run from a clone. `arthurpower/scripts/run_skill_eval.py`
+  resolves skills next to itself, and
+  `arthurpower/skills/skill-authoring/scripts/run_skill_eval.py --dry-run` grades
+  offline; the two usage examples in
   `arthurpower/skills/skill-authoring/references/eval-system.md:117` and
   `arthurpower/skills/skill-authoring/references/verification.md:60` are joined
-  with a space and must be joined with `/`. No `evals.json` is tracked, and
-  `arthurpower/skills/skill-authoring/evals/` holds only `driver.py`, so shipped
-  skills are checked by `validate_skill.py`'s 13 structural checks, not by a
-  grading run.
+  with a space and must be joined with `/`. No `evals.json` fixture ships, so a
+  grading run needs one written against the documented layout
+  `arthurpower/skills/<name>/iteration/<n>/evals.json`; out of the box the shipped
+  skills are checked by `validate_skill.py`'s 13 structural checks only.
 
 ## Layout
 

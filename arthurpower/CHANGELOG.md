@@ -13,6 +13,13 @@
 - Router: `using-agent-skills/references/landing.md` documents default landing
   vs conditional stack; flowchart + quick-reference updated.
 
+## Unreleased — eval driver resolves skills from the repository
+
+`scripts/run_skill_eval.py:21` hardcoded a maintainer machine path, so the routing
+proxy crashed with `FileNotFoundError` on any other checkout. It now resolves
+`Path(__file__).resolve().parent.parent / 'skills'`, which loads the 23 shipped
+skills from a clone.
+
 ## Unreleased — hooks drop zod and run dependency-free
 
 Plugin install is a plain file copy, so `hooks/package.json`'s `zod` dependency
