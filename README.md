@@ -1,15 +1,47 @@
-# arthurpower
+# Arthurpower
 
-A Claude Code plugin that turns engineering constraints into things an agent can
-be held to: 23 skills, 13 `PreToolUse`/`PostToolUse` hook commands, 10 reviewer
-sub-agents, and 2 slash commands, with zero runtime dependencies.
+A Claude Code plugin: a skill router plus reviewer agents for spec, TDD,
+review, and verification.
 
-Status: in active personal use, version `0.13.0`. The plugin is the product; the
-rest of this repository is the design record behind it.
+Status: in personal use, version `0.13.0`. MIT.
+
+## Install
+
+Add the marketplace once, then install the plugin:
+
+```bash
+claude plugin marketplace add winter6205/arthurpower
+claude plugin install arthurpower@arthurpower
+```
+
+Or, from inside a Claude Code session:
+
+```
+/plugin marketplace add winter6205/arthurpower
+/plugin install arthurpower@arthurpower
+```
+
+This repository is not in Anthropic's official marketplace, so the add step is
+required. Start a new session after installing.
+
+To work on the skills themselves without the plugin path, link them into
+`~/.claude/skills` and `~/.agents/skills`:
+
+```bash
+bash scripts/link-skills.sh          # add --dry-run to preview
+```
+
+`scripts/link-skills.sh` is a maintainer convenience: it reads each skill's
+`bucket:` frontmatter, links `engineering` and `productivity`, and skips the
+rest. Each link points back into the clone, so `git pull` keeps them current.
+
+Nothing else is required. `CLAUDE.md` and `.claude/settings.json` are this
+repository's own dogfood — they do not affect an installed plugin. Put personal
+preferences in `CLAUDE.local.md`, which `.gitignore` excludes.
 
 ## What it actually does
 
-- **Governance rules with numeric gates, not advice.** Five of the six S-rules
+- **Numeric gates, not advice.** Five of the six S-rules
   ship a dedicated skill — S1 `bounded-context-guardian`, S2
   `input-contract-tests`, S3 `error-handling-enforcer`, S5
   `complexity-anti-drift`, S6 `minimal-change-verifier` — each written as a
@@ -50,52 +82,6 @@ rest of this repository is the design record behind it.
 - No package installation. `arthurpower/hooks/package.json` declares zero
   dependencies, and the hooks validate against
   `arthurpower/hooks/runtime/tiny-schema.ts` instead of a schema library.
-
-## Install
-
-Clone the repository:
-
-```bash
-git clone https://github.com/winter6205/arthurpower.git
-cd arthurpower
-```
-
-Claude Code reads a marketplace manifest at `.claude-plugin/marketplace.json`.
-This repository keeps the manifest at the root as `marketplace.json` (pointing at
-the plugin directory `./arthurpower`, whose own manifest is
-`arthurpower/.claude-plugin/plugin.json`), so publish it into the expected
-location first:
-
-```bash
-mkdir -p .claude-plugin && cp marketplace.json .claude-plugin/marketplace.json
-claude plugin marketplace add .
-claude plugin install arthurpower@arthurpower-local
-```
-
-Start a new Claude Code session after installing. These two `claude plugin`
-commands come from Claude Code's documented plugin flow; they were **not**
-executed while preparing this repository, because adding a marketplace writes to
-your `~/.claude` plugin config.
-
-To work on the skills themselves without going through the plugin install path,
-link every promoted skill into your harness directories (`~/.claude/skills` and
-`~/.agents/skills`):
-
-```bash
-bash scripts/link-skills.sh          # add --dry-run to preview
-```
-
-`scripts/link-skills.sh` is a maintainer convenience for a working checkout: it
-reads each skill's `bucket:` frontmatter, links only `engineering` and
-`productivity`, and skips the rest. Each link points back into the clone, so
-`git pull` keeps installed skills current.
-
-### Configuration
-
-Nothing is required to use the plugin. `CLAUDE.md` and
-`.claude/settings.json` are this repository's own dogfood setup for developing
-the plugin — they do not affect an installed plugin. Put personal preferences in
-`CLAUDE.local.md`, which `.gitignore` excludes.
 
 ## Try it
 
@@ -146,8 +132,8 @@ the `complexity-anti-drift` skill tells the agent to.
   `.github/workflows/claude.yml`, which answers `@claude` mentions; the CI-side
   S4 red-test gate is documented as not enabled in
   [docs/rules/git.md](docs/rules/git.md).
-- No published package, registry entry, or hosted marketplace. Distribution is a
-  git clone.
+- Not listed in Anthropic's official marketplace. Install by adding this
+  GitHub repository as a marketplace, then installing `arthurpower@arthurpower`.
 - One eval check is red at this commit:
   `arthurpower/skills/skill-authoring/evals/driver.py:255` asserts that no
   `SKILL.md` may contain the concept `Procedure`, while
@@ -184,7 +170,7 @@ specs/                    written specs behind the hook-runtime and dispatch cha
 scripts/                  link-skills.sh (symlink installer);
                           sync-marketplace-cache.py — maintainer-local SRC/MKT/CACHE
                           audit for developing this plugin, not part of the install
-marketplace.json          plugin registration manifest (see Install)
+.claude-plugin/           marketplace manifest (see Install)
 ```
 
 `hooks.json` wires 13 commands over 11 of the 12 hook files;

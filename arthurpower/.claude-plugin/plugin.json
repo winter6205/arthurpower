@@ -1,8 +1,12 @@
 {
   "name": "arthurpower",
-  "description": "Curated engineering constraints an agent can be held to: 23 skills, 13 PreToolUse/PostToolUse hook commands, 10 reviewer sub-agents, and 2 slash commands, with zero runtime dependencies. Five of the six S1-S6 governance rules ship a dedicated skill with numeric gates; S4 is graded inside code-review's Spec axis. S5 additionally ships a standalone ESLint-based complexity runner for TypeScript/JavaScript projects.",
+  "description": "Claude Code plugin: a skill router plus reviewer agents for spec, TDD, review, and verification.",
   "version": "0.13.0",
   "author": {
-    "name": "winter6205"
-  }
+    "name": "winter6205",
+    "url": "https://github.com/winter6205"
+  },
+  "homepage": "https://github.com/winter6205/arthurpower",
+  "repository": "https://github.com/winter6205/arthurpower",
+  "license": "MIT"
 }

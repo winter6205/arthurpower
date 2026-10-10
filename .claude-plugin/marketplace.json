@@ -1,0 +1,15 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "arthurpower",
+  "owner": {
+    "name": "winter6205"
+  },
+  "plugins": [
+    {
+      "name": "arthurpower",
+      "source": "./arthurpower",
+      "description": "Claude Code plugin: a skill router plus reviewer agents for spec, TDD, review, and verification.",
+      "version": "0.13.0"
+    }
+  ]
+}
