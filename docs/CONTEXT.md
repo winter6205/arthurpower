@@ -145,7 +145,7 @@ _Avoid_: verdict 落 PR description; verdict 只在 chat; PR + plan 双份却无
 
 ---
 
-**arthurpower-afk**: 独立仓 `winter6205/arthurpower-afk`（plugin id `arthurpower-afk`）。产品职责（S1 verdict 2026-07-17 锁定）：closed-map 批执行 + 可配 auto-merge + 事件驱动 post-push hook 全套 Q1/Q2/Q3 ritual。Hard non-overlap：不重开 map 目的地，不写 planning tickets，不替 operator 决策 ADR。
+**arthurpower-afk**: 独立仓（plugin id `arthurpower-afk`）。产品职责（S1 verdict 2026-07-17 锁定）：closed-map 批执行 + 可配 auto-merge + 事件驱动 post-push hook 全套 Q1/Q2/Q3 ritual。Hard non-overlap：不重开 map 目的地，不写 planning tickets，不替 operator 决策 ADR。
 _Avoid_: 把 AFK 产品计划写进 arthurpower `plans/`; 把 AFK ops（CI / ubuntu-portable evals / AFK `.evals/run.sh`）当成 arthurpower open work; 混淆 AFK 与半自动 session ritual.
 
 **auto-template**: 历史别名，本任务实际交付 = 独立仓 `arthurpower-afk`（S2/S3 verdict 锁定，见原 plan `auto-template.md`）。新 session 在 handoff / auto-memory 看到 `auto-template` 字样必须映射到 `arthurpower-afk`，不重开 greenfield workstream。

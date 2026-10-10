@@ -4,7 +4,7 @@
 
 迁移原因：
 - 统一使用 `defineHook` runtime（类型安全、结构化输出）
-- 与 L3 全局 hooks（`D:/workspace/data/hooks/`）保持一致
+- 与 L3 全局 hooks（`<workspace>/data/hooks/`）保持一致
 - 支持 `node --experimental-strip-types` 直接运行
 
 保留的 `.cjs`（未迁移）：

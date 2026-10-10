@@ -97,7 +97,7 @@ CLI 入口：`codebase-memory` （通过 `cbm-cli.py` 实现，可选符号链�
 | `~/.claude/hooks/cbm-cli.py` | Python 脚本 | CLI 封装器主入口，spawn 二进制 + JSON-RPC |
 | `~/.claude/commands/codebase-memory.md` | Claude Code 斜杠命令定义 | 包装 CLI，自动注入 context |
 | `~/.claude/skills/codebase-memory/SKILL.md`（新版） | skill | 极简版：只描述 CLI 用法，不含 MCP 工具参考 |
-| `D:\workspace\projects\Arthurpower\docs\adr\0019-removing-codebase-graph-from-skill-pipeline.md` | ADR | 固化决策理由 |
+| `<workspace>\projects\Arthurpower\docs\adr\0019-removing-codebase-graph-from-skill-pipeline.md` | ADR | 固化决策理由 |
 
 ### 3.3 编辑清单（5 项）
 

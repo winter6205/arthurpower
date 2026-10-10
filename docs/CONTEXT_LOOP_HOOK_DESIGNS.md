@@ -18,7 +18,7 @@ Excluded: docs/, tests/, __tests__/, *.md-only, .claude/, archive/, build artifa
 ### State schema (per project, keyed by project root)
 ```json
 {
-  "D:/workspace/projects/<local-project>": {
+  "<workspace>/projects/<local-project>": {
     "contextPath": "docs/CONTEXT.md",
     "readMtime": 1720875600123,
     "readAt": "2026-07-13T09:00:00.123Z",
@@ -156,7 +156,7 @@ Path: `~/.claude/.locks/.read-contract-state/<session_id>.json`
 ```json
 {
   "session_id": "abc123",
-  "project_root": "D:/workspace/projects/<local-project>",
+  "project_root": "<workspace>/projects/<local-project>",
   "read_paths": [
     {"path": "docs/CONTEXT.md", "mtime": 1750000000000},
     {"path": "docs/agents/context-contract.md", "mtime": 1750000001000}

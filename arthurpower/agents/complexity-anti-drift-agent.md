@@ -75,8 +75,8 @@ plus a one-line overall verdict:
 
 ## Reference
 
-- Rule source: `skills/complexity-anti-drift/SKILL.md`
-- Thresholds SSOT: `skills/complexity-anti-drift/references/thresholds.md`
+- Rule source: `arthurpower/skills/complexity-anti-drift/SKILL.md`
+- Thresholds SSOT: `arthurpower/skills/complexity-anti-drift/references/thresholds.md`
 - Common LLM failure mode: cramming multiple responsibilities into one function (one generation pass emits a whole use-case handler), copy-pasting similar code rather than abstracting.
 
 ---

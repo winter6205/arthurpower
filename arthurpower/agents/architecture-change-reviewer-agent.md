@@ -42,5 +42,5 @@ Write exactly one line per dimension: `<name>: yes | no | unclear — <one-claus
 ## Reference
 
 - Skill source: `skills/architecture-change-reviewer/SKILL.md`
-- Handoff contract: `skills/writing-plans/references/handoff-acr.md`
-- Dimension semantics: `references/dimension-semantics.md` (pre-impl vs post-impl split per dimension)
+- Handoff contract: `arthurpower/skills/writing-plans/references/handoff-acr.md`
+- Dimension semantics: `arthurpower/skills/architecture-change-reviewer/references/dimension-semantics.md` (pre-impl vs post-impl split per dimension)

@@ -44,5 +44,5 @@ plus a one-line overall verdict: `OVERALL: PASS` only if all 4 PASS; otherwise `
 
 ## Reference
 
-- Rule source: `~/.claude/plugins/marketplaces/arthurpower-local/plugins/arthurpower/skills/bounded-context-guardian/SKILL.md`
+- Rule source: `arthurpower/skills/bounded-context-guardian/SKILL.md`
 - Common LLM failure mode: default slicing by technical layer (`controller/service/repository`) exposes implementation details and creates shotgun-surgery on later requirements change.
