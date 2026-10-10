@@ -120,7 +120,7 @@ Q6 accept this ADR; Q7 tracer order = honest gates first, then always-on cut.
 **Negative / follow-up:**
 - Agents must Read more files mid-task; workflow.md and skills must name those paths explicitly.
 - Aggressive Q3 means commit sessions no longer auto-load full `git.md` — commit-msg and pre-commit hooks must carry the deterministic half.
-- Global ↔ `D:\workspace\data\rules` junction/mirror discipline remains; edits must stay byte-consistent.
+- Global ↔ `<workspace>\data\rules` junction/mirror discipline remains; edits must stay byte-consistent.
 - Marketplace/cache skill copies still need three-layer sync when skill bodies absorb moved SOPs.
 - CONTEXT corpus trim (process entries) is multi-commit; this ADR does not auto-delete history terms.
 

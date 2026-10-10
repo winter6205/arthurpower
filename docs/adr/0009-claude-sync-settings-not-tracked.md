@@ -24,7 +24,7 @@ All three conditions pass; ADR is recorded.
 The user-level `~/.claude` data directory was promoted to a git repo (see
 handoff 2026-07-17-user-claude-git-init-and-evals-autoload (`docs/handoff/2026-07-17-user-claude-git-init-and-evals-autoload.md`))
 so that L1 rules, hooks, agent prompts, and knowledge assets have version
-history. The ignore policy at `D:/workspace/data/.gitignore` deliberately
+history. The ignore policy at `<workspace>/data/.gitignore` deliberately
 excludes `settings.json` and related secret-bearing files.
 
 A subsequent T2 ticket draft under the `claude-sync-ssot` plan listed
@@ -39,7 +39,7 @@ authoritative drift and a future operator would either commit a secret file
    tracks rules / hooks / agents / skills / `CLAUDE.md` / `.gitignore`
    knowledge only. Per-machine settings stay untracked, in the user home,
    edited surgically per boundary-testing § "通用外科式 edit 纪律" (`./.claude/rules/boundary-testing-protocol.md`).
-2. **Lines 6, 8, 59, 67 of `D:/workspace/data/.gitignore` are the canonical
+2. **Lines 6, 8, 59, 67 of `<workspace>/data/.gitignore` are the canonical
    ignore rules** for `settings.json`, `**/settings.json`,
    `settings.local.json`, and `.claude.json` respectively. They are the
    user-level manifest of "secrets + machine state never enter git".
@@ -103,7 +103,7 @@ once designed.
 
 - Plan: `plans/claude-sync-ssot.md` (`plans/claude-sync-ssot.md`) bullet B2
 - Ignore manifest: lines 6, 8, 59, 67 of the user-level `.gitignore`
-  (target = `D:/workspace/data/.gitignore`)
+  (target = `<workspace>/data/.gitignore`)
 - Handoff that established ignore policy and verified clean stage:
   docs/handoff/2026-07-17-user-claude-git-init-and-evals-autoload.md (`docs/handoff/2026-07-17-user-claude-git-init-and-evals-autoload.md`) § "Verified state"
   (staged-content pattern scan before commit: 0 real key material hits)

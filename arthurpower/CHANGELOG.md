@@ -418,17 +418,17 @@ plugin.json.cache.sha256             (baseline 9976aae7)
 
 | 路径                                                                               | 大小   | 说明                                                            |
 | ---------------------------------------------------------------------------------- | ------ | --------------------------------------------------------------- |
-| `D:\workspace\arthurpower\.claude-plugin\plugin.json`                            | 330 B  | 插件元数据 (name=arthurpower, version=0.1.0)                    |
-| `D:\workspace\arthurpower\hooks\session-start.sh`                                | 332 B  | 2 行 SessionStart constraint bootstrap (executable)             |
-| `D:\workspace\arthurpower\hooks\hooks.json`                                      | 326 B  | SessionStart hook schema (validated against real plugin format) |
-| `D:\workspace\arthurpower\hooks\README.md`                                       | 220 B  | 占位说明                                                        |
-| `D:\workspace\arthurpower\skills\architecture-change-reviewer\SKILL.md`          | 4546 B | NEW Core (5 verdict + Task Decomposition)                       |
-| `D:\workspace\arthurpower\skills\bounded-context-guardian\SKILL.md`              | 4221 B | S1 (migrated + TDD refined)                                     |
-| `D:\workspace\arthurpower\skills\defensive-contract-validator\SKILL.md`          | 4044 B | S2 (migrated + TDD refined)                                     |
-| `D:\workspace\arthurpower\skills\error-handling-enforcer\SKILL.md`               | 4186 B | S3 (migrated + TDD refined)                                     |
-| `D:\workspace\arthurpower\skills\complexity-anti-drift\SKILL.md`                 | 3873 B | S5 (migrated + TDD refined)                                     |
-| `D:\workspace\arthurpower\skills\minimal-change-verifier\SKILL.md`               | 4015 B | S6 (migrated + TDD refined)                                     |
-| `D:\workspace\arthurpower\skills\skill-authoring\SKILL.md`                       | 5097 B | Support (TDD + CSO + File Org + Skill Types + Anti-Patterns)    |
+| `<workspace>\arthurpower\.claude-plugin\plugin.json`                            | 330 B  | 插件元数据 (name=arthurpower, version=0.1.0)                    |
+| `<workspace>\arthurpower\hooks\session-start.sh`                                | 332 B  | 2 行 SessionStart constraint bootstrap (executable)             |
+| `<workspace>\arthurpower\hooks\hooks.json`                                      | 326 B  | SessionStart hook schema (validated against real plugin format) |
+| `<workspace>\arthurpower\hooks\README.md`                                       | 220 B  | 占位说明                                                        |
+| `<workspace>\arthurpower\skills\architecture-change-reviewer\SKILL.md`          | 4546 B | NEW Core (5 verdict + Task Decomposition)                       |
+| `<workspace>\arthurpower\skills\bounded-context-guardian\SKILL.md`              | 4221 B | S1 (migrated + TDD refined)                                     |
+| `<workspace>\arthurpower\skills\defensive-contract-validator\SKILL.md`          | 4044 B | S2 (migrated + TDD refined)                                     |
+| `<workspace>\arthurpower\skills\error-handling-enforcer\SKILL.md`               | 4186 B | S3 (migrated + TDD refined)                                     |
+| `<workspace>\arthurpower\skills\complexity-anti-drift\SKILL.md`                 | 3873 B | S5 (migrated + TDD refined)                                     |
+| `<workspace>\arthurpower\skills\minimal-change-verifier\SKILL.md`               | 4015 B | S6 (migrated + TDD refined)                                     |
+| `<workspace>\arthurpower\skills\skill-authoring\SKILL.md`                       | 5097 B | Support (TDD + CSO + File Org + Skill Types + Anti-Patterns)    |
 | `C:\Users\<user>\.claude\skills\arthurpower\`                                       | 52 K   | runtime 副本 (11 files, 与 workspace 同步)                      |
 | `C:\Users\<user>\.claude\archive\2026-06-26-arthurpower-rollout\`                   | —      | archive 目录                                                    |
 | `C:\Users\<user>\.claude\archive\2026-06-26-arthurpower-rollout\legacy-governance-plugin-5.1.0\` | 1.8 M  | legacy-governance-plugin 完整归档 (16 entries)                               |
@@ -507,7 +507,7 @@ claude plugin enable legacy-governance-plugin@claude-plugins-official
 rm -rf "C:\Users\<user>\.claude\skills\arthurpower"
 
 # 5. (可选) 删 workspace source
-rm -rf "D:\workspace\arthurpower"
+rm -rf "<workspace>\arthurpower"
 ```
 
 ### Next Step (端到端实测)
@@ -581,7 +581,7 @@ Run 11 task end-to-end (one per skill) and append a "VERIFIED 2026-06-26" sectio
 
 ### Summary
 
-将 arthourpower plugin 从 workspace (`D:\workspace\arthurpower\`) 整体迁移到 user-level (`C:\Users\<user>\.claude\plugins\arthurpower\`), 任何 session 全局可见. 同时扩充 4 项新 skill (security / spec / frontend / perf) + 1 个 router (using-agent-skills), 从 11 skill 扩到 16 skill.
+将 arthourpower plugin 从 workspace (`<workspace>\arthurpower\`) 整体迁移到 user-level (`C:\Users\<user>\.claude\plugins\arthurpower\`), 任何 session 全局可见. 同时扩充 4 项新 skill (security / spec / frontend / perf) + 1 个 router (using-agent-skills), 从 11 skill 扩到 16 skill.
 
 ### v0.3.0 Additions (5 new skills)
 
@@ -623,7 +623,7 @@ Run 11 task end-to-end (one per skill) and append a "VERIFIED 2026-06-26" sectio
 
 | 原路径                                                           | 归档路径                                                                                         | 内容                                                                            |
 | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------- |
-| `D:\workspace\arthurpower\` (workspace)                        | `C:\Users\<user>\.claude\archive\memory-cleanup-2026-06-27\arthurpower-workspace-2026-06-27\`     | 整个 plugin 目录 (含 v0.2.0 tar.gz 备份 + CHANGELOG + docs + hooks + 16 skills) |
+| `<workspace>\arthurpower\` (workspace)                        | `C:\Users\<user>\.claude\archive\memory-cleanup-2026-06-27\arthurpower-workspace-2026-06-27\`     | 整个 plugin 目录 (含 v0.2.0 tar.gz 备份 + CHANGELOG + docs + hooks + 16 skills) |
 | `C:\Users\<user>\.claude\skills\arthurpower\` (旧 8-skill global) | `C:\Users\<user>\.claude\archive\memory-cleanup-2026-06-27\arthurpower-skills-old-2026-06-27-v2\` | 2026-06-26 初始 rollout 状态 (8 skill, 3.8-6.4 KB/skill)                        |
 | `C:\Users\<user>\.claude\skills\using-agent-skills\` (单文件副本) | `C:\Users\<user>\.claude\archive\memory-cleanup-2026-06-27\using-agent-skills-flat-copy\`         | 之前 cp 错的单文件副本 (已 superseded by plugin version)                        |
 
