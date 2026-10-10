@@ -18,7 +18,7 @@ import re
 import sys
 from pathlib import Path
 
-PLUGIN_DIR = Path('C:/Users/dev/.claude/plugins/arthurpower/skills')
+PLUGIN_DIR = Path(__file__).resolve().parent.parent / 'skills'
 
 def normalize(s):
     return re.sub(r'\s+', ' ', s.lower().strip())
