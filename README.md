@@ -156,9 +156,15 @@ the `complexity-anti-drift` skill tells the agent to.
   contradict each other; the driver assertion is the stale side.
 - `arthurpower/scripts/run_skill_eval.py` resolves skills through a hardcoded
   Windows maintainer path (`run_skill_eval.py:21`) and cannot run from a fresh
-  clone. The eval driver documented at
-  `arthurpower/skills/skill-authoring/references/verification.md:60` therefore
-  does not work out of the box.
+  clone. The driver that takes its evals path as an argument is
+  `arthurpower/skills/skill-authoring/scripts/run_skill_eval.py` (`--dry-run`
+  runs a deterministic mock, no model); the two usage examples in
+  `arthurpower/skills/skill-authoring/references/eval-system.md:117` and
+  `arthurpower/skills/skill-authoring/references/verification.md:60` are joined
+  with a space and must be joined with `/`. No `evals.json` is tracked, and
+  `arthurpower/skills/skill-authoring/evals/` holds only `driver.py`, so shipped
+  skills are checked by `validate_skill.py`'s 13 structural checks, not by a
+  grading run.
 
 ## Layout
 
