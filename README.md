@@ -2,7 +2,7 @@
 
 A Claude Code plugin that turns engineering constraints into things an agent can
 be held to: 23 skills, 13 `PreToolUse`/`PostToolUse` hook commands, 10 reviewer
-sub-agents, and 4 slash commands, with zero runtime dependencies.
+sub-agents, and 2 slash commands, with zero runtime dependencies.
 
 Status: in active personal use, version `0.13.0`. The plugin is the product; the
 rest of this repository is the design record behind it.
@@ -164,7 +164,7 @@ arthurpower/              the plugin
   skills/                 23 skills, two promoted buckets
   hooks/                  hooks.json + 12 .ts hooks + lib/ runtime/ tests/ archive/
   agents/                 10 reviewer sub-agents
-  commands/               /audit, /fanout, /claude-sync-home, /plugin-broadcast
+  commands/               /audit, /fanout
   scripts/                bootstrap.sh, update.sh, s5-complexity/
   docs/                   harness map, design reports, review records
 docs/                     design record for this repository
@@ -172,7 +172,9 @@ docs/                     design record for this repository
   rules/                  the rule text the skills encode
   CONTEXT.md              domain vocabulary (single source of truth)
 specs/                    written specs behind the hook-runtime and dispatch changes
-scripts/link-skills.sh    developer symlink installer
+scripts/                  link-skills.sh (symlink installer);
+                          sync-marketplace-cache.py — maintainer-local SRC/MKT/CACHE
+                          audit for developing this plugin, not part of the install
 marketplace.json          plugin registration manifest (see Install)
 ```
 
