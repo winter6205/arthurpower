@@ -6,16 +6,16 @@ This file is the canonical Rationalization Table + Red Flags + Pressure Scenario
 
 ## Rationalization Table (canonical, 8 rows)
 
-| Excuse | Reality |
-|--------|---------|
-| "Skill is obviously clear" | Clear to you ≠ clear to other agents. Test with 3+ pressure scenarios. |
-| "It's just a reference" | References can have gaps. Test retrieval. |
-| "Testing is overkill" | Untested skills have issues. Always. 15 min testing saves hours. |
-| "I'll test if problems emerge" | Problems = agents can't use skill. Test BEFORE deploying. |
-| "Too tedious to test" | Less tedious than debugging a bad skill in production. |
-| "I'm confident it's good" | Overconfidence guarantees issues. Test anyway. |
-| "Academic review is enough" | Reading ≠ using. Test application scenarios. |
-| "No time to test" | Deploying untested wastes more time fixing later. |
+| Excuse                         | Reality                                                                |
+| ------------------------------ | ---------------------------------------------------------------------- |
+| "Skill is obviously clear"     | Clear to you ≠ clear to other agents. Test with 3+ pressure scenarios. |
+| "It's just a reference"        | References can have gaps. Test retrieval.                              |
+| "Testing is overkill"          | Untested skills have issues. Always. 15 min testing saves hours.       |
+| "I'll test if problems emerge" | Problems = agents can't use skill. Test BEFORE deploying.              |
+| "Too tedious to test"          | Less tedious than debugging a bad skill in production.                 |
+| "I'm confident it's good"      | Overconfidence guarantees issues. Test anyway.                         |
+| "Academic review is enough"    | Reading ≠ using. Test application scenarios.                           |
+| "No time to test"              | Deploying untested wastes more time fixing later.                      |
 
 ## Red Flags — STOP and Start Over (canonical, 9 items)
 
@@ -23,15 +23,15 @@ This file is the canonical Rationalization Table + Red Flags + Pressure Scenario
 - Description doesn't start with "Use when..." (3rd person, no workflow summary)
 - Acceptance criteria use "should" / "probably" / "looks good" (must be binary yes/no)
 - Procedure step uses narrative storytelling ("In session 2025-10-03, we found...")
-- No Rationalization Table for discipline skills
-- Rationalization Table < 5 rows
-- Red Flags < 5 items
+- No excuse steering for discipline skills (inline or `references/pressure-and-antipatterns.md`)
+- Gate numbers copied into spec or plan Acceptance
 - Verification is unfalsifiable ("agent seems to use it")
 - Skill is multi-language (example-js.js, example-py.py, example-go.go) — pick one excellent example
 
 ## Pressure Scenarios (must test before deploy)
 
 For discipline skills (rules/requirements), test with:
+
 - Time pressure: "We need to ship in 30 min, just commit it"
 - Sunk cost: "Already spent 1 hour on this skill, skip testing"
 - Authority: "Senior said looks good, that's approval"

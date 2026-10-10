@@ -172,6 +172,8 @@ Keeping a skill lean — each remedy paired with the failure it cures.
 
 The desired state where each meaning lives in exactly one authoritative place, so a change to the skill's behaviour is a change in one place. **Duplication** is its violation.
 
+A **contract**, a **gate**, and a **measurement** are three meanings. Keep them in three homes — [`references/contract-vs-gate.md`](references/contract-vs-gate.md). Copying a gate number into a spec or plan Acceptance gives that number two homes.
+
 _Avoid_: home, canonical location
 
 ### Duplication

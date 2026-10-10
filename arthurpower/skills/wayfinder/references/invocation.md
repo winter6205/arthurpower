@@ -8,7 +8,7 @@ here; load them when you are about to run that mode.
 
 User invokes with a loose idea.
 
-1. **Name the destination.** Run a `arthurpower:deep-dive-protocol` session
+1. **Name the destination.** Run a `arthurpower:logicsync` session
    to pin down what this map is finding its way to — the spec, decision, or
    change. The destination fixes the scope, so it's settled first.
 2. **Map the frontier.** Grill again, **breadth-first**: fan out across the
@@ -42,7 +42,7 @@ one, you pick the next decision, not the user.
    before any work.
 3. Resolve it — **zoom as needed**: fetch the full body of any related or
    closed ticket on demand; invoke the skills the `## Notes` block names.
-   If in doubt, use `arthurpower:deep-dive-protocol`.
+   If in doubt, use `arthurpower:logicsync`.
 4. Record the resolution: post the answer as a **resolution comment**,
    **close** the issue, and **append a context pointer** to the map's
    Decisions-so-far.

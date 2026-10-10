@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Review Git changes when a ticket produces a code diff, after implementation and before commit. Use when the user asks to "审代码", "审 PR", "review", or "代码审查" against Standards and Spec axes. Orchestrates two parallel sub-agents and applies a severity gate.
+description: Review Git changes when a ticket produces a code diff, after implementation and before landing. Use when the user asks to "审代码", "审 PR", "review", or "代码审查" against Standards and Spec axes. Orchestrates two parallel sub-agents and applies a severity gate. Does not patch; GATE BLOCKED hands off to review-report-repair.
 bucket: engineering
 type: technique
 ---
@@ -11,16 +11,16 @@ Thin orchestration skill: delegate Standards and Spec review to two parallel sub
 
 ## When to use
 
-- When a ticket produces a code diff and the main agent is about to commit.
+- When a ticket produces a code diff and the main agent is about to land the round.
 - When the user asks to "审代码", "审 PR", "review", or "代码审查" against the per-ticket loop.
-- When a review verdict (Standards + Spec) with severity gating is required before commit.
+- When a review verdict (Standards + Spec) with severity gating is required before landing.
 
 ## When not to use
 
 - Docs-only or config-only changes (no code diff to review).
 - Pre-implementation plan review; use `architecture-change-reviewer` for that gate.
-- Final pre-merge maintainability stage; use `maintainability-reviewer`.
-- Standalone manual invocation of the legacy CLI wrapper; use the user-level slash command for upstream CLI review.
+- Repairing findings from this skill; that is the next slot `review-report-repair`.
+- S1-S6 measurement; use the matching S* skill or `/audit` (plugin self-changes: `arthurpower-audit-agent`).
 
 ## Procedure
 
@@ -36,25 +36,27 @@ Thin orchestration skill: delegate Standards and Spec review to two parallel sub
 4. **Spawn two agents in parallel** — Dispatch in a single message via the Agent tool:
    - `arthurpower:standards-reviewer-agent` — receives the pinned ref and standards source path; returns Standards-axis findings table with `OVERALL` line.
    - `arthurpower:spec-reviewer-agent` — receives the pinned ref and resolved spec source; returns Spec-axis findings table with `OVERALL` line.
-   Inject the pinned ref (step 1), spec source (step 2), standards source (step 3) into each call; do not paraphrase severity definitions or the Fowler list.
-   完成判据: both agents return findings tables (including no-finding results) with the exact `OVERALL` line.
+     Inject the pinned ref (step 1), spec source (step 2), standards source (step 3) into each call; do not paraphrase severity definitions or the Fowler list.
+     完成判据: both agents return findings tables (including no-finding results) with the exact `OVERALL` line.
 
 5. **Aggregate side-by-side** — Merge the two findings tables into a single side-by-side report (no cross-axis reranking, no combining severities). Preserve file:line evidence and the per-axis `OVERALL` lines. Count unresolved findings per axis.
    完成判据: side-by-side aggregation table produced, per-axis counts recorded.
 
 6. **Severity gate** — Apply the severity gate from `code-review-protocol` §4:
-   - Unresolved High (either axis) → **BLOCKED: stop the commit**; emit remediation pointer for each High finding.
-   - Medium (without a named follow-up ticket) → advisory; include in the commit report.
+   - Unresolved High (either axis) → **BLOCKED**; do **not** patch in this skill. Emit the next-slot line `NEXT: review-report-repair` and pass the aggregation table as the report (in-session is enough).
+   - Medium (without a named follow-up ticket) → advisory; do not auto-invoke repair.
    - Low → informational only.
-   Final verdict line: `GATE: PASS` or `GATE: BLOCKED: <N> High unresolved`.
-   完成判据: gate verdict emitted (PASS or BLOCKED: N High); commit blocked iff High unresolved.
+     Final verdict line: `GATE: PASS` or `GATE: BLOCKED: <N> High unresolved`.
+     完成判据: gate verdict emitted (PASS or BLOCKED: N High); BLOCKED includes the NEXT line; this skill does not edit product code.
 
 ## Review-stage placement
 
-Three-body time points:
+Documented sequence (current slot only):
+
 - Before change: `architecture-change-reviewer` gates the plan (5-verdict).
-- After change, before commit: this skill (Standards + Spec via two parallel sub-agents).
-- Before merge: `maintainability-reviewer` performs the third-stage S1-S6 maintainability decision.
+- After change: this skill (Standards + Spec via two parallel sub-agents).
+- This skill `GATE: BLOCKED`: next slot `review-report-repair`.
+- This skill `GATE: PASS`: this skill ends; landing claim is `verification-before-completion`.
 
 This skill is conditional: trigger only when the ticket produced a code diff; do not run on docs/config-only changes.
 
@@ -66,7 +68,7 @@ This skill is conditional: trigger only when the ticket produced a code diff; do
 - [ ] Both `standards-reviewer-agent` and `spec-reviewer-agent` were dispatched in parallel and returned findings tables with `OVERALL` lines.
 - [ ] Findings from both axes are presented side-by-side without cross-axis reranking.
 - [ ] Every finding includes severity, file:line, axis, problem, and remediation.
-- [ ] Severity gate verdict is emitted (PASS or BLOCKED: N High) and commits are gated on it.
+- [ ] Severity gate verdict is emitted (`GATE: PASS` or `GATE: BLOCKED: N High`). BLOCKED includes `NEXT: review-report-repair` and does not patch.
 
 ## Verification
 
@@ -78,4 +80,4 @@ Bar level: minimum
 - Confirm the description states a conditional trigger ("when a ticket produces a code diff") and no longer references the upstream CLI wrapper.
 - Confirm no inline CLI command, executable build, or binary path appears in the body.
 - Confirm the Fowler 12 smell list is referenced by pointer (protocol §2.2), not duplicated in body.
-- Confirm `references/protocol.md` is unchanged (git diff scope limited to `SKILL.md`).
+- Confirm this skill does not implement fixes (repair is `review-report-repair`).

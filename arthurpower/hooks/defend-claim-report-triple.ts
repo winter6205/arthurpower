@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// Port of defend-claim-report-triple.sh. zod-only runtime.
+// Port of defend-claim-report-triple.sh. zero-dep runtime.
 import path from 'node:path';
-import { z } from 'zod';
+import { z } from './runtime/tiny-schema.ts';
 import { defineHook } from './runtime/defineHook.ts';
 
 const sourceExtensions = new Set([

@@ -4,7 +4,7 @@
 
 **状态**: OPEN
 **类型**: task（HITL or AFK）
-**Map**: [baseline-github-collab-adapt](../baseline-github-collab-adapt.md)
+**Map**: github-collab-adapt
 **Blocked by**: gh-08
 
 ## Question
@@ -33,8 +33,6 @@
 - Windows symlink 策略——upstream 的 link-skills.sh 是 POSIX，Arthurpower 主开发环境是 win32
 - 是否影响 plugin 发布边界（marketplace.json 的 skills 数组）？
 
-**参考源**: `the upstream skills repo/AGENTS.md` line 1-25 + `scripts/link-skills.sh`
-
 **验证**:
 - 跑 link-skills.sh → 只链 promoted skill
 - deprecated skill 不出现在 README / plugin.json
@@ -45,6 +43,6 @@
 
 ## Related
 
-- [gh-08 改造次序决策](gh-08-sequencing.md)
-- [gh-03 upstream repo-level 工程纪律](gh-03-baseline-repo-conventions.md) — bucket 纪律来源
-- [gh-17 docs-page writing reference](gh-17-docs-page-writing-ref.md) — promoted skill 的 docs 页
+- gh-08 改造次序决策 (`gh-08-sequencing.md`)
+- gh-03 upstream repo-level 工程纪律 — bucket 纪律来源
+- gh-17 docs-page writing reference (`gh-17-docs-page-writing-ref.md`) — promoted skill 的 docs 页

@@ -31,14 +31,14 @@ Use for ANY technical issue:
 
 Do not load this skill when:
 
-- Design discussion or trade-off analysis — wrong skill (use `multi-round-self-review`)
+- Design discussion or trade-off analysis — wrong skill (use `logicsync`)
 - Trivial 1-line typo with the fix obviously visible (e.g. misspelled variable on the failing line, stack trace points directly at it)
 - User explicitly said "skip debugging, just patch it"
 - Clearly external infra failure (e.g. GitHub down, network outage) — verify, do not debug
 
 ## Related Skills
 
-- `defensive-contract-validator` (S2) — for the failing test itself (5-class boundary tests)
+- `input-contract-tests` (S2) — for the failing test itself (5-class boundary tests)
 - `minimal-change-verifier` (S6) — enforce fix scope = task scope
 - `error-handling-enforcer` (S3) — proper try/except, no empty catches
 - `verification-before-completion` — applies after Phase 4 FIX succeeds; the failing test must be observed green before claiming fix verified. Evidence before assertions.

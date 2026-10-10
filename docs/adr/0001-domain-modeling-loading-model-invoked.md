@@ -21,7 +21,7 @@ Status: accepted
 
 **正面**:
 - deep-dive-protocol / arch-improve / setup-arthurpower 等 skill 在需写术语/ADR 时可直接调 domain-modeling, 链路顺畅 (model auto-reach)
-- 跟 the baseline `domain-modeling` 加载方式一致 (the baseline 也是 model-invoked, description 显式支持其他 skill 触发)
+- model-invoked 保住"唯一写入入口"性质: LogicSync / deep-dive-protocol 等调用方需要写术语或 ADR 时, 触发的仍是 domain-modeling 这一个入口
 - 写入主原语跟加载方式解耦, 避免 user-invoked 把"唯一入口"设计破坏
 
 **负面**:
@@ -36,12 +36,12 @@ Status: accepted
 ## Considered Options
 
 ### Option A: model-invoked (本 ADR 采纳)
-- Pros: 链接顺畅, 跟 the baseline 对齐, 写主权靠 hook + discipline 三层保证
+- Pros: 链接顺畅, 唯一入口性质不被加载方式破坏, 写主权靠 hook + discipline 三层保证
 - Cons: 失去 user-gate 可观测性, 模型可能误触发
 
 ### Option B: user-invoked (子代理 C 提案, 否决)
 - Pros: 写主权显式 human gate, 每次写入可观测
-- Cons: 破坏"唯一入口"设计 (deep-dive / arch-improve 调 domain-modeling 时必须显式), 跟 the baseline 不一致, 跟 design 立约冲突
+- Cons: 破坏"唯一入口"设计 (deep-dive / arch-improve 调 domain-modeling 时必须显式), 跟 design 立约冲突
 
 ## Why not user-invoked
 

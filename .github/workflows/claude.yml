@@ -34,8 +34,8 @@ jobs:
         id: claude
         uses: anthropics/claude-code-action@v1
         env:
-          # 国产 Anthropic 兼容上游：action.yml 从 step env 透传 ANTHROPIC_BASE_URL（事实核查 PASS）。
-          # 只引 secret 名，不落明文（全局凭据规则）。
+          # Optional: the action forwards ANTHROPIC_BASE_URL from step env, so the
+          # agent can point at an Anthropic-compatible endpoint. Secret names only.
           ANTHROPIC_BASE_URL: ${{ secrets.ANTHROPIC_BASE_URL }}
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}

@@ -5,7 +5,7 @@ Status: accepted
 
 ## Context
 
-Published guidance on authoring CLAUDE.md argues that coding agents are mostly
+Published guidance on authoring `CLAUDE.md` argues that coding agents are mostly
 stateless, that `CLAUDE.md` is the only default always-on project file, and that
 frontier models follow roughly 150–200 instructions with reasonable consistency
 while Claude Code's system prompt already consumes ~50. Instruction-following
@@ -34,7 +34,7 @@ Q6 accept this ADR; Q7 tracer order = honest gates first, then always-on cut.
 
 1. **Always-on budget is a first-class engineering constraint.** Target for an
    Arthurpower session: **≤ ~400–500 always-on instructions** (about 2× the
-   150–200 cited band, leaving headroom for system ~50 and project delta).
+   150–200 band from that guidance, leaving headroom for system ~50 and project delta).
    Counting method: imperative units (NEVER/MUST, checklist rows, numbered
    steps), not line count alone. Skill bodies and explicit Read are **not**
    always-on.
@@ -127,19 +127,19 @@ Q6 accept this ADR; Q7 tracer order = honest gates first, then always-on cut.
 ## Considered Options
 
 ### Option A: Always-on progressive disclosure + aggressive project @import + honest hooks first (accepted)
-- Pros: matches cited evidence, measured 20× overshoot, operator Q1–Q7.
+- Pros: matches the cited external evidence, measured 20× overshoot, operator Q1–Q7.
 - Cons: more mid-task Reads; git discipline depends on hooks.
 
 ### Option B: Keep current @import set; only delete duplicate paragraphs
 - Pros: smaller diff.
 - Cons: leaves ~2.6–3.5× project-only overshoot; global dump untouched.
 
-### Option C: Single mega CLAUDE.md with all rules inlined (reject the cited guidance)
+### Option C: Single mega CLAUDE.md with all rules inlined (reject the external guidance)
 - Pros: one file to open.
 - Cons: maximizes ignore risk; opposite of progressive disclosure.
 
 ## Why not B/C
 
 B treats symptoms (duplicate tables) and leaves the budget failure mode. C
-maximizes always-on instruction count and contradicts both the cited guidance and the
+maximizes always-on instruction count and contradicts both the external guidance and the
 measured failure mode (uniform instruction decay).

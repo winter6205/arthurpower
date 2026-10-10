@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // post-ssot-priority.ts
-// Context closed-loop SSOT priority advisory hook. zod-only runtime.
+// Context closed-loop SSOT priority advisory hook. zero-dep runtime.
 // Tool gate: PostToolUse Write/Edit/MultiEdit/Bash (targeting docs/CONTEXT.md,
 // docs/CONTEXT-MAP.md, docs/team-glossary.md, docs/<sub-context>/CONTEXT.md).
 // Enforces authority precedence: team-glossary > project CONTEXT > sub-context CONTEXT.
@@ -23,7 +23,7 @@
 
 import fs, { type Dirent } from 'node:fs';
 import path from 'node:path';
-import { z } from 'zod';
+import { z } from './runtime/tiny-schema.ts';
 import { defineHook, type HookResult } from './runtime/defineHook.ts';
 
 const TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'Bash']);

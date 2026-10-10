@@ -15,6 +15,6 @@
 
 ## 跨引
 
-- TDD 原则 (先写测试再写实现) → `~/.claude/rules/s4-spec-as-test.md`
-- 测试覆盖验收点 + "测试失败报告功能缺失而非拼写错误" 立约 → `~/.claude/rules/s4-spec-as-test.md`
-- Code review Spec 轴 → `~/.claude/rules/code-review-protocol.md` §3
+- Write-time RED → GREEN discipline → [`../SKILL.md`](../SKILL.md)
+- Review test evidence against applicable spec acceptance points → [`../../code-review/references/spec-as-test.md`](../../code-review/references/spec-as-test.md)
+- Code-review Spec axis → [`../../code-review/references/protocol.md`](../../code-review/references/protocol.md)

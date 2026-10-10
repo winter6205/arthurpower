@@ -21,7 +21,12 @@ Required sections, matching the SKILL.md structure:
 - One-paragraph `## What it does` (≤ 80 words, plain prose)
 - Bullet list `## When to reach for it` (3-6 items, mirroring `When to use`)
 - Short `## Where it fits` linking to `using-agent-skills` for routing context
-- Optional `## Prerequisites` and `## It's working if`
+
+### Promoted-skill page frame
+
+Promoted `engineering` / `productivity` skills require a page. Non-promoted buckets (`misc`, `personal`, `in-progress`, `deprecated`) do not. Presence is part of promotion (ADR-0011).
+
+Fixed frame, in order: **Quickstart** (copy-runnable); **Absolute SKILL.md link** (`arthurpower/skills/<name>/SKILL.md`); **What it does** (one-sentence job + the defining constraint in prose); **When to reach for it** (invocation mode + trigger; name a sibling when confusable); **Where it fits** (chain step / setup / maintenance / standalone, neighbours with because-clauses, link to `using-agent-skills`).
 
 ### Sync procedure
 

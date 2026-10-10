@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z, type Infer } from './tiny-schema.ts';
 
 // Envelope: passthrough — unknown keys accepted and preserved (SC8)
 export const envelopeSchema = z.object({
@@ -10,4 +10,4 @@ export const envelopeSchema = z.object({
   transcript_path: z.string().optional(),
 }).passthrough();
 
-export type Envelope = z.infer<typeof envelopeSchema>;
+export type Envelope = Infer<typeof envelopeSchema>;

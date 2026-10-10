@@ -10,7 +10,8 @@
 - Verbatim copy of any source skill without distillation and adaptation.
 - Long chronological explanation, origin story, or persuasive essay that does not change agent behavior.
 - Second-person prose ("You should...", "You need to...") instead of imperative form.
-- Discipline skill without Rationalization Table or Red Flags.
-- Discipline skill with Rationalization Table < 5 rows or Red Flags < 5 items.
+- Discipline skill with no steering against LLM excuses (rationalization / red-flag smells) — inline or disclosed behind a pointer such as `references/pressure-and-antipatterns.md`.
+- Gate numbers copied into spec or plan Acceptance; invented counts with no gate SSOT. Placement: [`contract-vs-gate.md`](contract-vs-gate.md).
 - Acceptance criteria using `should`, `probably`, `looks good` instead of binary yes/no.
+- Skill body narrating its own rewrite (formerly / moved / this revision). Edit history belongs in CHANGELOG.
 - Private-prefix namespace bindings in the skill product (validator exits non-zero).

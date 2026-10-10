@@ -6,106 +6,70 @@ bucket: engineering
 
 # Dispatching Parallel Agents
 
+This skill is the **fan-out playbook for the current agent**. Independence, one-message dispatch, and a merged report are the contract. Worker subagents do the work (`general-purpose`, `spec-reviewer-agent`, `standards-reviewer-agent`, or other named verifiers).
+
+A task is **independent** when it shares no mutable file / DB / config / lock with its peers and does not need another peer's output. Fake parallelism is sequential work wrapped in extra Agent calls.
+
 ## When to use
 
-- **2+ 真正独立的任务** (无共享文件 / 共享 DB / 共享 config)
-- **单 agent context 爆炸** (调查 6 个 test 文件失败 = 拆分)
-- **并行审查不同文件** (spec 合规 + code quality 两阶段, 文件不重叠)
-- **独立探索陌生代码** (摸 3 个未熟悉的 module, 各派 1 个 subagent)
-- **批量修复 N 个同类 bug** (N 个独立 file, N 个 subagent 并行)
+- **2+ truly independent tasks** (no shared files / DB / config / lock)
+- **Context explosion** (e.g. six failing test files → one worker per file)
+- **Parallel review of disjoint files** (axes or modules that do not overlap)
+- **Independent exploration** of unfamiliar modules (one worker per module)
+- **Batch-fix N similar bugs** in N independent files
+
+`code-review` already fans out Standards + Spec; use that skill when the job is the dual-axis gate, not this general playbook.
 
 ## When not to use
 
-- **任务间有依赖** (task B 读 task A 的输出 → 必须 sequence, 不是 parallel)
-- **单 trivial 任务** (subagent setup cost > 任务本身)
-- **user 明确说顺序跑** ("先 X 再 Y" → 不要自作主张 dispatch)
-- **subagent 会并发改同一文件** (conflict 风险, 走 sequence)
-
-## Dispatch
-
-本环节由 `arthurpower:arthurpower-dispatcher` 承接。识别到 2+ 真正独立任务（无共享可变状态 / 无跨任务文件重叠 / 无依赖 peer 输出）需并行派发时，用 Agent 工具以 `subagent_type: "arthurpower:arthurpower-dispatcher"` 派发，而非在主线程自跑。派发时传：独立任务清单 + 本 skill 7 字段 prompt 判据 + 证据格式（dispatched N, passed M, failed K）。软触发：应当派，非必须派；偶发主线程自跑属可接受降级，不视为违规。
+- Peers depend on each other (B reads A's output → sequence)
+- One trivial task (setup cost exceeds the work)
+- The user asked for order ("先 X 再 Y")
+- Two workers would write the same file
 
 ## Procedure
 
-1. **Identify independent tasks** — confirm no shared mutable state, no cross-task file overlap, no dependency on peer outputs. 派发数量由 agent 按任务形状判定：独立模块/编译耦合边界各 1 个，数量按模块数定；非模块化任务按 cost/scope/dependency 判定。
-2. **Write 7-field subagent prompts** — ROLE / SCOPE / PERMISSION / REFERENCE / CONSTRAINTS / DELIVERABLE / OUTPUT RULES.
-3. **Parallel dispatch in 1 message** — multiple Agent invokes in a single message, not sequential.
-4. **Collect structured results** — each subagent returns verifiable output (test results, file paths, diff stats).
-5. **Cross-check** — run scope-creep / file-conflict / commit-atomicity checks before integration.
-6. **Integrate** — final commit only after all subagents complete and cross-check passes.
+1. **Identify independent tasks.** Confirm no shared mutable state, no overlapping write paths, no peer-output dependency. Count follows shape: one worker per independent module / compile boundary; otherwise cost vs speed vs dependency. Completion: a named list of units, each with a disjoint write (or read) path, or a decision to run sequentially instead.
 
-See [`references/procedure-details.md`](references/procedure-details.md) for the full 7-step workflow expansion (incl. shape-driven quantity judgment).
+2. **Write a 7-field prompt per worker.** ROLE / SCOPE / PERMISSION / REFERENCE / CONSTRAINTS / DELIVERABLE / OUTPUT RULES. Skeleton: [`references/prompt-template.md`](references/prompt-template.md). Missing ROLE, SCOPE, or PERMISSION means the worker will drift. Completion: every unit has all seven fields.
 
-## Subagent Prompt Template
+3. **Fan out in one message.** The current agent issues multiple Agent/Task calls in a **single** message, each targeting a worker. Sequential messages are sequence, not parallel. Completion: N workers launched together.
 
-Inline skeleton (full template in `references/prompt-template.md`):
+4. **Collect structured results.** Each worker returns verifiable output (paths, commands, exit codes, findings) — not "looks good". Completion: N results in hand, including crashed workers reported as FAIL.
 
-```
-ROLE:        <subagent identity + model>
-SCOPE:       ≤ 1 file OR ≤ 1 logical task, ≤ 500 lines
-PERMISSION:  <allowed tools + read/write/edit scopes>
-REFERENCE:   <paths / docs / runnable commands the subagent must read first>
-CONSTRAINTS: <anti-patterns to avoid, e.g. no scope creep, no premature optimization>
-DELIVERABLE: <concrete artifact: test pass, file diff, structured report>
-OUTPUT:      <format + return-path: file location, JSON shape, exact token string>
-```
+5. **Cross-check.** Scope creep, overlapping writes, and peer-output leakage — [`references/verification.md`](references/verification.md). Completion: conflicts named or confirmed absent.
 
-**关键**: ROLE / SCOPE / PERMISSION 三项缺失任意一项 = subagent 必失败或 scope 漂移。CONSTRAINTS 缺失 = 顺手优化反模式。
+6. **Synthesize.** Merge into one report. Commit is not this step; a later implementing turn owns git. Completion: `dispatched N, passed M, failed K` plus the merged table.
 
-## Acceptance Criteria
+Shape, shared-state table, and one-message vs sequential: [`references/procedure-details.md`](references/procedure-details.md).
 
-- [ ] 2+ 任务真正独立 (无共享状态 / 共享文件)
-- [ ] 每个 subagent 有 explicit scope (1 文件 or 1 逻辑任务, ≤ 500 行)
-- [ ] Subagents **真正并行 dispatch** (1 message, 多个 Agent invokes, 不是串行)
-- [ ] 每个 subagent 输出 structured + verifiable (有 test 输出, 不是"看起来好")
-- [ ] 主代理 cross-check 过 (scope creep / file conflict / 协作规范)
-- [ ] Final integration (commit) 在所有 subagent 完成 + cross-check 后
-
-## Example
-
-See [`references/example.md`](references/example.md) for a full 6-step walkthrough: 1 message 3 subagent parallel review across 3 unrelated files, with cross-check bash commands and integration pattern.
-
-## Verification
+## Prompt skeleton
 
 ```
-Skill type: discipline
-Bar level:  discipline
+ROLE:        <worker identity>
+SCOPE:       1 logical task; write paths do not overlap peers
+PERMISSION:  <tools + read/write scope>
+REFERENCE:   <paths the worker must read first>
+CONSTRAINTS: <no scope creep, no drive-by refactors>
+DELIVERABLE: <concrete artifact>
+OUTPUT RULES: <format; deliverable is the output>
 ```
 
-Inline smoke check:
+Full template: [`references/prompt-template.md`](references/prompt-template.md).
 
-```bash
-git diff --stat HEAD && pytest tests/ -q --co | tail -5
-```
+## Acceptance criteria
 
-Then run the manual cross-check table (scope creep / file conflict / commit atomicity / test exit code) per [`references/verification.md`](references/verification.md).
+- [ ] 2+ tasks are independent (or the run correctly fell back to sequence)
+- [ ] Each worker has explicit SCOPE (one logical task, disjoint write paths)
+- [ ] Workers launched in one message by the **current agent**
+- [ ] Each result is structured and verifiable
+- [ ] Cross-check ran before the merge
+- [ ] Report includes `dispatched N, passed M, failed K`
 
-**Acceptance command**: `echo "PASS = N subagents dispatched, N results synthesized, 0 conflicts"`
+## References
 
-## Rationalization Table
-
-| 想偷懒 / 跳步 | 实际后果 | Corrective action |
-|---------------|----------|-------------------|
-| "trivial 任务也派 subagent" | Setup cost > 任务本身. 主代理 30 秒搞定, subagent 5 分钟起 | Sequence, 不要 dispatch |
-| "Subagent 能读其他 subagent 的输出" | Cross-subagent 依赖 = sequential, 不是 parallel. 派单 = 假并行 | 改成 sequence |
-| "派 N 个 subagent 加速" | N = N× context cost. 按 (a) 任务形状: 独立模块/编译耦合边界数; (b) cost: 上下文膨胀 vs 加速收益; (c) dependency: 是否有共享可变状态 | 主代理按任务形状判定派发数; 模块化派发默认（独立模块各 1 个） |
-| "Subagent 不读源码直接改" | Blind work = 必出错. 子代理没看代码 = 凭印象改 | 强制 REFERENCE 段 |
-| "我不 cross-check 直接合" | Cross-check = integration step. 跳过 = 静默 conflict 落地 | 走 §5 cross-check |
-| "user 说 dispatch, 不用验证" | user dispatch request = dispatch permission, 不是允许跳过 verification | 跑 Verification 4 条 |
-
-## Red Flags
-
-- 2+ subagents 编辑同一文件 (conflict 必发)
-- Subagent scope > 500 行 OR > 1 逻辑任务 OR 顺手优化 (scope creep)
-- Subagent prompt 缺 PERMISSION / SCOPE / REFERENCE (任一缺失 = subagent 迷失或漂移)
-- Subagent 输出无 verification step ("看起来好" / "应该 work" 都是失败模式)
-- 主代理跳过 cross-check (无 `git diff --stat` 就 commit)
-- "I'll just merge the subagent outputs" — 不合成 = 不集成 = 表面完成
-- 并行 dispatch 后立刻 commit (subagent 可能 in-flight)
-- Subagent prompt 含 "think aloud" / "explain your approach" — preamble 禁
-
-## Required Baseline
-
-**Zero tolerance** — subagent scope = 1 文件 or 1 逻辑任务, parallel 仅当真正独立, cross-check 在 integration 前。
-
-VERIFICATION = "PASS = N subagents dispatched, N results synthesized, 0 conflicts, 全部 subagent ≤ 500 行 scope, 主代理 cross-check 通过"
+- Worked example (three disjoint reviews, synthesize, no commit): [`references/example.md`](references/example.md)
+- Procedure expansion: [`references/procedure-details.md`](references/procedure-details.md)
+- Prompt template: [`references/prompt-template.md`](references/prompt-template.md)
+- Cross-check: [`references/verification.md`](references/verification.md)
+- Pressure / anti-patterns: [`references/pressure-and-antipatterns.md`](references/pressure-and-antipatterns.md)

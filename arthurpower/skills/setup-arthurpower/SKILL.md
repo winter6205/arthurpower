@@ -4,9 +4,20 @@ description: "Use when bootstrapping an Arthurpower project for the first time, 
 bucket: engineering
 disable-model-invocation: true
 version: 3.0.0
-tags: [Setup, Bootstrap, ContextMap, Contract, OneShot, Hooks, Dedupe, Migration, GithubPull]
+tags:
+  [
+    Setup,
+    Bootstrap,
+    ContextMap,
+    Contract,
+    OneShot,
+    Hooks,
+    Dedupe,
+    Migration,
+    GithubPull,
+  ]
 author: Arthurpower
-related_skills: [domain-modeling, deep-dive-protocol, self-evolving-rules]
+related_skills: [domain-modeling, logicsync, self-evolving-rules]
 ---
 
 # Setup Arthurpower - 结构声明入口 (一次性)
@@ -23,6 +34,7 @@ related_skills: [domain-modeling, deep-dive-protocol, self-evolving-rules]
 初始化钩子, 在项目首次接入或迁移时运行一次. 它不写业务术语, 只声明**结构**: 在哪里读 / 在哪里写 / 谁消费.
 
 **核心承诺**:
+
 - **双模式适配**: 自动检测 fresh (无 `CLAUDE.md`) / old-repo (已有 `CLAUDE.md` 等) / intermediate, 跑对应流程
 - **不删旧内容**: 旧仓库接入时, 只补缺的 (`.claude/rules/` `.claude/hooks/` `.claude/skills/` `docs/CONTEXT.md` `scripts/` `.evals/`), 不动 `CLAUDE.md` / `CLAUDE.local.md` / 已有 `docs/` 内容
 - **GitHub pull**: 默认模板源 = `<owner>/<repo>` GitHub 仓, 通过 `scripts/update.sh --from-git` 拉取
@@ -39,7 +51,7 @@ related_skills: [domain-modeling, deep-dive-protocol, self-evolving-rules]
 
 - 已完整初始化过 (检查 `docs/agents/context-contract.md` + `.claude/skills/domain-modeling/` + `.evals/run.sh` 三个全有)
 - 只想补 glossary 词 -> 走 `domain-modeling`
-- 只想访谈对齐术语 -> 走 `deep-dive-protocol`
+- 只想访谈对齐术语 -> 走 `logicsync`
 
 ## How to Run
 
@@ -47,11 +59,11 @@ related_skills: [domain-modeling, deep-dive-protocol, self-evolving-rules]
 
 读项目根, 判断 3 种模式:
 
-| 检测条件 | 模式 | 后续流程 |
-|---------|------|---------|
-| 无 `CLAUDE.md` 且无 `.claude/` | **fresh** | Step 1 -> Step 6 (GitHub pull bootstrap) -> Step 1-5 |
-| 有 `CLAUDE.md` (或 `docs/CONTEXT.md` / `.claude/`) | **old-repo** | Step 1-4 skip / 已有则保留 -> Step 5 dedup 注册 -> Step 6 update (可选) |
-| 部分有 (有 `CLAUDE.md` 但缺 `.claude/rules/` 等) | **intermediate** | Step 0.5 gap-fill -> Step 5 dedup -> Step 6 update (可选) |
+| 检测条件                                           | 模式             | 后续流程                                                                |
+| -------------------------------------------------- | ---------------- | ----------------------------------------------------------------------- |
+| 无 `CLAUDE.md` 且无 `.claude/`                     | **fresh**        | Step 1 -> Step 6 (GitHub pull bootstrap) -> Step 1-5                    |
+| 有 `CLAUDE.md` (或 `docs/CONTEXT.md` / `.claude/`) | **old-repo**     | Step 1-4 skip / 已有则保留 -> Step 5 dedup 注册 -> Step 6 update (可选) |
+| 部分有 (有 `CLAUDE.md` 但缺 `.claude/rules/` 等)   | **intermediate** | Step 0.5 gap-fill -> Step 5 dedup -> Step 6 update (可选)               |
 
 **判断依据不要靠文件清单**: 任意一个核心标记文件 (`CLAUDE.md` / `docs/CONTEXT.md` / `.claude/settings.json`) 存在 -> 视为 old-repo 或 intermediate, 绝不删旧文件.
 
@@ -134,8 +146,8 @@ mkdir -p docs/agents docs/adr
 ```markdown
 # CONTEXT Map
 
-| Context | Path | Owner |
-|---|---|---|
+| Context | Path                        | Owner   |
+| ------- | --------------------------- | ------- |
 | <ctx-1> | src/<ctx-1>/docs/CONTEXT.md | @<team> |
 ```
 
@@ -147,22 +159,22 @@ mkdir -p docs/agents docs/adr
 
 读取 `~/.claude/settings.json` 的 `hooks.PreToolUse` + `PostToolUse` 列表, 看是否含同名 hook 文件名. 默认检测 6 个 hook (5 context-闭环 + pre-fs-guard):
 
-| Hook | 触发 | 职责 |
-|------|------|------|
-| `pre-context-write-guard.cjs` | PreToolUse Write/Edit/MultiEdit/Bash | CONTEXT.md / ADR 写入主权 + Bash 3-regex |
-| `pre-stale-read.cjs` | PreToolUse Write/Edit/MultiEdit/Bash (src/) | CONTEXT.md mtime 过期 -> advisory |
-| `pre-read-contract.cjs` | PreToolUse Write/Edit/MultiEdit/NotebookEdit/Bash (src/) | 写 src/ 前未读 CONTEXT.md -> advisory |
-| `post-ssot-priority.cjs` | PostToolUse Write/Edit/MultiEdit/Bash | team/project/sub-context 术语冲突 -> stderr POST-FIX WARNING |
-| `post-conflict-annotation.cjs` | PostToolUse Write/Edit/MultiEdit/Bash (tool_name 白名单) | skill 输出矛盾 ADR -> advisory |
-| `pre-fs-guard.cjs` | PreToolUse Bash | 拦 `find /` / `grep -r /` / 尾随 `&` (2026-07 find.exe handle leak 防护) |
+| Hook                           | 触发                                                     | 职责                                                                     |
+| ------------------------------ | -------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `pre-context-write-guard.cjs`  | PreToolUse Write/Edit/MultiEdit/Bash                     | CONTEXT.md / ADR 写入主权 + Bash 3-regex                                 |
+| `pre-stale-read.cjs`           | PreToolUse Write/Edit/MultiEdit/Bash (src/)              | CONTEXT.md mtime 过期 -> advisory                                        |
+| `pre-read-contract.cjs`        | PreToolUse Write/Edit/MultiEdit/NotebookEdit/Bash (src/) | 写 src/ 前未读 CONTEXT.md -> advisory                                    |
+| `post-ssot-priority.cjs`       | PostToolUse Write/Edit/MultiEdit/Bash                    | team/project/sub-context 术语冲突 -> stderr POST-FIX WARNING             |
+| `post-conflict-annotation.cjs` | PostToolUse Write/Edit/MultiEdit/Bash (tool_name 白名单) | skill 输出矛盾 ADR -> advisory                                           |
+| `pre-fs-guard.cjs`             | PreToolUse Bash                                          | 拦 `find /` / `grep -r /` / 尾随 `&` (2026-07 find.exe handle leak 防护) |
 
 **Step 5b: 三种决策**
 
-| 场景 | 判定 | 动作 |
-|------|------|------|
+| 场景                    | 判定                            | 动作                                       |
+| ----------------------- | ------------------------------- | ------------------------------------------ |
 | 用户级**全无**同名 hook | 干净环境 (CI / Docker / 新机器) | 注册全部 6 hook 到 `.claude/settings.json` |
-| 用户级**已有**部分同名 | 部分干净 | 只注册用户级**没有**的 hook |
-| 用户级**全有**同名 hook | 与现有用户级环境重叠 | 跳过项目级注册, 提示"已由用户级提供" |
+| 用户级**已有**部分同名  | 部分干净                        | 只注册用户级**没有**的 hook                |
+| 用户级**全有**同名 hook | 与现有用户级环境重叠            | 跳过项目级注册, 提示"已由用户级提供"       |
 
 **Step 5c: 项目级注册片段** (只在场景 1+2 才用)
 
@@ -219,14 +231,15 @@ bash scripts/update.sh --from-git <owner>/<repo>
 bash scripts/update.sh --from-git <owner>/<repo> --only .claude/rules/ scripts/
 
 # 本地模板路径 (开发用)
-ARTHUR_TEMPLATE=/path/to/local/arthur-tpl bash scripts/update.sh
+ARTHUR_TEMPLATE=/path/to/local/template bash scripts/update.sh
 
 # 强制覆盖 (会破坏 PROTECTED 之外的本地定制)
 bash scripts/update.sh --from-git <owner>/<repo> --force
 ```
 
 `update.sh` 自动:
-1. `git clone --depth=1 <url> .arthur-tpl-cache/` (临时目录)
+
+1. `git clone --depth=1 <url> .template-cache/` (临时目录)
 2. sha256 比对每文件
 3. SAME -> skip / DIFF -> skip (默认) 或 warn `--force` / MISSING -> copy
 4. PROTECTED (`CLAUDE.md`, `CLAUDE.local.md`, `docs/CONTEXT.md`, `.claude/settings.json`, `.claude/settings.local.json`, `docs/handoff/*`) 永不覆盖
@@ -241,9 +254,9 @@ bash scripts/update.sh --from-git <owner>/<repo> --force
 - [ ] `docs/adr/` 目录存在 (空目录也 OK)
 - [ ] 6 个 hook 文件存在于 `.claude/hooks/` (pre-context-write-guard / pre-stale-read / pre-read-contract / post-ssot-priority / post-conflict-annotation / pre-fs-guard)
 - [ ] **hook 注册按需** (Step 5b 三分支)
-- [ ] `domain-modeling` 在 `.claude/skills/` (模板自带); `deep-dive-protocol` + `self-evolving-rules` 由 plugin 全局供给 (fresh 模式不必复制到 `.claude/skills/`, plugin 装上即有)
+- [ ] `domain-modeling` 在 `.claude/skills/` (模板自带); `logicsync` + `self-evolving-rules` 由 plugin 全局供给 (fresh 模式不必复制到 `.claude/skills/`, plugin 装上即有)
 - [ ] `docs/rules/context-loop.md` 存在 (post reorg 2026-07-20)
-- [ ] 跨多文件/多 hook 改动走 `arthurpower:boundary-testing-axis1-agent` + `axis2-agent` 两轴 6 步流程 (无独立 rule 文件; 2026-07-20 起职责移交全局 agent)
+- [ ] Cross-file / multi-hook changes that can drift **trigger** behavior run `boundary-testing`: **axis1 then axis2** (sequential; axis2 consumes axis1 evals). No standalone rule file; agents under plugin `agents/`.
 - [ ] `arthurpower:self-evolving-rules` skill 可用 (user-invoked, 规则沉淀 6 步流程)
 - [ ] `scripts/bootstrap.sh` + `scripts/update.sh` 存在 + 可执行
 - [ ] `.evals/run.sh --all` 10/10 PASS
@@ -270,6 +283,6 @@ PASS = fresh 模式跑过 `.evals/run.sh --all` 10/10 + 6 hook 全在; old-repo 
 - 写侧主权: `.claude/skills/domain-modeling/SKILL.md`
 - 物理护栏: `.claude/hooks/pre-context-write-guard.cjs` (5 个 context-闭环 hook 的根)
 - 规则层 (always-on): `.claude/rules/{workflow,security-boundaries,git}.md`; 规则层 (on-demand): `docs/rules/{context-loop,task-templates,code-quality,memory}.md` — 见 `workflow.md` 当读
-- 边界测试 SOP: `arthurpower:boundary-testing-axis1-agent` + `axis2-agent` 两轴 (2026-07-20 移交, 无独立 rule 文件)
+- Boundary-testing SOP: `boundary-testing` skill — **axis1 then axis2** (sequential). Trigger-semantics only; public-entry input classes → `input-contract-tests`.
 - v3.0.0 changelog: 从 v2.0.0 升级, 新增 Step 0 mode detection + Step 0.5 gap-fill + Step 6 GitHub pull; 集成 pre-fs-guard (v2 漏) + post-ssot-priority / post-conflict-annotation 修复版; Verification Checklist 拆 fresh / old-repo 双分支
 - v3.0.0 -> user-invoked skill 形态: 从 slash command 改回 skill (`disable-model-invocation: true`), 与 plugin 其他 user-invoked skill (architecture-change-reviewer / code-review) frontmatter 形态一致, 保持显式触发纪律

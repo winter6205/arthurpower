@@ -27,12 +27,11 @@ git diff --stat
 
 ## 提交频率
 
-采用小步提交：
+落地口径只在操作者全局「提交」段，此处不另定粒度。
 
-- 每个提交只表达一个意图。
-- 功能、修复、测试、文档、重构应分开提交。
-- 大型重构前应先提交当前安全检查点。
-- 不要在一个提交里混合"业务逻辑变更"和"大规模格式化"。
+- 开发期 checkpoint / `wip:` 可以。
+- 合入默认分支前 squash 成一条 Conventional Commit；测试与改动同一份 landing。
+- 不要在一份 landing 里混合两件可独立 revert 的功能，或夹带无关的大规模格式化。
 
 ## 禁止的 Git 行为
 
@@ -123,7 +122,9 @@ BREAKING CHANGE: <description>
 
 ### 禁止的提交信息
 
-不得使用：`update` / `fix` / `wip` / `misc` / `changes` / `bugfix` / `final` / `temp`。
+不得使用：`update` / `fix` / `misc` / `changes` / `bugfix` / `final` / `temp`。
+
+`wip:` 仅用于 feature 分支 checkpoint；squash / PR 标题必须是 Conventional Commits。
 
 不得生成夸大、不准确或与 diff 不一致的提交信息。
 
@@ -181,16 +182,15 @@ git branch --show-current
 
 **PR 内容要求**:
 
-1. 标题 = commit 标题 (Conventional Commits)
+1. 标题 = squash 标题 (Conventional Commits)
 2. 描述含: Why / What / Validation (同 commit 正文模板)
 3. 关联 issue / ticket (如有)
 4. CI 全绿
 
 **合并策略**:
 
-- Squash merge (推荐, 历史清晰)
-- Rebase merge (线性历史)
-- Merge commit (默认, 历史分叉, 慎用)
+- Squash merge（与全局「提交」段一致）
+- Rebase merge / merge commit：仅在操作者明确要求时
 - Force push to main (禁)
 
 ## 冲突解决 / 回滚

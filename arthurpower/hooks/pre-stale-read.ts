@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // pre-stale-read.ts
-// Context closed-loop stale-read advisory hook. zod-only runtime.
+// Context closed-loop stale-read advisory hook. zero-dep runtime.
 // Tool gate: PreToolUse Write/Edit/MultiEdit/Bash.
 // Emits an advisory systemMessage when docs/CONTEXT.md has been modified since
 // the agent last read it and the agent is about to write under src/.
@@ -11,7 +11,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { z } from 'zod';
+import { z } from './runtime/tiny-schema.ts';
 import { defineHook } from './runtime/defineHook.ts';
 
 const TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'Bash']);

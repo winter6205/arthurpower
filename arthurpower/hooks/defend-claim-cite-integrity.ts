@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// Port of defend-claim-cite-integrity.sh. zod-only runtime.
+// Port of defend-claim-cite-integrity.sh. zero-dep runtime.
 import fs from 'node:fs';
 import path from 'node:path';
-import { z } from 'zod';
+import { z } from './runtime/tiny-schema.ts';
 import { defineHook } from './runtime/defineHook.ts';
 
 const schema = z.object({

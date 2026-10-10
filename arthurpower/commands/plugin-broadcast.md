@@ -41,11 +41,3 @@ Audit reports each mismatch as a row in this form:
 
 Use `scripts/sync-marketplace-cache.py --help` for the complete flag list,
 including `--src`, `--mkt`, and `--cache` overrides.
-
-## Related
-
-- [Methodology §②: local arthurpower change and 3-layer broadcast](../../docs/operations/claude-sync-methodology.md#②-本地-arthurpower-改完--推云端--3-层-broadcast)
-- [Methodology §④: remote arthurpower pull and broadcast](../../docs/operations/claude-sync-methodology.md#④-云端-arthurpower-更新--拉本地--broadcast-3-层)
-- [Ticket 02 — gitignore scope (RESOLVED)](../../docs/wayfinder/tickets/02-gitignore.md)
-- [Ticket 03 — project consumer (RESOLVED)](../../docs/wayfinder/tickets/03-project-consumer.md)
-- [Ticket 04 — push cadence (RESOLVED)](../../docs/wayfinder/tickets/04-push-cadence.md)

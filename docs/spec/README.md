@@ -13,8 +13,7 @@
 | 1 | **`v0.7.0-main-plan.md`** | 主计划: 5 项核心改造 + Phase 1-5 实施路线 | V 审阅 + 实施者执行 |
 | 2 | **`v0.7.0-patch-plans.md`** | 额外修补计划: rules 优化 + user-level 纳入 + 沉淀更正 | V 审阅 + 实施者执行 |
 | 3 | `v0.7.0-decisions.md` | 决策记录: 14 轮裁决详记 + V 拍板 + 关键裁定 | 实施前读 (避免凭印象改) |
-| 4 | `v0.7.0-research.md` | 调研支撑: 4 份子代理报告 + the baseline 8 主题演进 | 有疑问时溯源 |
-| 5 | `v0.7.0-handoff.md` | 下个 session 交接 | 下个 session 第一句话读 |
+| 4 | `v0.7.0-handoff.md` | 下个 session 交接 | 下个 session 第一句话读 |
 
 **快速入门** (5 分钟): 读 `v0.7.0-main-plan.md` §1 TL;DR + §2 核心改造 5 项.
 
@@ -81,15 +80,13 @@ Phase 路线: v0.7.0 (分类 + 新 skill) -> v0.8.0 (6-bucket) -> v0.9.0 (wayfin
 
 - `docs/refactor-plan-v0.7.md` -- 本次拆分源 (1100+ 行, 决策 + 调研 + 修补全堆一起, 已拆到本 spec/)
 - `docs/handoff/2026-07-15-arthurpower-v0.6.0-upgrade.md` -- 上 session (v0.6.0) 交接
-- `docs/Arthuropower_skill_classification.md` -- v0.5.0 分类提案
-- `docs/version_diff.md` -- v1.0/1.0.1/1.1/1.2 changeset 调研
 
 ---
 
 ## 关键裁定 (3 个高优先级, 实施前必读 `v0.7.0-decisions.md` §6)
 
 1. **plugin.json skills 字段路径格式** (实测裁定): 合法 = `./skills/<name>` (平铺) 或 `./skills/<bucket>/<name>` (分桶); 不合法 = 裸名 / 无 `./`. 删字段后回退目录扫描也 work.
-2. **domain-modeling 加载方式** (冲突仲裁): 维持 model-invoked (design 立约 + the baseline 对齐), 写主权靠 hook + discipline 三层保证.
+2. **domain-modeling 加载方式** (冲突仲裁): 维持 model-invoked (design 立约), 写主权靠 hook + discipline 三层保证.
 3. **三体 S1-S6 决策位置分工** (V 让找的冲突解决): 改前 ACR / 改后 code-review + audit-agent / pre-merge maintainability-reviewer, 靠作用域 + 时点分工.
 
 ---

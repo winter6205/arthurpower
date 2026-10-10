@@ -1,42 +1,33 @@
 # Spec Template
 
-Use this template when writing a spec document. Nine core areas. Do not skip any. Add fields only when the project demands them; never delete numbered sections.
+Use this template when writing a spec document. The required areas are the shape. Inherits/Changes records what **this** workspace already provides that the contract depends on, or the confirmed choices when the workspace has none yet. Indent, quotes, formatter, and lint taste stay out.
 
 ```markdown
 # Spec: <feature name>
 
 ## Objective
+
 What we are building and why. Who is the user. What does success look like.
 
-## Tech Stack
-Framework, language, key dependencies with versions. Tech stack changes require a new assumption gate.
-
-## Commands
-Full executable commands with flags, not tool names.
-Build: <cmd>
-Test: <cmd>
-Lint: <cmd>
-Dev: <cmd>
-
-## Project Structure
-Where source code lives, where tests go, where docs belong.
-
-## Code Style
-One real snippet beats three paragraphs of description. Naming + formatting + example of good output.
-
-## Testing Strategy
-Framework, test locations, coverage targets, test level per concern (unit / integration / e2e).
-
 ## Boundaries
-- Always do: <run tests before commit, follow naming, validate inputs>
-- Ask first: <schema changes, new deps, CI changes>
-- Never do: <commit secrets, edit vendor, remove failing tests without approval>
+
+- **Does:** <work this spec covers>
+- **Confirms with human:** <choices that stay open until asked>
+- **Out of this spec:** <deferred, or owned by another spec / ADR>
 
 ## Success Criteria
-Specific, testable, binary. Each criterion maps to a measurable check.
+
+Specific, testable, binary. Each criterion maps to a measurable check (a command that exits 0, a metric threshold, a property test).
 
 ## Open Questions
-Anything unresolved that needs human input before PLAN.
+
+Anything unresolved that needs human input before PLAN. Write `(none)` if the assumption gate cleared them.
+
+## Inherits / Changes
+
+Quote stack, test command, or surface this workspace already has that the contract depends on.
+If this workspace has none yet, write the confirmed choices from the assumption gate.
+Do not prescribe indent, quotes, formatter, or lint taste.
 ```
 
 ## Assumption Listing Format

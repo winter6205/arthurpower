@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // post-conflict-annotation.ts
-// Context closed-loop ADR conflict annotation advisory hook. zod-only runtime.
+// Context closed-loop ADR conflict annotation advisory hook. zero-dep runtime.
 // Tool gate: PostToolUse (Edit|MultiEdit|Write|Bash only; Read/Glob/Grep silent pass).
 // Detects skill output contradicting existing ADR Decision sections.
 // Requires explicit "> Contradicts ADR-NNNN" annotation for any deviation,
@@ -14,7 +14,7 @@
 // Behavior: advisory only (exit 0). Never blocks. All errors fail-open.
 import fs from 'node:fs';
 import path from 'node:path';
-import { z } from 'zod';
+import { z } from './runtime/tiny-schema.ts';
 import { defineHook } from './runtime/defineHook.ts';
 
 const ADR_NUMBER_RE = /^(\d{4})-/;

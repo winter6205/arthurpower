@@ -16,11 +16,11 @@ pass as `$ARGUMENTS`) against the six governance rules:
 | Rule | Skill | Checks |
 |------|-------|--------|
 | S1 | bounded-context-guardian | module boundaries, no circular imports |
-| S2 | defensive-contract-validator | 5 boundary classes tested |
+| S2 | input-contract-tests | 5 boundary classes tested |
 | S3 | error-handling-enforcer | typed exceptions, no empty catch |
-| S4 | (spec-as-test rule) | tests before impl, spec covered |
+| S4 | code-review Spec axis | test evidence covers applicable acceptance points and meaningfully supports the required behavior |
 | S5 | complexity-anti-drift | cyclomatic/nesting/params/lines thresholds |
-| S6 | minimal-change-verifier | 1 commit = 1 task, diff scope |
+| S6 | minimal-change-verifier | diff scope = one task |
 
 plus the `verification-before-completion` gate (no PASS without evidence).
 

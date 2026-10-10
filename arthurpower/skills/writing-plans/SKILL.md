@@ -1,99 +1,48 @@
 ---
 name: writing-plans
-description: Use when planning implementation after architecture-change-reviewer has issued a verdict. Covers ordered multi-file tasks, binary acceptance criteria, dependency sequencing, and commit-sized work. Triggers on 写计划, 拆任务, 任务分解, 制定方案, 跨文件改动, 计划.
+description: Use when turning a buildable spec into ordered tracer bullets after architecture-change-reviewer. Covers vertical slicing, dependency order, and headroom for the implementer. Triggers on 写计划, 拆任务, 任务分解, 制定方案, 跨文件改动, 计划.
 bucket: engineering
 disable-model-invocation: true
 ---
 
 # Writing Plans
 
-A plan is a sequence of ordered tasks. Each task is ≤ 1 commit, has 1+ binary acceptance criterion, ordered by dependency (not by file path). Plan lives in a file (`plans/<feature>.md`) or commit body — never in the agent's head.
+A plan is a sequence of **tracer bullets**. Each bullet is a narrow vertical slice — one implementer-window outcome that touches every layer it crosses (schema / API / UI / tests, as applicable), is demoable end-to-end, fits one fresh context window, and carries exactly one tag. The phrase keeps its _Pragmatic Programmer_ meaning (working end-to-end functionality, thin slice, proof the system wires together) — do not rename it: the shared vocabulary is what aligns planner, reviewer, and implementer on slice shape, and it activates the LLM's trained prior for what a coherent plan looks like.
 
-Each task is a **tracer bullet**: a narrow vertical slice that touches every layer (schema / API / UI / tests), is demoable end-to-end, fits one fresh context window, and carries exactly one tag — either `[decision]` or `[implementation]`. Wide mechanical refactors are the exception: expand–contract, not forced into a single bullet.
+**Headroom** is the test of a bullet's prescription: the bullet fixes the **shape** of the slice, not its implementation. Two competent implementers could ship different diffs — different filenames, helper splits, test layouts — that both satisfy the same acceptance. If only one patch shape can pass, the bullet has already implemented the work.
 
-Each tracer bullet is a **decision ticket** and must carry exactly one tag:
+## When to use
 
-- `[decision]` — resolves an open choice or records a required verdict before code changes.
-- `[implementation]` — changes code or tests after its prerequisite decisions are settled.
+Reach for this skill when a spec is buildable and the next artifact is an ordered list of work:
 
-If the change is a wide mechanical refactor whose blast radius spans the whole codebase, do not force it into a single tracer bullet. Sequence as expand–contract: expand (add new form beside old) → migrate call sites in batches (each batch its own bullet) → contract (delete old form). Each batch is a real tracer bullet; expand and contract are not bullets, they are the rails that let bullets stay green.
+- 3+ files, a new module, or a cross-context change
+- Several outcomes that need a dependency graph
+- After `architecture-change-reviewer` returns an all-yes (or N/A-with-reason) verdict
 
-If scope is unclear, route to the `using-agent-skills` router first; do not create implementation tickets from an undefined scope.
+A one-file obvious fix, or a docs-only edit with no behaviour change, is already a single tracer bullet in the user's request — write the change, not a plan file.
 
-## Input
+**Input**: a spec (`specs/<feature>.md`) plus the ACR verdict it carries, plus `docs/CONTEXT.md` / tagged ADRs as read-side context. Wayfinder maps and working code are not inputs; the plan feeds implementation, it does not reverse-engineer a diff.
 
-`writing-plans` runs AFTER the spec is buildable. The primary input is the spec (`specs/<feature>.md`) carrying an ACR all-yes verdict, OR a grilling ticket whose Resolution already holds the 5 spec sections (gh-22 skip path). The spec must be ready to decompose into ordered tracer bullets before this skill fires.
+**Output**: `plans/<feature>.md` — ordered tracer bullets, dependency-tagged. Spec, ADR, and code stay with their owners (`spec-driven-development`, `domain-modeling`, the implementing agent).
 
-| Input source | 形态 | 消费方式 |
-|---|---|---|
-| spec document (`specs/<feature>.md`) | file | read the 9 core areas + ACR verdict as the buildable contract to decompose into tracer bullets |
-| ACR 5-verdict block | inline in spec | the gate — `writing-plans` runs only after all 5 verdicts = yes; per-bullet cross-check before declaring plan done (see `references/handoff-acr.md`) |
-| `docs/CONTEXT.md` + tagged ADRs | file | read-side per context-loop pre-check; annotate contradictions (`> Contradicts ADR-NNNN — worth reopening because <证据>`) — never silently override |
-
-**What this skill does NOT consume**: the wayfinder map directly (`spec-driven-development` consumes it before `writing-plans` fires); working code (the plan is the input to the code, not vice-versa); implementation detail before planning is finalized.
-
-## Output
-
-The main output is the plan file (`plans/<feature>.md`) — ordered tracer bullets, each ≤ 1 commit, binary acceptance, dependency-ordered. This is the artifact that the per-ticket loop (ADR-0012) executes against. The closed-loop verification backstop is `.evals/tasks/<NNN>-<name>.yaml` running under `bash .evals/run.sh` — plan completion = N/N eval tasks pass.
-
-| Artifact | 落点 | 下游消费者 |
-|---|---|---|
-| plan file (`plans/<feature>.md`) | file at repo root | the per-ticket loop (ADR-0012) executes it; each bullet → 1 commit on its own branch |
-| tracer-bullet issues | GitHub issues with label `ready-for-agent` | the executing agent claims each issue, resolves via per-ticket loop; see `references/tracker.md` for the gh CLI mechanics |
-| eval baseline | `.evals/tasks/<NNN>-<name>.yaml` | `bash .evals/run.sh` asserts completion — the closed-loop that proves the plan (replaces the retired closed-loop-feedback section archived in `docs/archive/skill-reorg-2026-07-21/writing-plans.md`) |
-
-**Explicit non-outputs**: the spec (`spec-driven-development` owns it, `writing-plans` only consumes); working code (produced during per-ticket execution, not planning); ADRs (`domain-modeling` owns the 3-condition gate); the wayfinder map (`wayfinder` owns it).
-
-## When to Use
-
-- About to touch 3+ files in a single change
-- New module, new bounded context, or new top-level package
-- Cross-module refactor (touching ≥ 2 S1 bounded contexts)
-- Scope is ambiguous and needs decomposition to become estimable
-- Multiple tasks that could run in parallel and need a dependency graph
-- AFTER `architecture-change-reviewer` emits all-yes verdict (never run in isolation when scope is unclear)
-
-**Context-loop pre-check**: Before drafting the plan, read `docs/CONTEXT.md` (or `CONTEXT-MAP.md`) and `docs/adr/` under the context-loop read contract. If the plan contradicts an existing ADR, annotate: `> Contradicts ADR-NNNN — but worth reopening because <证据>`. Never silently override. New architectural decisions arising during planning must be proposed through `domain-modeling` (three-condition gate).
-
-## When NOT to Use
-
-- Single-file fix (1 file, 1 commit, obvious diff)
-- Explicit override annotation waives the plan requirement
-- Pure documentation work (docs-only change, no code surface)
+If a planned step contradicts an existing ADR, annotate `> Contradicts ADR-NNNN — worth reopening because <证据>` and record the reopen on the plan's **待写入** list during harvest/slice. Do not invoke `domain-modeling` in the middle of slicing. Quote the contradiction; do not silently override.
 
 ## Procedure
 
-1. **Enumerate affected files.** Stop and switch to a simpler skill if < 3 files. Group by logical task, not by directory (one tracer bullet = files that change together for one demoable behaviour). Files that change together = 1 task; files that change for unrelated reasons = split.
-2. **For each tracer bullet, write four things:** a `[decision]` or `[implementation]` tag, a name, the affected files, and the acceptance criterion. Acceptance = binary yes/no check. Not "looks good" — a command, a test, or a verifiable artifact.
-3. **Order tracer bullets by dependency**, not by file path. A task that consumes output of task N comes after N. File ordering hides dependencies.
-4. **Mark parallelizable tracer bullets** with `[parallel]`. Mark blockers with `[blocks: T1, T2]`. Parallelism is a property of the dependency graph, not the file list.
-5. **Cross-check with `architecture-change-reviewer`'s 5-verdict frame** before declaring the plan done. If scope is unclear, run that skill first. See `references/handoff-acr.md`.
-6. **Plan lives in a file** (`plans/<feature>.md` or commit body) — not in agent memory, not in chat scrollback, not in PR description afterthought. Head-plan is not a reviewable plan.
+During harvest and while writing bullets: if the plan introduces or changes a domain term relative to `docs/CONTEXT.md`, append that delta to **待写入** in the plan header or a persist section. Same for ADR-reopen items from the contradiction rule above. Do not invoke `domain-modeling` in steps 1–6; persist is the last write after the plan file exists.
 
-## Per-ticket loop (ADR-0012)
-
-Every `[implementation]` tracer bullet in `plans/<feature>.md` MUST embed the per-ticket loop verbatim. The loop is the discipline enforcement point — there is no separate `arthurpower:implement` orchestrator skill by design (ADR-0012 §Decision). Fusion into the tracer bullet definition makes the loop visible, reviewable, and impossible to skip silently.
-
-The loop (verbatim from ADR-0012 §Decision):
-
-1. **`arthurpower:test-driven-development`** — write the failing test first (or template-render / doc-render test for docs-only tickets).
-2. **typecheck + tests** — run the project's typecheck and test suite; both must be green.
-3. **`arthurpower:code-review`** — conditional: runs when the ticket produces a code diff; severity-gated (unresolved High blocks commit; Medium/Low advisory).
-4. **`arthurpower:verification-before-completion`** — capture actual evidence (output in full, not remembered); the 4-question ritual must complete before commit.
-5. **commit on the ticket branch** — 1 commit per tracer bullet, on its own branch off `worktree-wayfinder-gh-collab-adapt` (or the active worktree base).
-
-Why this exists (ADR-0012 §Why no implement skill): an orchestrator skill adds an unnecessary layer of indirection. Arthurpower already owns `test-driven-development`, `code-review`, and `verification-before-completion`. What was missing was the discipline of running them in sequence per ticket — fusing the loop into the tracer bullet definition enforces it without adding a new skill surface.
-
-**Template block** — embed this in every `[implementation]` tracer bullet of `plans/<feature>.md`:
-
-```
-#### Tn. `[implementation]` <name>
-- **Affects**: <files>
-- **Acceptance**: <binary check>
-- **Per-ticket loop**: tdd → typecheck+tests → code-review → verification-before-completion → commit on ticket branch
-```
-
-The `Per-ticket loop` line is mandatory — review of `plans/<feature>.md` is a loop-completeness check per ticket, not a generic style review.
+1. **Harvest settled vs open.** From the spec and ADRs, list outcomes already decided (invariants, EXIT, scope cuts) and choices still open. Term/ADR deltas go on **待写入**, not into a mid-harvest `domain-modeling` call. Completion: every bullet in the spec's contract section is either **inherits** (quoted) or marked open for the implementer.
+2. **Slice tracer bullets, not files.** Group work so each bullet is one demoable behaviour that crosses every layer it needs end-to-end and fits one implementer window. Files that must change together for that behaviour belong to the same bullet; unrelated reasons split. If the blast radius is a wide mechanical rename, sequence expand → migrate-in-batches → contract; expand, each migrate batch, and contract are all bullets — see the sketch in [`references/plan-format.md`](references/plan-format.md). Completion: each bullet has a one-sentence outcome a reviewer can demo end-to-end.
+3. **Write each bullet as a ticket, not a recipe.** If a bullet introduces or changes a domain term vs `docs/CONTEXT.md`, append it to **待写入**; do not invoke `domain-modeling` here. Fill the fields in [`references/plan-format.md`](references/plan-format.md):
+   - **Tag** — exactly one: `[decision]` (resolves a choice / records a verdict before code) or `[implementation]` (changes code or tests after those decisions).
+   - **Inherits** — quote the settled contract from the spec or an ADR, or write `none` so the implementer knows the choice is open.
+   - **Surface** — an existing bounded context or module, by its spec/context-map name or top-level directory (e.g. `session-api`, not an invented subpath); new filenames, type names, and helper splits wait for implementation unless the spec already froze them.
+   - **Acceptance** — an observable property (behaviour, invariant, reversible migration, or a named structural split such as one factory). Cite an existing test command when one already guards that property. Line counts, cyclomatic scores, param caps, clone percents, and invented literal-counts are **gates** owned by [`complexity-anti-drift` thresholds](../complexity-anti-drift/references/thresholds.md); point at that skill, do not copy the numbers into this field. Do not invent a test path to make the bullet look executable.
+   - **Completion** — the headroom test holds: a second implementer could use different files/names and still pass Acceptance.
+4. **Order by dependency.** A bullet that consumes another's outcome comes after it. Mark true parallelism `[parallel]` and blockers `[blocks: T1]`. Completion: the graph is about outcomes, not directory order.
+5. **Cross-check ACR.** Confirm the 5-verdict block still covers the slice. Sequence and conflict rules: [`references/handoff-acr.md`](references/handoff-acr.md). Completion: the plan file contains the verdict block and the bullet list.
+6. **Leave the plan in a file.** Write `plans/<feature>.md` (or the commit body if the change is the plan). Chat scrollback is not the artifact. The **待写入** list lives in this file (header or persist section).
+7. **persist.** 待写入清单空则跳过。否则立刻 invoke `domain-modeling`，只写清单上的项。 Done when: flushed or skipped. Tracker work below does not replace this step.
 
 ## Tracker
 
@@ -101,21 +50,14 @@ Default storage is local markdown: `plans/<feature>.md` is the plan. Acceptance 
 
 Load [`references/tracker.md`](references/tracker.md) only when the operator this run names GitHub issues (「用 issue」「发到 GitHub」). Then publish per that file.
 
-## Acceptance Criteria
+## Neighbours
 
-A plan is complete when every tracer bullet carries one binary acceptance criterion, one tag, and one commit, ordered by dependency. See `references/acceptance-criteria.md` for the binary checklist.
+The implementing agent runs `test-driven-development`, then typecheck/tests, then `verification-before-completion`. Checkpoint commits are allowed; landing grain is the operator's global commit section, not one git commit per bullet. After all bullets of the task land, an end-of-round **code review phase** closes the round (`code-review`; `GATE: BLOCKED` → next slot `review-report-repair`). Per-bullet loop and code review phase both belong to implementation, not to the plan template — name the per-bullet loop once in the plan header and the code review phase once at the end.
+
+Filled example: [`references/example-plan.md`](references/example-plan.md). Done checklist: [`references/acceptance-criteria.md`](references/acceptance-criteria.md).
+
+Do not write "one commit per bullet". Scope of the change is `minimal-change-verifier`; commit count is not.
 
 ## Verification
 
-Run all four before declaring "plan done":
-
-1. `cat plans/<feature>.md | grep -E "^\s*[0-9]+\."` — tracer-bullet list present, numbered
-2. `git log --oneline | head -N` — once executed, shows 1 commit per tracer bullet (N bullets = N commits)
-3. `git diff --stat HEAD~N..HEAD` — diff scope per commit matches the tracer bullet's "affects:" line; no scope creep
-4. Final report contains the line: `成功 = plan has N tracer bullets, each with binary acceptance + one [decision]|[implementation] tag`
-
-## Required Baseline
-
-Zero tolerance — every tracer bullet has 1 binary acceptance criterion + maps to exactly 1 commit. No exceptions, no `EXPLICIT_OVERRIDE` without explicit annotation.
-
-See `references/acceptance-criteria.md` for the binary checklist and the cross-reference index.
+A plan is done when every box on the binary checklist in [`references/acceptance-criteria.md`](references/acceptance-criteria.md) is green. The Completion line under each procedure step tells you where you are; the checklist tells you when to stop.

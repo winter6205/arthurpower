@@ -31,7 +31,6 @@ v0.7.0 新建 `arthurpower:code-review` skill (plugin 内), 一次性立好 (不
 - v-code-review CLI 集成规约落到 plugin skill, 不再散落 user-level
 - 三体 S1-S6 决策位置分工明确 (ACR 改前 / code-review 改后通用 / audit-agent 改后限 arthurpower / maintainability-reviewer pre-merge 第三段)
 - context-loop-refactor.md §1.2 L37 drift 由 v0.7.0 新 skill 兑现
-- 跟 the baseline v1.1 code-review skill 对齐 (双维度 + Fowler smell baseline)
 
 **负面**:
 - v0.7.0 scope 扩 (新增 skill 比"集成现有 CLI"风险高), 必走 boundary-testing 验触发漂移
@@ -42,7 +41,7 @@ v0.7.0 新建 `arthurpower:code-review` skill (plugin 内), 一次性立好 (不
 ## Considered Options
 
 ### Option A: v0.7.0 新建 arthurpower:code-review skill (本 ADR 采纳, V 赞同)
-- Pros: CLI 集成规约 + 双维度 + smell baseline 有归宿; 跟 the baseline 对齐; drift 兑现; 时点对 (改后预 commit)
+- Pros: CLI 集成规约 + 双维度 + smell baseline 有归宿; drift 兑现; 时点对 (改后预 commit)
 - Cons: v0.7.0 scope 扩 + 跨 harness 层耦合
 
 ### Option B: 蒸馏到 writing-plans acceptance (第 6/9 轮误判, V 反馈否决)

@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """validate_skill.py — Structural validator for arthurpower SKILL.md files.
 
-Checks (the baseline author baseline + arthurpower engineering):
+Checks (established skills baseline + arthurpower engineering):
   1. Frontmatter parses as YAML (or simplified fallback).
   2. `name` matches ^[a-z0-9-]+$.
   3. `description` starts with "This skill should be used when" (hard fail otherwise).
   4. `description` length <= 400 Unicode characters; soft warning if no quoted concrete trigger phrases.
-  5. Required L2 sections present: When to use, When not to use, Procedure, Acceptance Criteria, Verification.
+  5. Required L2: spec shape (When to use, Procedure, Acceptance criteria) or legacy (When to use, When not to use, Procedure, Acceptance Criteria, Verification).
   6. Skill type and bar level are declared in the Verification section (or via frontmatter `type:` key).
-  7. Discipline skills include Rationalization Table (>= 5 rows) and Red Flags (>= 5 items).
+  7. Discipline excuse steering (OR, not AND): inline Rationalization Table / Rationalizations / Pressure (>= 5 rows), or disclosed references/pressure-and-antipatterns.md with table >= 5 OR list >= 5, or optional inline Red Flags / Anti-patterns list >= 5. A Red Flags section is not required when table or disclosed steering already holds.
   8. Body length <= 10000 Unicode characters (hard fail).
   9. No private-prefix namespace bindings (compound, standalone, L1 path, date, or authority labels).
  10. Markdown fenced code blocks are balanced.
@@ -150,15 +150,80 @@ def extract_section(body: str, heading: str) -> str:
     return rest[:end]
 
 
+def has_h2(body: str, title: str) -> bool:
+    """True if an H2 heading matches title (case-insensitive)."""
+    return re.search(rf"^##\s+{re.escape(title)}\s*$", body, re.MULTILINE | re.IGNORECASE) is not None
+
+
+def extract_section_ci(body: str, title: str) -> str:
+    """Return text after a case-insensitive H2 title, until the next ## heading."""
+    m = re.search(rf"^##\s+{re.escape(title)}\s*$", body, re.MULTILINE | re.IGNORECASE)
+    if not m:
+        return ""
+    rest = body[m.end() :]
+    next_h2 = re.search(r"^## ", rest, re.MULTILINE)
+    end = next_h2.start() if next_h2 else len(rest)
+    return rest[:end]
+
+
+def has_spec_l2(body: str) -> bool:
+    """When to use + Procedure + Acceptance criteria (any capitalization)."""
+    return has_h2(body, "When to use") and has_h2(body, "Procedure") and has_h2(
+        body, "Acceptance criteria"
+    )
+
+
+def has_legacy_l2(body: str) -> bool:
+    """Older required heading set, Acceptance heading case-insensitive."""
+    return all(
+        has_h2(body, title)
+        for title in (
+            "When to use",
+            "When not to use",
+            "Procedure",
+            "Acceptance Criteria",
+            "Verification",
+        )
+    )
+
+
+def count_list_items(text: str) -> int:
+    """Count markdown list items starting with '-'."""
+    return len(re.findall(r"^\s*-\s+", text, re.MULTILINE))
+
+
+def extract_rationalization_section(body: str) -> str:
+    """Inline table section: Rationalization Table, Rationalizations, or Pressure."""
+    for title in ("Rationalization Table", "Rationalizations", "Pressure"):
+        section = extract_section_ci(body, title)
+        if section.strip():
+            return section
+    return ""
+
+
+def disclosed_excuse_counts(skill_dir: Path) -> tuple[int, int]:
+    """Table rows and list items in references/pressure-and-antipatterns.md."""
+    pressure = skill_dir / "references" / "pressure-and-antipatterns.md"
+    if not pressure.is_file():
+        return 0, 0
+    text = pressure.read_text(encoding="utf-8")
+    return count_table_rows(text), count_list_items(text)
+
+
 def count_red_flags(body: str) -> int:
-    """Count list items in Red Flags section."""
-    section = extract_section(body, "## Red Flags")
-    if not section:
-        m = re.search(r"^## Red Flags?", body, re.MULTILINE)
+    """Count list items in optional Red Flags / Anti-patterns H2 (heading suffix allowed)."""
+    best = 0
+    for title in ("Red Flags", "Red Flag", "Anti-patterns", "Anti-pattern"):
+        m = re.search(
+            rf"^##\s+{re.escape(title)}\b.*$", body, re.MULTILINE | re.IGNORECASE
+        )
         if not m:
-            return 0
-        section = extract_section(body, m.group(0))
-    return len(re.findall(r"^\s*-\s+", section, re.MULTILINE))
+            continue
+        rest = body[m.end() :]
+        next_h2 = re.search(r"^## ", rest, re.MULTILINE)
+        end = next_h2.start() if next_h2 else len(rest)
+        best = max(best, count_list_items(rest[:end]))
+    return best
 
 
 def count_fence_balance(text: str) -> tuple[int, int]:
@@ -214,8 +279,8 @@ def main() -> int:
 
     # Check 3: description starts with a recognised opener.
     # Accepted forms:
-    #   - "This skill should be used when..." (preferred, Anthropic style)
-    #   - "Reference for..." (the baseline author's writing-great-skills opener)
+    #   - "This skill should be used when..." (preferred, Anthropic-style trigger phrasing)
+    #   - "Reference for..." (the writing-great-skills opener)
     #   - "Use when..." (legacy arthurpower opener, deprecated but accepted for back-compat)
     accepted_openers = ("This skill should be used when", "Reference for", "Use when")
     if not any(desc.startswith(op) for op in accepted_openers):
@@ -238,18 +303,26 @@ def main() -> int:
     # Check 5: required sections.
     # Reference skills (disable-model-invocation: true) are exempt from
     # procedure-section requirements — they are flat reference content,
-    # not procedural instructions. See the baseline author writing-great-skills.
+    # not procedural instructions. See the writing-great-skills reference.
     if is_reference:
         # Reference skills: warn if missing, don't fail.
         for section in REQUIRED_SECTIONS:
-            if section not in body:
+            title = section[3:].strip()
+            if not has_h2(body, title):
                 warnings.append(
                     f"reference skill: optional section missing (non-blocking): {section}"
                 )
-    else:
-        for section in REQUIRED_SECTIONS:
-            if section not in body:
-                violations.append(f"required section missing: {section}")
+    elif not has_spec_l2(body) and not has_legacy_l2(body):
+        missing_spec = [
+            t
+            for t in ("When to use", "Procedure", "Acceptance criteria")
+            if not has_h2(body, t)
+        ]
+        violations.append(
+            "required L2 sections missing: need spec shape (When to use, Procedure, "
+            "Acceptance criteria) or legacy (When to use, When not to use, Procedure, "
+            f"Acceptance Criteria, Verification); missing from spec shape: {missing_spec}"
+        )
 
     # Check 6: skill type and bar level must be declared.
     frontmatter_type = fm.get("type", "").strip().lower() or None
@@ -260,7 +333,7 @@ def main() -> int:
     body_type = extract_declared_skill_type(body)
     body_bar = extract_declared_bar(body)
 
-    # Reference skills (the baseline author style) do not require Skill type or
+    # Reference skills (flat-vocabulary style) do not require Skill type or
     # Bar level declarations — those are discipline / arthurpower-era
     # classifications that reference skills don't need.
     if is_reference:
@@ -275,25 +348,41 @@ def main() -> int:
                 "(must match when both are present)"
             )
         if not body_bar:
-            violations.append("Bar level not declared: add body `Bar level:` line in Verification section")
+            if has_h2(body, "Verification"):
+                violations.append(
+                    "Bar level not declared: add body `Bar level:` line in Verification section"
+                )
+            elif has_spec_l2(body) and (frontmatter_type or body_type):
+                warnings.append(
+                    "Bar level not declared (spec-shape with type: warning only; add "
+                    "`Bar level:` in Verification if that section is present)"
+                )
+            else:
+                violations.append(
+                    "Bar level not declared: add body `Bar level:` line in Verification section"
+                )
 
     effective_type = frontmatter_type or body_type
 
-    # Check 7: discipline skills require Rationalization Table + Red Flags.
-    rt_section = extract_section(body, "## Rationalization Table")
+    # Check 7: discipline skills require excuse steering (inline or disclosed).
+    rt_section = extract_rationalization_section(body)
     rf_count = count_red_flags(body)
+    rt_rows = count_table_rows(rt_section) if rt_section else 0
+    disc_rows, disc_items = disclosed_excuse_counts(path.parent)
+    inline_ok = rt_rows >= 5 or rf_count >= 5
+    disclosed_ok = disc_rows >= 5 or disc_items >= 5
     is_discipline_by_type = effective_type == "discipline"
-    is_discipline_by_content = bool(rt_section) and rt_section.strip()
+    is_discipline_by_content = bool(rt_section.strip()) or rf_count >= 5
     is_discipline = is_discipline_by_type or is_discipline_by_content
 
     if is_discipline:
-        rt_rows = count_table_rows(rt_section) if rt_section else 0
-        if not rt_section:
-            violations.append("discipline skill: Rationalization Table section missing")
-        elif rt_rows < 5:
-            violations.append(f"discipline skill: Rationalization Table has {rt_rows} rows (< 5)")
-        if rf_count < 5:
-            violations.append(f"discipline skill: Red Flags list has {rf_count} items (< 5)")
+        if not inline_ok and not disclosed_ok:
+            violations.append(
+                "discipline skill: excuse steering missing "
+                f"(inline table {rt_rows} rows, optional Red Flags/Anti-patterns "
+                f"{rf_count} items, disclosed {disc_rows} table rows / {disc_items} "
+                "list items; need table >= 5 or list >= 5 on one path)"
+            )
         if body_bar == "minimum":
             violations.append(
                 "bar downgrade: declared Bar level=minimum but discipline content present "

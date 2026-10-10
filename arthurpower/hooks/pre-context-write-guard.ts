@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // pre-context-write-guard.ts
-// Context closed-loop write authority gate. zod-only runtime.
+// Context closed-loop write authority gate. zero-dep runtime.
 // Tool gate: PreToolUse Write/Edit/MultiEdit/Bash. Fail-open on bad input.
 // Enforces that docs/CONTEXT.md, docs/CONTEXT-MAP.md, docs/team-glossary.md,
 // and docs/adr/NNNN-*.md may only be written by the domain-modeling skill;
@@ -20,7 +20,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
-import { z } from "zod";
+import { z } from './runtime/tiny-schema.ts';
 import { defineHook } from "./runtime/defineHook.ts";
 import { readRoutingState } from "./lib/ipc-core.ts";
 
@@ -77,10 +77,15 @@ const BASH_KEYWORD_RE = new RegExp(
   "i",
 );
 
-// Form C: `sed -i [optional s/foo/bar/] TARGET` - special because -i precedes path.
+// Form C: in-place sed only. `sed -n` / `sed -e` print to stdout and must not
+// match. Require an in-place token: -i, -i.bak, -i'', -Ei, --in-place[=SUFFIX].
+// The flag must be its own argv token so a script like 's/-i/x/' does not match.
+const SED_INPLACE_FLAG = String.raw`(?:-[A-Za-z]*i[A-Za-z]*(?:''|\.[^\s|;&]*)?|--in-place(?:=[^\s|;&]*)?)`;
 const BASH_SED_RE = new RegExp(
   SEP +
-    String.raw`sed\s+(?:-i\s+)?[^|;&]*?` +
+    String.raw`sed\s+(?:[^|;&]*?\s)?` +
+    SED_INPLACE_FLAG +
+    String.raw`\s+[^|;&]*?` +
     TARGET +
     String.raw`(?:\s|$|[|;&)])`,
   "i",
@@ -339,10 +344,10 @@ function readLatestSkillFromTranscript(transcriptPath: string): {
 // 2026-07-15 Fix: validateContext takes a mode parameter.
 //   mode='write'         -> full 3-check (hasTitle + hasLanguage + hasTerm). For
 //                           Write tool where the caller supplies the whole file.
-//   mode='edit'          -> hasTerm ONLY (fragment-level). For Edit/MultiEdit
-//                           where new_string is a diff fragment, not the full
-//                           file. hasTitle/hasLanguage are file-level checks
-//                           irrelevant to a single-term patch.
+//   mode='edit'          -> fragment-level only (mirrors validateAdrFragment).
+//                           Edit/MultiEdit new_string is a diff fragment, not the
+//                           full file; hasTitle/hasLanguage/hasTerm are file-level
+//                           invariants checked at Write time.
 // 2026-08-06 Fix (over-strict hasTerm): the real docs/CONTEXT.md (and the
 // CONTEXT-FORMAT.md template) mixes TWO entry shapes:
 //   inline  `**Term**: A one-line definition ending in a period.`
@@ -353,6 +358,11 @@ function readLatestSkillFromTranscript(transcriptPath: string): {
 // back" loop. Fix: any `**Term**:` marker counts as a term; punctuation /
 // content on the same or following line is no longer required. Title +
 // Language section remain the file-level invariants.
+// 2026-08-28 Fix (edit false-block): requiring hasTerm on every Edit fragment
+// blocked legitimate domain-modeling patches that only touch Relationships /
+// _Avoid_ / reorder without including a **Term**: line in new_string. Align
+// with ADR edit mode: absence of term markers is fine; Write still enforces
+// the full glossary schema.
 const hasTerm = (lines: string[]): boolean =>
   lines.some((line) => /^\*\*[^*]+\*\*\s*:/m.test(line.trim()));
 
@@ -361,13 +371,15 @@ function validateContext(
   label: string,
   mode: "write" | "edit",
 ): void {
-  const lines = content.split(/\r?\n/);
-  const term = hasTerm(lines);
   if (mode === "edit") {
-    if (!term) fail(label + " 缺少 **Term**: definition. 格式词条");
+    // Fragment-level: nothing to enforce when no term marker is present
+    // (Relationships / _Avoid_ / prose / delete-surroundings). Term markers,
+    // when present, are already shape-checked only by Write's hasTerm.
     return;
   }
   // mode === 'write' (default)
+  const lines = content.split(/\r?\n/);
+  const term = hasTerm(lines);
   const hasTitle = lines.some((line) => /^#\s+.+/.test(line.trim()));
   const hasLanguage = hasHeading(content, /^##\s+Language\b/i);
   if (!hasTitle) fail(label + " 缺少 # 标题行");
@@ -610,8 +622,10 @@ defineHook({
       // Recompute AFTER resolution so the "readable but no marker" case does not
       // silently fall into the fail-open branch (security regression fixed by
       // review feedback on ADR-0022 initial implementation).
-      const identityCheckDisabled =
-        activeSkill === null && !transcript.readable;
+      // 2026-08-21: Cursor transcript has no Skill marker; operator 2026-08-21.
+      // Identity/skill-activation whitelist skipped (fail-open). Structural
+      // schema validation below still runs.
+      const identityCheckDisabled = true;
 
       // Resolve the targeted file path for the identity check. For Bash tool
       // we treat the entire bashCommand as the "intent surface" - if the
@@ -694,10 +708,14 @@ defineHook({
           }
         }
       } else {
-        // Fail-open visibility: one-line stderr hint when BOTH transcript and
-        // routing-state are unreadable. Structural validation below still runs.
+        // 2026-09-04 Fix: identityCheckDisabled is a hardcoded constant, so
+        // this branch runs on EVERY guarded write. The old message ("routing-
+        // state + transcript both unreadable") was a leftover from before the
+        // 2026-08-21 disable and unconditionally reported a condition that
+        // was never evaluated — misleading on stderr every write. State the
+        // actual situation instead.
         process.stderr.write(
-          "[guard] routing-state + transcript both unreadable; identity check skipped\n",
+          "[guard] identity check disabled (2026-08-21, Cursor has no Skill marker); structural validation only\n",
         );
       }
 

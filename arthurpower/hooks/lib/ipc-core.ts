@@ -21,7 +21,7 @@ import * as fsp from 'node:fs/promises';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import * as crypto from 'node:crypto';
-import { z } from 'zod';
+import { z, type Infer } from '../runtime/tiny-schema.ts';
 
 // =============================================================
 //  CONSTANTS — single source of truth, shared by hook + lifecycle
@@ -67,7 +67,7 @@ export const routingStateSchema = z.object({
   signature: z.string().length(64),
 }).passthrough();
 
-export type RoutingState = z.infer<typeof routingStateSchema>;
+export type RoutingState = Infer<typeof routingStateSchema>;
 
 // Write-side: no signature yet — it is computed and attached by
 // writeRoutingState. Same field rules, minus signature.
@@ -83,7 +83,7 @@ export const signalSchema = z.object({
   suggestedSkill: z.string().regex(SKILL_ID_PATTERN),
 }).passthrough();
 
-export type Signal = z.infer<typeof signalSchema>;
+export type Signal = Infer<typeof signalSchema>;
 
 // =============================================================
 //  HELPERS

@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node --experimental-strip-types \"${CLAUDE_PLUGIN_ROOT}/hooks/pre-tool-skill-routing-sync.ts\"",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/pre-tool-skill-routing-sync.ts\"",
             "timeout": 5
           }
         ]
@@ -27,7 +27,7 @@
           },
           {
             "type": "command",
-            "command": "node --experimental-strip-types \"${CLAUDE_PLUGIN_ROOT}/hooks/pre-release-validate.ts\"",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/pre-release-validate.ts\"",
             "timeout": 5
           }
         ]
@@ -87,10 +87,6 @@
           {
             "type": "command",
             "command": "node --experimental-strip-types \"${CLAUDE_PLUGIN_ROOT}/hooks/defend-claim-cite-integrity.ts\""
-          },
-          {
-            "type": "command",
-            "command": "node --experimental-strip-types \"${CLAUDE_PLUGIN_ROOT}/hooks/defend-claim-report-triple.ts\""
           },
           {
             "type": "command",

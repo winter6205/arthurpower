@@ -1,11 +1,11 @@
-# 0017. Rewrite arthurpower:code-review as dual-subagent orchestrator aligned with the baseline author upstream
+# 0017. Rewrite arthurpower:code-review as dual-subagent orchestrator
 
 Date: 2026-07-24
 Status: accepted
 
 ## Context
 
-ADR-0002 created `arthurpower:code-review` as a v-code-review CLI wrapper (inline Bash call to `v-code-review.exe`). The ADR claimed alignment with the baseline author's `code-review` skill ("跟 the baseline v1.1 code-review skill 对齐"), but only aligned on content (two axes + Fowler 12 smells + severity gating) — not on mechanism. the baseline's skill spawns two parallel sub-agents (Standards + Spec) via Agent tool calls; ours shells out to a CLI in the main thread.
+ADR-0002 created `arthurpower:code-review` as a v-code-review CLI wrapper (inline Bash call to `v-code-review.exe`). That ADR settled the review *content* (two axes + Fowler 12 smells + severity gating) but not the *mechanism*: a change can pass one axis and fail the other, so the two axes must not share one context — and a single CLI call in the main thread does exactly that.
 
 Three review surfaces collided on the same trigger phrases ("审代码 / 审 PR / review"):
 1. `arthurpower:code-review` (plugin skill, inline CLI)
@@ -14,7 +14,7 @@ Three review surfaces collided on the same trigger phrases ("审代码 / 审 PR 
 
 Operator intent (clarified in deep-dive session 2026-07-23/24):
 - `v-code-review` = standalone manual slash command (`/v-code-review`), not part of task flow
-- Per-ticket loop code review = dual parallel sub-agents (the baseline mechanism), orchestrated by a thin model-invoked skill
+- Per-ticket loop code review = dual parallel sub-agents (one isolated context per axis), orchestrated by a thin model-invoked skill
 - Old five-axis persona/skill archived; single review mechanism going forward
 - Code review step is conditional: main agent triggers it only when the ticket produces a code diff
 
@@ -44,7 +44,7 @@ Archived (not deleted): `~/.claude/agents/code-reviewer.md`, `~/.claude/skills/c
 ## Consequences
 
 **Positive:**
-- Mechanism aligned with the baseline upstream: parallel sub-agents with context isolation (one axis cannot mask the other)
+- Mechanism: dual parallel sub-agents with context isolation (one axis cannot mask the other)
 - Single review mechanism in task flow (no three-way trigger collision)
 - `v-code-review` cleanly separated as manual tool
 - Severity gate + conditional trigger preserved from ADR-0002 intent
@@ -60,7 +60,7 @@ Archived (not deleted): `~/.claude/agents/code-reviewer.md`, `~/.claude/skills/c
 ## Considered Options
 
 ### Option A: Rewrite skill as dual-subagent orchestrator (adopted)
-- Pros: the baseline alignment, context isolation, single mechanism, agent files reusable by dispatcher
+- Pros: two-axis isolation, single mechanism, agent files reusable by dispatcher
 - Cons: five-axis coverage reduced in per-ticket loop
 
 ### Option B: Keep CLI wrapper, add sub-agents alongside
@@ -69,8 +69,8 @@ Archived (not deleted): `~/.claude/agents/code-reviewer.md`, `~/.claude/skills/c
 
 ### Option C: Use code-reviewer persona (five-axis) in per-ticket loop
 - Pros: existing persona, no new files
-- Cons: not the baseline-aligned, no context isolation, five axes too heavy for per-ticket tracer bullets
+- Cons: no context isolation, five axes too heavy for per-ticket tracer bullets
 
 ## Why not B/C
 
-B keeps the CLI coupling that ADR-0002's own "Negative" section flagged ("跨 harness 层耦合"). C uses a single-context five-axis persona for a step that benefits from isolation (the baseline's core insight: "a change can pass one axis and fail the other").
+B keeps the CLI coupling that ADR-0002's own "Negative" section flagged ("跨 harness 层耦合"). C uses a single-context five-axis persona for a step that benefits from isolation (the core insight: "a change can pass one axis and fail the other").

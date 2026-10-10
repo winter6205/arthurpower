@@ -54,13 +54,12 @@ arthurpower 是一套**工程约束插件**(engineering constraint plugin), 不�
 
 **关键**: S1-S6 是**二元判据**(任一未通过 = FAIL), 不是"建议"。LLM 写的代码默认违反其中 2-3 条, 所以需要 skill + hook 双保险。
 
-### 1.4 与 the baseline author skills 的关系
+### 1.4 本仓的差异化层
 
-arthurpower 借鉴了 the baseline skills repo 仓库的两个核心设计:
 1. **两轴分类**: User-invoked (`disable-model-invocation: true`, 人 `/` 触发, 零 context load) vs Model-invoked (描述含 rich trigger, 模型自动 reach)
-2. **skill-authoring 规范**: 整套移植 the baseline 的 writing-great-skills (改 name + author, 主体一字不改)
+2. **skill-authoring 规范**: 以既有 writing-great-skills 规范为基线 (改 name + author, 主体不改), 外加本仓的 Eval System 段
 
-但 arthurpower 保留了 the baseline 没有的: **hook 物理拦截层** + **defend-claim 证据体系** + **S1-S6 二元判据**。the baseline 靠 prompt 约束, arthurpower 靠 hook 物理阻断 - 这是两者的本质差异。
+本仓在此之上另有: **hook 物理拦截层** + **defend-claim 证据体系** + **S1-S6 二元判据** — 靠 hook 物理阻断而非 prompt 约束.
 
 ### 1.5 加载分布现状 (v0.6.0)
 
@@ -72,7 +71,7 @@ arthurpower 借鉴了 the baseline skills repo 仓库的两个核心设计:
 | Agent (主线程派发) | 2 个 | Task tool + subagent_type |
 | Hook (物理拦截) | 5 plugin + 12 user | settings.json + hooks.json |
 
-> **注意**: 当前 25/26 skill 是 model-invoked, 分类偏斜。完整分类调整提案见 `docs/Arthuropower_skill_classification.md` (待 V 拍板)。
+> **注意**: 当前 25/26 skill 是 model-invoked, 分类偏斜 (调整提案待 V 拍板)。
 
 ---
 
@@ -218,7 +217,7 @@ plugin 里的 skill 自动加 plugin 名前缀:
 
 | Skill | 触发 | 使用方法 |
 |-------|------|---------|
-| **skill-authoring** | **U** | **人输入 `/arthurpower:skill-authoring`**。写/编辑 skill 的规范参考(the baseline writing-great-skills 移植)。**注意**: 不能用 `Skill(arthurpower:skill-authoring)` tool call, 会被 disable-model-invocation 拒绝 |
+| **skill-authoring** | **U** | **人输入 `/arthurpower:skill-authoring`**。写/编辑 skill 的规范参考(既有 writing-great-skills 基线)。**注意**: 不能用 `Skill(arthurpower:skill-authoring)` tool call, 会被 disable-model-invocation 拒绝 |
 
 ---
 
@@ -450,8 +449,6 @@ plugin: defend-claim-execution / -cite-integrity / -dumb-zone / -report-triple /
 user: pre-context-write-guard / pre-stale-read / pre-read-contract / post-ssot-priority / post-conflict-annotation / post-push-task-end / pre-tool-s1-bounded-context / pre-tool-supply-chain / pre-tool-s2-test-gate / token-counter / lifecycle-hook
 
 ### 相关文档
-- `docs/version_diff.md` - the baseline 1.0/1.1/1.2 调研
-- `docs/Arthuropower_skill_classification.md` - 分类提案(待 V 拍板)
 - `docs/Regress_v060_report.md` - v0.6.0 回归报告
 - `CHANGELOG.md` - 完整变更历史
 - `~/.claude/CLAUDE.md` + `rules/*.md` - L1 静态规则层

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// Port of defend-claim-execution.sh. zod-only runtime.
+// Port of defend-claim-execution.sh. zero-dep runtime.
 // Advisory shape: hookSpecificOutput.additionalContext (stdout + exit 0) so the
 // MODEL sees the Q1 reminder and can act on it. systemMessage (stderr) would
 // only reach the user UI — wrong channel for a "go capture evidence" nudge.
-import { z } from 'zod';
+import { z } from './runtime/tiny-schema.ts';
 import { defineHook } from './runtime/defineHook.ts';
 
 const trigger = /(curl|wget|pytest|npm test|python.*-m.*test|go test|docker ps)/;

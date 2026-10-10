@@ -82,4 +82,4 @@ def send_welcome_email(user: User) -> None:  # 责任 4
         logger.error(f"welcome email failed: {e}")
 ```
 
-注释: 上例展示了 Extract Function 模式 — 按责任线 (不是按代码行) 拆. 反例 40-line 4 责任混在一起, 改 1 个责任要 cross 整个 function. 正解 4-line caller + 3 helpers 各 1 责任, 改 1 责任只动 1 helper. Linter metrics 全部 under threshold. Adapt: 任何 > 30 line function 都可按"按责任拆"重构成 caller + N helpers.
+注释: 上例展示了 Extract Function 模式 — 按责任线 (不是按代码行) 拆. 反例 40-line 4 责任混在一起, 改 1 个责任要 cross 整个 function. 正解 4-line caller + 3 helpers 各 1 责任, 改 1 责任只动 1 helper. Linter metrics 全部 under threshold. Adapt: 任何 > 40 line function 都可按"按责任拆"重构成 caller + N helpers.

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z, type Infer, type ZodType } from './tiny-schema.ts';
 import { envelopeSchema, type Envelope } from './schema.ts';
 import { exitBlock, exitDeny, exitAdvisory, exitDrift, exitAllow } from './exit.ts';
 
@@ -16,10 +16,10 @@ export interface HookContext {
   envelope: Envelope;
 }
 
-export interface DefineHookConfig<T extends z.ZodType = z.ZodType> {
+export interface DefineHookConfig<T extends ZodType = ZodType> {
   schema: T;
   failOpen?: boolean;
-  handler: (ctx: HookContext & { tool_input: z.infer<T> }) => Promise<HookResult> | HookResult;
+  handler: (ctx: HookContext & { tool_input: Infer<T> }) => Promise<HookResult> | HookResult;
 }
 
 function readStdin(): Promise<string> {
@@ -54,7 +54,7 @@ function formatFatalError(err: unknown): string {
   return err instanceof Error ? (err.stack ?? err.message) : String(err);
 }
 
-export async function runHook<T extends z.ZodType>(config: DefineHookConfig<T>): Promise<void> {
+export async function runHook<T extends ZodType>(config: DefineHookConfig<T>): Promise<void> {
   const { schema, failOpen = true, handler } = config;
   const raw = await readStdin();
   let envelope: Envelope;
@@ -66,13 +66,13 @@ export async function runHook<T extends z.ZodType>(config: DefineHookConfig<T>):
   } catch { failValidation(failOpen); return; }
   const schemaResult = schema.safeParse(envelope.tool_input ?? {});
   if (!schemaResult.success) { failValidation(failOpen); return; }
-  const ctx = { tool_name: envelope.tool_name ?? '', tool_input: schemaResult.data as z.infer<T>, tool_response: envelope.tool_response, envelope } as HookContext & { tool_input: z.infer<T> };
+  const ctx = { tool_name: envelope.tool_name ?? '', tool_input: schemaResult.data as Infer<T>, tool_response: envelope.tool_response, envelope } as HookContext & { tool_input: Infer<T> };
   let result: HookResult;
   try { result = await handler(ctx); } catch (err) { process.stderr.write(`[defineHook FATAL] ${formatFatalError(err)}\n`); exitAllow(); return; }
   switch (result.kind) { case 'allow': exitAllow(); break; case 'block': exitBlock(result.message); break; case 'deny': exitDeny(result.message); break; case 'advisory': exitAdvisory(result.message); break; case 'drift': exitDrift(result.message); break; }
 }
 
-export function defineHook<T extends z.ZodType>(config: DefineHookConfig<T>) {
+export function defineHook<T extends ZodType>(config: DefineHookConfig<T>) {
   runHook(config).catch((err: unknown) => { process.stderr.write(`[defineHook FATAL] ${formatFatalError(err)}\n`); process.exit(0); });
   return () => runHook(config);
 }

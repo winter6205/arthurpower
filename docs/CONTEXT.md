@@ -188,7 +188,7 @@ _Avoid_: 用裸 branch name 不带 ticket 引用；throwaway 完成后不删 poi
 _Avoid_: tracker 选择散落各 skill；issue 在 file-based 与 GitHub 之间不声明；产生位置与追踪位置不一致。
 
 **wayfinder handoff**: wayfinder map clears 后的标准交接路径。默认 = `spec-driven-development`（wayfinder 产出 decision，spec 产出 executable spec，两者互补非重复）；可跳过 spec 当且仅当 grilling ticket Resolution 已含全 5 段（Problem / Solution / Implementation Decisions / Testing Decisions / Out of Scope）；交接前必走 `AskUserQuestion` stop gate（类比 `deep-dive-protocol`），handoff 目标是 operator 决定不是 agent 推断。Cross-ref `arthurpower/skills/wayfinder` §Handoff + `arthurpower/skills/spec-driven-development` §Input contract + `docs/wayfinder/tickets/gh-22-handoff-contract.md`。
-_Avoid_: 自动推断 handoff 目标；跳过 stop gate；grilling Resolution 不完整时强行跳 spec；把"map clear = 直接 implement"当默认路径（会丢 spec collapse 的细节，见 upstream router-skill L46）。
+_Avoid_: 自动推断 handoff 目标；跳过 stop gate；grilling Resolution 不完整时强行跳 spec；把"map clear = 直接 implement"当默认路径（会丢 spec collapse 的细节）。
 
 ---
 
@@ -216,8 +216,8 @@ _Avoid_: 迁移时改行为逻辑 (只改格式); 不归档旧 `.cjs` 直接删;
 
 ## Flagged ambiguities
 
-- **"通用型 / 任务型" 分类**: V 提的 the upstream author 工程师观点. 本 session 找到原文 = upstream skills repo 仓库 `skills/productivity/writing-great-skills/SKILL.md` + GLOSSARY.md. upstream 用 **model-invoked vs user-invoked** (context load vs cognitive load trade-off) 分类, 不是"通用型/任务型". 决议: resolved, 用 upstream 的 invocation 分类替代之前的"通用型/任务型"猜测.
-- **"官方 Skill 编写 vs 自研 skill-authoring"**: V 字面拍板 = 用 upstream writing-great-skills 整套移植替换 arthurpower 老 skill-authoring (改 name + author 加署名, 主体不改), 加 Eval System 段. 决议: resolved, 不再双轨, 直接用 upstream 基线 + arthurpower Eval System.
+- **"通用型 / 任务型" 分类**: V 提的工程师观点. 本 session 核对原文 = 既有 skill 编写规范的 SKILL.md + GLOSSARY.md. 既有口径用 **model-invoked vs user-invoked** (context load vs cognitive load trade-off) 分类, 不是"通用型/任务型". 决议: resolved, 用 invocation 分类替代之前的"通用型/任务型"猜测.
+- **"官方 Skill 编写 vs 自研 skill-authoring"**: V 字面拍板 = 用既有 writing-great-skills 规范整套移植替换 arthurpower 老 skill-authoring (改 name + author 加署名, 主体不改), 加 Eval System 段. 决议: resolved, 不再双轨, 直接用既有基线 + arthurpower Eval System.
 - **auto-template vs arthurpower-afk**: 早期 handoff 把 "全自动模板仓库创建并编写" 任务命名为 auto-template; S2/S3 verdict 锁定实际交付 = 独立仓 `arthurpower-afk`. 决议: resolved, auto-template 是 arthurpower-afk 的历史别名, 不作 SSOT 名.
 
 ---

@@ -30,7 +30,7 @@ For detailed trigger phrases and full exclusion criteria, see `references/when-t
 
 Do not load this skill when:
 
-- Design discussion or trade-off analysis (use `multi-round-self-review` instead)
+- Design discussion or trade-off analysis (use `logicsync` instead)
 - Trivial 1-line typo with the fix obviously visible (stack trace points directly at it)
 - User explicitly said "skip debugging, just patch it"
 - Clearly external infra failure (e.g. GitHub down, network outage) — verify, do not debug
@@ -46,6 +46,7 @@ Four ordered phases. Each MUST be completed before the next. Do not skip phases 
    1d. Save the captured output as the ground-truth reference for later phases.
 
    **GATE**: If Q1 (failing test exists) or Q2 (root cause identified) = NO → STOP, return to Phase 1. Do not enter Phase 4.
+
 2. **ISOLATE** — bisect to the offending change, not the symptom location.
    2a. Run `git bisect start` / `git bisect bad` / `git bisect good` (or `git log --oneline -20` + read in reverse).
    2b. Identify the offending commit, line, or config that introduced the failure.
@@ -65,12 +66,12 @@ If the same problem persists after 3 fix attempts: STOP, reload this skill, rest
 
 **Debug-stop rule (3 attempts failed → STOP and restart Phase 1):**
 
-| # | Trigger | Action |
-|---|---------|--------|
-| 1 | Same problem, 3 fix attempts failed | STOP, load this skill, restart from Phase 1 |
-| 2 | 2 max_turns exhausted | Split into smaller sub-tasks + load `subagent-driven-development` |
-| 3 | Sub-agent also failed | Shrink scope to smallest verifiable unit + load `dispatching-parallel-agents` |
-| 4 | Sub-agent single-file edit > 500 lines | STOP, require split into smaller files |
+| #   | Trigger                                | Action                                                                        |
+| --- | -------------------------------------- | ----------------------------------------------------------------------------- |
+| 1   | Same problem, 3 fix attempts failed    | STOP, load this skill, restart from Phase 1                                   |
+| 2   | 2 max_turns exhausted                  | Split into smaller sub-tasks + load `dispatching-parallel-agents`             |
+| 3   | Sub-agent also failed                  | Shrink scope to smallest verifiable unit + load `dispatching-parallel-agents` |
+| 4   | Sub-agent single-file edit > 500 lines | STOP, require split into smaller files                                        |
 
 For detailed phase steps and worked example, see `references/four-phases-detail.md`.
 
@@ -105,15 +106,15 @@ End-to-end verification is the only ground truth.
 
 Reject these rationalizations before applying any fix. Each row maps the excuse to why it sounds right, the counter-evidence, and the correct action.
 
-| Rationalization | Why it sounds right | Counter-evidence | Correct action |
-|-----------------|---------------------|------------------|----------------|
-| "It's obviously X, just fix it" | Stack trace or symptom location is staring at us | Obvious is the rationalization that ships the wrong fix | Instrument first; prove the hypothesis with evidence |
-| "I'll just try this and see" | Cheap experiment, may unblock fast | Trying without hypothesis is shotgun-debugging | State the hypothesis in one sentence, then test it |
-| "Authority says it's a simple bug" | Senior / docs / chat said so | Authoritative claim does not eliminate root cause | Run one repro phase — wasted fixes cost more than 10 min of evidence |
-| "It's flaky, can't reproduce" | Saw it pass once, saw it fail once | Flaky = not yet understood | Add deterministic reproduction (seed / fixture / mock); fail rate >= 90% required |
-| "Fix one thing, break another, normal" | New failure looks unrelated to the fix | Fix-then-break = wrong fix | Bisect; rerun full suite; new failure means revert and restart Phase 1 |
-| "I already fixed it" | Code change is in place and reads correctly | Without the failing test going green, nothing is fixed | Run the original failing test; report only when it goes red-to-green |
-| "This is the 4th try, ship any fix" | Time pressure, user wants progress | 4th try = 3+ failures = STOP per debug-stop rule | Reload this skill, restart from Phase 1, shrink scope |
+| Rationalization                        | Why it sounds right                              | Counter-evidence                                        | Correct action                                                                    |
+| -------------------------------------- | ------------------------------------------------ | ------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| "It's obviously X, just fix it"        | Stack trace or symptom location is staring at us | Obvious is the rationalization that ships the wrong fix | Instrument first; prove the hypothesis with evidence                              |
+| "I'll just try this and see"           | Cheap experiment, may unblock fast               | Trying without hypothesis is shotgun-debugging          | State the hypothesis in one sentence, then test it                                |
+| "Authority says it's a simple bug"     | Senior / docs / chat said so                     | Authoritative claim does not eliminate root cause       | Run one repro phase — wasted fixes cost more than 10 min of evidence              |
+| "It's flaky, can't reproduce"          | Saw it pass once, saw it fail once               | Flaky = not yet understood                              | Add deterministic reproduction (seed / fixture / mock); fail rate >= 90% required |
+| "Fix one thing, break another, normal" | New failure looks unrelated to the fix           | Fix-then-break = wrong fix                              | Bisect; rerun full suite; new failure means revert and restart Phase 1            |
+| "I already fixed it"                   | Code change is in place and reads correctly      | Without the failing test going green, nothing is fixed  | Run the original failing test; report only when it goes red-to-green              |
+| "This is the 4th try, ship any fix"    | Time pressure, user wants progress               | 4th try = 3+ failures = STOP per debug-stop rule        | Reload this skill, restart from Phase 1, shrink scope                             |
 
 For extended pressure scenarios, see `references/rationalization-and-redflags.md`.
 
@@ -141,9 +142,7 @@ For the extended red-flag list and worked examples, see `references/rationalizat
 
 Immediate neighbors in the debugging flow (full roles in `references/when-to-use-detail.md`):
 
-- `subagent-driven-development` — when the debugging task is too large for one session and must be delegated while preserving context.
-- `dispatching-parallel-agents` — when a single fix attempt fails and you need to fan out multiple hypotheses to sub-agents in parallel.
-- `multi-round-self-review` — when the root-cause investigation surfaces multiple competing hypotheses that need structured critique.
+- `dispatching-parallel-agents` — when the debugging task is too large for one session, or a single fix attempt fails and you need to fan out independent hypotheses.
 - `error-handling-enforcer` — enforces S3 (no empty catch, no silent swallow) when the proposed fix touches error-handling paths.
 - `verification-before-completion` — gates the final "fixed" claim on end-to-end verification, not on code-reading.
 

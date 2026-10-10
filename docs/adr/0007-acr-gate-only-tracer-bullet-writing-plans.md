@@ -5,7 +5,7 @@ Status: accepted; superseded-by ADR-0010 §Decision 4 only
 
 ## Context
 
-Before this decision, `architecture-change-reviewer` (ACR) Procedure Step 6 ("Task Decomposition") and `writing-plans` both claimed ordered multi-file task lists with acceptance criteria and `[parallel]` markers. The 5-line verdict block's Verification grepped `PR.md` while writing-plans required the plan to live in `plans/<feature>.md` and called PR-description-only plans an afterthought. Tracer-bullet / vertical-slice vocabulary (the baseline author to-tickets) had no single home in arthurpower skills. ADR-0002 already fixed ACR as the pre-implementation gate (not post-impl code review) but did not settle task-decomposition ownership or verdict file SSOT.
+Before this decision, `architecture-change-reviewer` (ACR) Procedure Step 6 ("Task Decomposition") and `writing-plans` both claimed ordered multi-file task lists with acceptance criteria and `[parallel]` markers. The 5-line verdict block's Verification grepped `PR.md` while writing-plans required the plan to live in `plans/<feature>.md` and called PR-description-only plans an afterthought. Tracer-bullet / vertical-slice vocabulary (to-tickets framing) had no single home in arthurpower skills. ADR-0002 already fixed ACR as the pre-implementation gate (not post-impl code review) but did not settle task-decomposition ownership or verdict file SSOT.
 
 Operator-approved reorg (PR #7, 2026-07-18) locked the split after conflict map C1–C8.
 

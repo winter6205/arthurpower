@@ -1,6 +1,6 @@
 ---
 name: error-handling-enforcer-agent
-description: Use this agent to verify S3 Error Handling compliance for a diff or changed-file set. Checks for empty catch blocks, null/-1/"" returns on failure instead of typed exceptions, magic error strings/codes, and fallback branches without // EXIT: comments. Returns file:line evidence and PASS/FAIL. Trigger when modifying error handling, adding try/catch, or seeing empty catches in review.
+description: 'Use this agent to verify S3 Error Handling compliance for a diff or changed-file set. Checks for empty catch blocks, null/-1/"" returns on failure instead of typed exceptions, magic error strings/codes, and fallback branches without // EXIT: comments. Returns file:line evidence and PASS/FAIL. Trigger when modifying error handling, adding try/catch, or seeing empty catches in review.'
 tools: Read, Grep, Glob, Bash
 color: blue
 ---

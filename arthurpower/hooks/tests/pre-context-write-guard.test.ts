@@ -101,6 +101,41 @@ test("Edit prose-only fragment → allow", () => {
   assert.equal(r.status, 0, "status was " + r.status + " stderr=" + r.stderr);
 });
 
+// 2026-08-28: CONTEXT Edit must mirror ADR fragment leniency. Real domain-modeling
+// patches often touch Relationships / _Avoid_ / reorder without a **Term**: line
+// in new_string. Requiring hasTerm on every fragment false-blocked those edits.
+const CONTEXT_PATH_EDIT = "docs/CONTEXT.md";
+
+test("Edit CONTEXT Relationships-only fragment (no Term line) → allow", () => {
+  const r = runHook(
+    edit(
+      "- **memory_catalog vs promote**: 目录不是指令；promote 才是跨 session 核实后的 system 正文",
+      CONTEXT_PATH_EDIT,
+    ),
+  );
+  assert.equal(r.status, 0, "status was " + r.status + " stderr=" + r.stderr);
+});
+
+test("Edit CONTEXT _Avoid_ fragment (no Term line) → allow", () => {
+  const r = runHook(
+    edit(
+      "_Avoid_: 把默认改成 ON；开抽取却不注 memory_catalog",
+      CONTEXT_PATH_EDIT,
+    ),
+  );
+  assert.equal(r.status, 0, "status was " + r.status + " stderr=" + r.stderr);
+});
+
+test("Edit CONTEXT term-bearing fragment → allow", () => {
+  const r = runHook(
+    edit(
+      "**memory_prefetch**: 每轮预取最多 5 条正文，会话级按 id 去重。",
+      CONTEXT_PATH_EDIT,
+    ),
+  );
+  assert.equal(r.status, 0, "status was " + r.status + " stderr=" + r.stderr);
+});
+
 test("MultiEdit two valid fragments → allow", () => {
   const r = runHook({
     tool_name: "MultiEdit",
@@ -341,7 +376,7 @@ test("edits array with non-string new_string coerced to empty → allow", () => 
 import crypto from "node:crypto";
 
 // Mirrors lib/ipc-core.writeRoutingState's signature algorithm exactly:
-//   rest = zod-parsed object with keys in schema-declared order
+//   rest = schema-parsed object with keys in schema-declared order
 //          (skill, timestamp, then passthrough extras), and
 //   signature = sha256(JSON.stringify(rest)).
 function writeSignedRoutingState(
@@ -406,7 +441,7 @@ const VALID_CONTEXT_WRITE =
 // C1: routing-state is fresh and shows domain-modeling (whitelisted), but a
 // slash command later activates code-review. Pre-fix behavior: allow path
 // skips transcript, returns allow -> false negative. ADR-0005 requires block.
-test("C1: routing-state=domain-modeling but transcript latest=code-review slash -> block", () => {
+test("C1: routing-state=domain-modeling but transcript latest=code-review slash -> allow (identity skip)", () => {
   const localCfg = fs.mkdtempSync(path.join(os.tmpdir(), "guard-c1-"));
   try {
     writeSignedRoutingState(localCfg, "domain-modeling", Date.now());
@@ -422,11 +457,7 @@ test("C1: routing-state=domain-modeling but transcript latest=code-review slash 
       },
       { cfgDir: localCfg, transcriptPath },
     );
-    assert.equal(r.status, 2, "status was " + r.status + " stderr=" + r.stderr);
-    assert.ok(
-      blockedMessage(r.stderr).includes("active skill"),
-      "expected identity-layer block, got: " + r.stderr,
-    );
+    assert.equal(r.status, 0, "status was " + r.status + " stderr=" + r.stderr);
   } finally {
     fs.rmSync(localCfg, { recursive: true, force: true });
   }
@@ -436,7 +467,7 @@ test("C1: routing-state=domain-modeling but transcript latest=code-review slash 
 // shows tdd-protocol slash was the most-recent activation. With routing-state
 // unusable, identityCheckDisabled=true pre-fix -> structural Edit-mode layer
 // accepted the glossary line and allowed. ADR-0005 requires block.
-test("C5: routing-state expired + transcript latest=tdd-protocol slash + Edit glossary -> block", () => {
+test("C5: routing-state expired + transcript latest=tdd-protocol slash + Edit glossary -> allow (identity skip)", () => {
   const localCfg = fs.mkdtempSync(path.join(os.tmpdir(), "guard-c5-"));
   try {
     // 30s in the past: well past the 5s STATE_TTL_MS in ipc-core.
@@ -457,11 +488,7 @@ test("C5: routing-state expired + transcript latest=tdd-protocol slash + Edit gl
       },
       { cfgDir: localCfg, transcriptPath },
     );
-    assert.equal(r.status, 2, "status was " + r.status + " stderr=" + r.stderr);
-    assert.ok(
-      blockedMessage(r.stderr).includes("active skill"),
-      "expected identity-layer block, got: " + r.stderr,
-    );
+    assert.equal(r.status, 0, "status was " + r.status + " stderr=" + r.stderr);
   } finally {
     fs.rmSync(localCfg, { recursive: true, force: true });
   }
@@ -472,7 +499,7 @@ test("C5: routing-state expired + transcript latest=tdd-protocol slash + Edit gl
 // ADR-0022 Decision 5: readable + no marker -> non-authorized -> BLOCK.
 // Pre-fix bug caught by code-review: identityCheckDisabled was computed before
 // the override, so this case fell into fail-open branch and allowed.
-test("C6: transcript readable with no skill activation marker + Write CONTEXT -> block", () => {
+test("C6: transcript readable with no skill activation marker + Write CONTEXT -> allow (identity skip)", () => {
   const localCfg = fs.mkdtempSync(path.join(os.tmpdir(), "guard-c6-"));
   try {
     const transcriptPath = path.join(localCfg, "transcript.jsonl");
@@ -488,11 +515,7 @@ test("C6: transcript readable with no skill activation marker + Write CONTEXT ->
       },
       { cfgDir: localCfg, transcriptPath },
     );
-    assert.equal(r.status, 2, "status was " + r.status + " stderr=" + r.stderr);
-    assert.ok(
-      blockedMessage(r.stderr).includes("no skill activation"),
-      "expected no-activation block, got: " + r.stderr,
-    );
+    assert.equal(r.status, 0, "status was " + r.status + " stderr=" + r.stderr);
   } finally {
     fs.rmSync(localCfg, { recursive: true, force: true });
   }
@@ -575,9 +598,8 @@ test("skill-first Skill(domain-modeling) activation + Write ADR -> allow (order 
   }
 });
 
-// Security preservation: an args-first UNAUTHORIZED skill must still block, so
-// the order-independence fix does not loosen the whitelist.
-test("args-first Skill(code-review) activation + Write ADR -> block", () => {
+// Identity whitelist is no longer enforced (Cursor has no Skill marker).
+test("args-first Skill(code-review) activation + Write ADR -> allow (identity skip)", () => {
   const localCfg = fs.mkdtempSync(
     path.join(os.tmpdir(), "guard-argsfirst-unauth-"),
   );
@@ -594,11 +616,7 @@ test("args-first Skill(code-review) activation + Write ADR -> block", () => {
       },
       { cfgDir: localCfg, transcriptPath },
     );
-    assert.equal(r.status, 2, "status was " + r.status + " stderr=" + r.stderr);
-    assert.ok(
-      blockedMessage(r.stderr).includes("active skill"),
-      "expected identity-layer block, got: " + r.stderr,
-    );
+    assert.equal(r.status, 0, "status was " + r.status + " stderr=" + r.stderr);
   } finally {
     fs.rmSync(localCfg, { recursive: true, force: true });
   }
@@ -724,4 +742,76 @@ test("Write CONTEXT with two-line term entries (real format) -> allow", () => {
   } finally {
     fs.rmSync(localCfg, { recursive: true, force: true });
   }
+});
+
+// ----------------------------------------------------------------------------
+// 2026-09-04: identityCheckDisabled is a hardcoded constant, so its else
+// branch runs on EVERY guarded write. The old stderr message ("routing-state
+// + transcript both unreadable") was a stale leftover that unconditionally
+// reported a condition never evaluated — misleading diagnostics on every
+// ADR/CONTEXT write. Pin the corrected message.
+// ----------------------------------------------------------------------------
+test("guarded write emits corrected identity-disabled hint, not the stale 'both unreadable' message", () => {
+  const r = runHook(edit("Status: accepted"));
+  assert.equal(r.status, 0, "status was " + r.status + " stderr=" + r.stderr);
+  assert.match(
+    r.stderr,
+    /identity check disabled \(2026-08-21/,
+    "expected corrected hint, got: " + r.stderr,
+  );
+  assert.doesNotMatch(r.stderr, /both unreadable/);
+});
+
+// ----------------------------------------------------------------------------
+// Bash sed: in-place write vs stdout read (false-positive on sed -n)
+// ----------------------------------------------------------------------------
+
+const bash = (command: string) => ({
+  tool_name: "Bash",
+  tool_input: { command },
+});
+
+test("Bash sed -n print of ADR → allow (read, not in-place)", () => {
+  const r = runHook(
+    bash(
+      "cd /home/dev/projects/local-app && sed -n '1,70p' docs/adr/0053-extract-window-title-scoped.md",
+    ),
+  );
+  assert.equal(r.status, 0, "status was " + r.status + " stderr=" + r.stderr);
+});
+
+test("Bash sed script without -i on ADR → allow", () => {
+  const r = runHook(bash("sed 's/foo/bar/' docs/adr/0002-foo.md"));
+  assert.equal(r.status, 0, "status was " + r.status + " stderr=" + r.stderr);
+});
+
+test("Bash sed -n with -i inside replacement text on ADR → allow", () => {
+  const r = runHook(bash("sed -n 's/-i/x/' docs/adr/0002-foo.md"));
+  assert.equal(r.status, 0, "status was " + r.status + " stderr=" + r.stderr);
+});
+
+test("Bash sed -i in-place on ADR → block", () => {
+  const r = runHook(
+    bash("sed -i 's/foo/bar/' docs/adr/0053-extract-window-title-scoped.md"),
+  );
+  assert.equal(r.status, 2, "status was " + r.status);
+  assert.ok(
+    blockedMessage(r.stderr).includes("Bash 命令尝试直接写/删"),
+    "expected bash write block, got: " + r.stderr,
+  );
+});
+
+test("Bash sed -i.bak in-place on ADR → block", () => {
+  const r = runHook(bash("sed -i.bak 's/foo/bar/' docs/adr/0002-foo.md"));
+  assert.equal(r.status, 2, "status was " + r.status);
+});
+
+test("Bash sed --in-place on CONTEXT.md → block", () => {
+  const r = runHook(bash("sed --in-place 's/foo/bar/' docs/CONTEXT.md"));
+  assert.equal(r.status, 2, "status was " + r.status);
+});
+
+test("Bash sed -Ei combined flags on ADR → block", () => {
+  const r = runHook(bash("sed -Ei 's/foo/bar/' docs/adr/0002-foo.md"));
+  assert.equal(r.status, 2, "status was " + r.status);
 });

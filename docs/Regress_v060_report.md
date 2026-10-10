@@ -93,11 +93,9 @@ LSP servers (0)
 | `agents/arthurpower-dispatcher.md` × 2 副本 | 2522 B | 独立 dispatcher agent (parallel fan-out) |
 | `commands/audit.md` × 2 副本 | 1664 B | `/audit` slash command |
 | `commands/fanout.md` × 2 副本 | 1497 B | `/fanout` slash command |
-| `run_defend_hook_stdin_check.py` ((local project)) | ~3.5 KB | driver-level 复现脚本 |
-| `fix_installpath.py` ((local project)) | ~0.7 KB | R5 byte-level fix 脚本 |
-| `docs/version_diff.md` ((local project)) | ~14 KB | the baseline 1.0/1.1/1.2 调研 |
-| `docs/Arthuropower_skill_classification.md` ((local project)) | ~6 KB | 分类提案 |
-| `docs/Regress_v060_report.md` ((local project)) | (本文件) | 回归报告 |
+| `run_defend_hook_stdin_check.py` (local project) | ~3.5 KB | driver-level 复现脚本 |
+| `fix_installpath.py` (local project) | ~0.7 KB | R5 byte-level fix 脚本 |
+| `docs/Regress_v060_report.md` (local project) | (本文件) | 回归报告 |
 
 ### 修改 (5 类, 16 文件)
 
@@ -116,7 +114,7 @@ LSP servers (0)
 ### 未动 (out of scope)
 
 - `~/.claude/settings.json` (sha256 `e5dd95df...` baseline 保持)
-- 26 skill frontmatter (dmi 字段, 分类提案待 V 拍板 — 见 `Arthuropower_skill_classification.md` §3)
+- 26 skill frontmatter (dmi 字段, 分类提案待 V 拍板)
 - 其它 2 plugin (commit-commands, plugin-dev)
 - 已有 28 user-level hook (`~/.claude/hooks/`, 之前已修)
 
@@ -184,8 +182,8 @@ rm -rf ~/.claude/plugins/.../commands
 
 ## 6. 后续待 V 拍板 (本次未做, 提案已落盘)
 
-1. **Skill 分类调整** (25 model-invoked → 11 user-invoked + 15 model-invoked, 详见 `Arthuropower_skill_classification.md` §2/§3)
-2. **domain-modeling 加载方式** (user-invoked 配合 SSOT 写主权, vs the baseline model-invoked 模式)
+1. **Skill 分类调整** (25 model-invoked → 11 user-invoked + 15 model-invoked)
+2. **domain-modeling 加载方式** (user-invoked 配合 SSOT 写主权, vs model-invoked 模式)
 3. **是否补全更多 agent/command** (本 cycle 补 2+2 最小集, V 决定是否扩到完整 6-family 体系)
 
 ---
@@ -200,7 +198,5 @@ rm -rf ~/.claude/plugins/.../commands
 | plugin 详情 | `claude plugin details arthurpower` |
 | reload | `/reload-plugins` (TUI) |
 | byte-level baseline | `.archive/2026-07-15-arthurpower-v0.6.0-reorg/*.sha256` |
-| 调研报告 | `docs/version_diff.md` |
-| 分类提案 | `docs/Arthuropower_skill_classification.md` |
 | plugin changelog | `marketplaces/.../arthurpower/CHANGELOG.md` 头部 v0.6.0 段 |
 | skills 列表 | `claude plugin details arthurpower` Skills (28) |

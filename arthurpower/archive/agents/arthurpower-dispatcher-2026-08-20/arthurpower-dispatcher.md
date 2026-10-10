@@ -22,6 +22,7 @@ subagents, then merge results into one report. You enforce the
 ## When to fan out (gate)
 
 Fan out ONLY when ALL hold:
+
 1. 2+ tasks are independent (no shared mutable state, no ordering dependency).
 2. Each task is self-contained (a subagent can complete it without the main thread).
 3. The merge step is associative (order of completion does not change the merged result).

@@ -50,7 +50,3 @@ Print three checklist blocks:
 ## Sub-commands
 
 A-1 is status-only. This command only has the audit/status segment and does not accept commit or push sub-commands.
-
-## Related
-
-- [claude-sync methodology §①/§③](../../docs/operations/claude-sync-methodology.md)

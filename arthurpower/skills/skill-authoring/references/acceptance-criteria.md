@@ -9,7 +9,7 @@ By bar level. Each skill declares its bar in its own Verification section.
 - [ ] Description uses routing language, starts with `This skill should be used when` (third person), avoids first-person / persona / workflow-summary phrasing.
 - [ ] Description length is within target or proven by routing eval (<= 400 Unicode chars hard max).
 - [ ] Description contains no workflow summary, no step numbers, no "we do X then Y".
-- [ ] Required L2 sections exist: When to use, When not to use, Procedure, Acceptance Criteria, Verification.
+- [ ] Required L2 sections exist in the spec / writing-plans shape (When to use, Procedure with completion criteria, Acceptance, References), or the older heading set (When to use, When not to use, Procedure, Acceptance Criteria, Verification). Skip cases may be the last paragraph of When to use.
 - [ ] Name is lowercase letters, numbers, hyphens.
 - [ ] Frontmatter parses as valid YAML.
 - [ ] Validator exits 0 on the skill.
@@ -20,8 +20,7 @@ By bar level. Each skill declares its bar in its own Verification section.
 
 - [ ] RED baseline records the exact rationalization used under pressure.
 - [ ] Same pressure scenario passes with the skill and fails without it.
-- [ ] Rationalization Table present with >= 5 rows.
-- [ ] Red Flags list present with >= 5 items.
+- [ ] Excuse steering present: inline Rationalization Table / Pressure (>= 5 rows), or `references/pressure-and-antipatterns.md` with table >= 5 **or** list >= 5, or optional inline Red Flags / Anti-patterns list >= 5. A Red Flags section is not required when table or disclosed steering already holds.
 - [ ] Behavior eval rubric uses mode-tagged assertions (`exact`, `regex`, or `semantic` with grader prompt).
 
 ### High-risk / Support Skill bar

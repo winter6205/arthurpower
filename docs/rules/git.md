@@ -322,7 +322,7 @@ git push origin :v0.2.4    # 远端删 (注意: 是 :refs/tags/v0.2.4 简写)
 - **项目本地注册** (`.claude/settings.json` PreToolUse Bash): `.claude/hooks/pre-tool-guard.sh` — 反篡改（hooks / pre-commit / lint-staged）+ 允许 `rm -rf /tmp`。
 - **插件注册** (`arthurpower/hooks/hooks.json`): 10 个 hook — 写入主权、stale-read、read-contract、release-validate、SSOT 优先级、ADR 冲突标注、defend-claim 五项。运行时由 plugin 装载。SessionStart bootstrap 已移除（ADR-0021）— S1–S6 规则由各 verifier agent 的 description 承载。
 
-`.claude/hooks/` 只保留 `.claude/hooks/pre-tool-guard.sh`。其余离线副本已删——以 plugin `arthurpower/hooks/` 为唯一权威（见 `docs/agents/automation-divergence.md`）。
+`.claude/hooks/` 只保留 `.claude/hooks/pre-tool-guard.sh`。其余离线副本已删——以 plugin `arthurpower/hooks/` 为唯一权威。
 
 | Hook file | Event / Matcher | 注册位置 |
 |---|---|---|

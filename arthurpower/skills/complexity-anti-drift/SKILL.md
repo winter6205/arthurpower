@@ -1,85 +1,48 @@
 ---
 name: complexity-anti-drift
 type: discipline
-description: Use when a function exceeds 30 lines or 10 branches, a function takes more than 3 parameters, nesting depth hits 4+, a file exceeds 300 lines, code clone percentage is above 3%, or CI reports a complexity gate failure. Triggers on requests to refactor, split a function, reduce complexity, extract a helper, or fix ESLint complexity violations.
+description: Use when ESLint flags complexity, max-depth, max-lines, max-lines-per-function, or max-params; when jscpd is over 3%; when a changed function exceeds 60 lines, cyclomatic 10, 4 params, or nest 4, or a changed file exceeds 1000 lines; or when the user asks to split a function or extract a helper.
 bucket: engineering
 ---
 
 # Complexity Anti-Drift
 
-## Overview
-
 Complexity drifts by accretion: one branch, one nested `if`, one more parameter. Each addition is locally defensible and globally fatal. The fix is extraction along the **responsibility line**, not along "where the code happens to be". Helpers extract; comments do not.
 
+This skill owns the extract/split on a complexity offender. Hard FAIL vs soft REVIEW gates live in [`references/thresholds.md`](references/thresholds.md). Measurement is `arthurpower:complexity-anti-drift-agent`.
+
 ## When to use
-- A function in the diff exceeds 30 lines or 10 branches
-- Nesting depth hits 4+ (`if` inside `if` inside `if` inside `if`)
-- A file exceeds 300 lines after the diff
-- A function takes more than 3 parameters
-- CI reports a complexity gate failure (ESLint `complexity` / `max-depth` / `max-params` / `max-lines-per-function` / `max-lines`)
-- `jscpd` reports > 3% clone coverage
-- Reviewing a PR that "just adds one more case" repeatedly
 
-## When not to use
-- One-line getter or setter
-- Test fixtures (allowed higher complexity for clarity)
-- Generated code (codegen, vendored)
-- Declarative config / type-only files
+Reach for this skill when the next move is to stop complexity accretion:
 
-## Dispatch
+- CI reports a complexity gate failure (ESLint `complexity` / `max-depth` / `max-params` / `max-lines-per-function` / `max-lines`, or `jscpd`)
+- A request to refactor, split a function, reduce complexity, extract a helper, or fix an ESLint complexity violation
+- A PR that "just adds one more case" repeatedly
+- A function, file, nesting, params, or clone report in the diff has crossed the gates in [`references/thresholds.md`](references/thresholds.md)
 
-本环节由 `arthurpower:complexity-anti-drift-agent` 承接。识别到函数超 30 行 / 超 10 分支、参数超 3、嵌套达 4+、文件超 300 行、或克隆率超 3% 等验证时机时，用 Agent 工具以 `subagent_type: "arthurpower:complexity-anti-drift-agent"` 派发，而非在主线程自跑。派发时传：diff 范围 + 本 skill 判据 + 证据格式（file:line + PASS/FAIL）。软触发：应当派，非必须派；偶发主线程自跑属可接受降级，不视为违规。
+A one-line getter or setter, a test fixture kept complex for clarity, generated or vendored code, or a declarative config / type-only file is out of scope.
 
 ## Procedure
-1. Run the complexity linter on the diff. Capture the output.
-2. For each offender — extract a helper, NOT a comment. The function stays at one abstraction level.
-3. If extraction reveals two responsibilities — split along the responsibility line, not along "what code happens to be there".
-4. For clone offenders — extract the shared logic into a function. Do NOT just deduplicate the string.
-5. For nesting offenders — early-return / guard-clause. Do NOT just collapse one branch.
-6. Re-run linter. All metrics under threshold.
 
-## Rationalization Table
+1. **Measure the diff.** Hand the diff range to `arthurpower:complexity-anti-drift-agent` with `subagent_type: "arthurpower:complexity-anti-drift-agent"`. Pass: diff scope + gates in [`references/thresholds.md`](references/thresholds.md) + evidence shape (file:line + PASS/FAIL/REVIEW/NOTE). Prefer the agent over measuring in the current thread. 软触发：应当派，非必须派；偶发主线程自跑属可接受降级，不视为违规. Completion: a per-metric table with file:line evidence, or equivalent linter/`jscpd` capture if the agent was skipped.
 
-| Excuse | Reality |
-|--------|---------|
-| "Just one more branch, refactor next time" | "Next time" never arrives. 4 branches become 10 by feature 5. |
-| "This function is hard to split, just add a comment" | Comments don't reduce cyclomatic complexity. Linter still fails. |
-| "Nested ifs are clearer than extracted functions" | Nested ifs are clearer to write, not to read. Extract. |
-| "It's only 4 params, who cares about the limit" | 4 params is the threshold. 5 means the function takes a config blob — split. |
-| "Duplicate string is just a coincidence" | Coincidence repeats. Extract the function or the constant. |
-| "Just this once for the demo" | "This once" = 30+ lines once = 60 lines next PR. |
+2. **Extract along the responsibility line.** For each new offender — extract a helper, not a comment. The function stays at one abstraction level. If extraction reveals two responsibilities, split along the responsibility line, not along "what code happens to be there". Clone offenders: extract the shared logic into a function, not a duplicated-string collapse. Nesting offenders: early-return / guard-clause, not collapsing one branch. Chained ternaries, `// just this once` / `// temporary`, duplicate blocks, and comment-instead-of-extract: [`references/pressure-and-antipatterns.md`](references/pressure-and-antipatterns.md). Completion: every new hard-gate offender is extracted or split; every new soft-trigger is extracted, split, guarded, or left as explicit REVIEW.
 
-## Red Flags - Stop and Start Over
+3. **Re-measure.** Re-run the agent (or the linter/`jscpd`). Completion: all hard gates pass; no new unreviewed soft-trigger; `git diff --stat` shows extracted helpers of reasonable size.
 
-- Function > 30 lines in the diff
-- Function with > 3 parameters (excluding `self`/`this`)
-- Nesting depth > 4 (`if` inside `if` inside `if` inside `if`)
-- File > 300 lines after the diff
-- Chained ternary `a ? b : c ? d : e : f`
-- `// just this once` or `// temporary` comment near a complex block
-- Duplicate code block in 2+ places with no shared extraction
-- "I added a comment explaining the nesting" instead of extracting
+## Acceptance criteria
 
-## Acceptance Criteria
-- [ ] Is every function in the diff <= 30 lines?
-- [ ] Is every function in the diff <= 10 branches?
-- [ ] Does every function in the diff take <= 3 parameters?
-- [ ] Is every file in the diff <= 300 lines?
-- [ ] Is max nesting depth <= 4?
-- [ ] Is `jscpd` clone % on touched files <= 3%?
-- [ ] Are no ternaries chained (`a ? b : c ? d : e : f`)?
-- [ ] Is there no "just this once" comment near a complex function?
+A complexity pass is complete when all of the following hold:
 
-## Required Baseline
+- [ ] Diff measured against [`references/thresholds.md`](references/thresholds.md) (agent table, or in-thread linter/`jscpd` capture)
+- [ ] Every new hard-gate offender extracted or split along the responsibility line
+- [ ] Every new soft-trigger is extracted, or left as REVIEW — not FAIL
+- [ ] Parameter counts exclude `self`/`this`
+- [ ] No chained ternary; no `// just this once` / `// temporary` beside a complex block ([`references/pressure-and-antipatterns.md`](references/pressure-and-antipatterns.md))
+- [ ] Re-measure is green on hard gates (linter exit 0 on touched files)
 
-**Zero tolerance**: function > 30 lines, nesting > 4, file > 300 lines, params > 3 in the diff. Linter must exit 0.
+## References
 
-## Example
-
-See [`references/extract-function-example.md`](references/extract-function-example.md) for a full Extract Function refactor (40-line 4-responsibility function → 4-line caller + 3 single-responsibility helpers). The pattern: split along the responsibility line, not along "where the code happens to be". Adapt to any function > 30 lines.
-
-## Verification
-- Linter exit 0 with no warnings on touched files
-- `jscpd --reporters json` shows touched files < 3%
-- `git diff --stat` shows extracted helper files are reasonable in size
-- `grep -nE "// (just|only|temporary) this once" -- $(git diff --name-only)` returns no matches
+- Hard FAIL / soft REVIEW gates and tools: [`references/thresholds.md`](references/thresholds.md)
+- Extract Function worked example (4-responsibility function → 4-line caller + single-responsibility helpers): [`references/extract-function-example.md`](references/extract-function-example.md)
+- Rationalizations, stop-and-start-over smells, verify commands: [`references/pressure-and-antipatterns.md`](references/pressure-and-antipatterns.md)

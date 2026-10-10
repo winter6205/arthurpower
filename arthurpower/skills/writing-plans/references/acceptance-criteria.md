@@ -1,21 +1,14 @@
-# Plan Acceptance Criteria (binary)
+# Plan acceptance (binary)
 
-A plan is complete when **all** of these are true:
+The plan file is complete when all of the following hold:
 
-- [ ] Plan has ≥ 3 tracer bullets, OR has a written justification for fewer
-- [ ] Each tracer bullet has 1+ binary acceptance criterion (test command, observable artifact, or pass/fail check)
-- [ ] Each tracer bullet maps to exactly 1 commit (1 tracer bullet ↔ 1 commit, never N:1 or 1:N)
-- [ ] Tracer bullets ordered by dependency, not by file path or directory
-- [ ] Plan lives in a file (`plans/<feature>.md`) or commit body — not in agent memory, chat, or PR afterthought
+- [ ] `plans/<feature>.md` exists (or the commit body _is_ the plan)
+- [ ] Each tracer bullet has exactly one tag: `[decision]` or `[implementation]`
+- [ ] Each bullet states **Inherits** (quoted contract or "none") and **Acceptance** as an observable yes/no (behaviour / invariant / named structure — not a copied S5 number or an invented literal-count)
+- [ ] **Headroom:** a second implementer could use different files/names and still pass Acceptance
+- [ ] **Vertical slice:** each bullet touches every layer it crosses (schema / API / UI / tests, as applicable) and is demoable end-to-end
+- [ ] Bullets are ordered by dependency; `[parallel]` / `[blocks:]` match that graph
+- [ ] ACR 5-verdict block is in the same file
+- [ ] Fewer than 3 bullets only when the write-up says why the slice is still a plan — the floor guards under-slicing, never justifies padding (one true bullet beats three invented ones)
 
-See `plan-format.md` for the canonical template and `example-plan.md` for a filled-in example.
-
-# Cross-references
-
-- Handoff with ACR: `handoff-acr.md`
-- Plan format template: `plan-format.md`
-- Filled-in example: `example-plan.md`
-- 1-commit-per-logical-task spec (each commit is one tracer bullet) (新增功能 / Bug fix / 格式调整 各 1 commit)
-- Architecture gate: `architecture-change-reviewer` (5-verdict frame)
-- Minimal-change enforcement: `minimal-change-verifier` (S6)
-- Defensive contract: `defensive-contract-validator` (S2 — every task's acceptance is a contract)
+Format: `plan-format.md`. Example: `example-plan.md`. ACR sequence: `handoff-acr.md`.

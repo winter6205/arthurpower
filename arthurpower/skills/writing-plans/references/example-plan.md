@@ -1,46 +1,56 @@
-# Example: 5-task multi-file change (user profile page)
+# Example: user profile page (tracer bullets, not a recipe)
 
-A complete Plan Format fill-in showing the full template in action — Goal / Architecture / Tech Stack / Spec link + Tasks (ordered by dependency, [parallel] markers, [blocks: T1, T2] dependencies, 1 commit per task, binary acceptance criterion) + Cross-references (ACR verdict + S1-S6 affected + parallelization surface). Adapt for any multi-file change.
+Contrast with a recipe plan: that version would list `migrations/versions/abc_add_profile_fields.py`, `UserProfileUpdate`, and a `curl` with a cookie. Those are implementer choices. This version keeps the demoable end-to-end outcomes and the contracts already in the spec.
 
 ```markdown
 # Plan: user profile page
 
-**Goal**: 1 个新 page 让 logged-in user 看 / 编辑自己的 profile (avatar / display name / email preferences)
-**Architecture**: 1 new page (`/profile`) + 1 new API route (`GET /api/me` / `PATCH /api/me`) + 1 new form component (复用 design system) + 1 new DB migration (add `display_name` + `email_prefs` columns)
-**Tech Stack**: Vue 3.5 (page) + FastAPI (API) + Pydantic (schema) + Alembic (migration) + Postgres (DB)
-**Spec link**: `docs/specs/user-profile.md`
+**Goal:** A logged-in user can view and edit avatar, display name, and email preferences.
+**Approach:** Settle avatar storage as a recorded decision; persist new profile fields; expose read/update on the existing me/API surface; add a profile page that uses the design system. CLI/auth flows stay unchanged.
+**Spec link:** `docs/specs/user-profile.md`
+**Per-ticket loop (all bullets):** tdd → typecheck+tests → code-review → (GATE BLOCKED → review-report-repair) → verification-before-completion (landing grain: operator global commit section)
+
+## ACR
+
+(paste the 5-line all-yes block from architecture-change-reviewer)
 
 ## Tasks (ordered by dependency)
 
-Each numbered item is one tracer bullet: vertical slice, one tag, one commit, binary acceptance.
-
-1. **DB migration: add columns** — affects: `migrations/versions/abc_add_profile_fields.py`
-   - Acceptance: `alembic upgrade head` exit 0; `\d users` shows new columns; `alembic downgrade -1` exit 0
-   - Commit: 1 commit = this 1 task
+1. **Record the avatar storage decision** — tag: `[decision]`
+   - **Inherits:** spec: avatar uploads are capped at 2 MB
+   - **Surface:** `docs/adr/` — the ADR file (`<next>-avatar-storage.md`) is this bullet's outcome
+   - **Acceptance:** the ADR states the winning storage option with rationale; the spec's contract section cites it; the commit touches no code
    - Status: [ ] pending
 
-2. **Pydantic schema: UserProfile + UserProfileUpdate** — affects: `src/schemas/user.py`
-   - Acceptance: `UserProfile.from_db_row(row)` returns instance; `UserProfileUpdate(email_prefs={"marketing": False})` validates; pytest covers empty / invalid email / too-long display_name
-   - Commit: 1 commit = this 1 task
-   - [blocks: T3, T4]
+2. **Persist profile fields, avatar reference included** — tag: `[implementation]`
+   - **Inherits:** spec: columns are additive; downgrade restores the previous shape; avatar is stored as a reference per T1's ADR
+   - **Surface:** existing user persistence / migration stack
+   - **Acceptance:** after upgrade, a user row can store and read display name, email preferences, and an avatar reference; downgrade is possible
+   - [blocks: T1]
 
-3. **[parallel] API route: GET /api/me + PATCH /api/me** — affects: `src/api/routes/me.py`
-   - Acceptance: `curl -X GET /api/me -H "Cookie: session=..."` returns 200 + UserProfile; `curl -X PATCH /api/me -d '{"display_name": "..."}'` returns 200; unauthorized 401
-   - Commit: 1 commit = this 1 task
-   - [blocks: T1, T2]
-
-4. **[parallel] Form component: ProfileForm.vue** — affects: `web/src/components/ProfileForm.vue`
-   - Acceptance: `pnpm test ProfileForm` exit 0; form submits PATCH /api/me; displays validation errors; matches design system
-   - Commit: 1 commit = this 1 task
+3. **Validate profile read and update payloads** — tag: `[implementation]`
+   - **Inherits:** spec: display name length cap; email_prefs is a boolean map; empty update is a no-op
+   - **Surface:** existing user schema / DTO module
+   - **Acceptance:** valid payloads round-trip; over-long name and malformed prefs are rejected
    - [blocks: T2]
 
-5. **Page: /profile route + integration** — affects: `web/src/pages/Profile.vue` + `web/src/router/index.ts`
-   - Acceptance: navigate to /profile loads form, submit updates display, refresh shows new value; `pnpm test` exit 0
-   - Commit: 1 commit = this 1 task
-   - [blocks: T3, T4]
+4. **[parallel] Authenticated me read/update** — tag: `[implementation]`
+   - **Inherits:** spec: unauthenticated → 401; success returns the profile shape from T3
+   - **Surface:** existing API router for the current user
+   - **Acceptance:** session cookie can GET the profile and PATCH display name; no session → 401
+   - [blocks: T2, T3]
 
-## Cross-references
-- architecture-change-reviewer verdict: yes per all 5 Core Skills (bounded-context OK / contract 5-class / error typed / complexity ≤ 30 lines / 1 commit per task)
-- affected S1-S6 skills: S2 (defensive-contract for API + form), S6 (1 commit per task, no refactor mixed) (each commit = one tracer bullet)
-- parallelization surface: T3 + T4 are truly parallel (different files, no shared state)
+5. **[parallel] Profile form matches design system** — tag: `[implementation]`
+   - **Inherits:** spec: fields = avatar, display name, email prefs; client-side validation mirrors T3
+   - **Surface:** existing web component / design-system package
+   - **Acceptance:** form submits the update endpoint; validation errors render; visual tokens come from the design system
+   - [blocks: T3]
+
+6. **Profile page is reachable and survives refresh** — tag: `[implementation]`
+   - **Inherits:** spec: route `/profile`; refresh shows last saved values
+   - **Surface:** existing web app shell / router
+   - **Acceptance:** navigate → edit → submit → refresh still shows the new display name; suite that covers this page is green
+   - [blocks: T4, T5]
 ```
+
+Headroom in this example: T1 names the ADR file because that file is the outcome, but it does not pre-select the storage option — the decision itself is the bullet's work. T2 does not name the migration file; T3 does not name Pydantic classes; T4 does not prescribe `curl`; T5 does not freeze `ProfileForm.vue`. Implementers still share the same observables.

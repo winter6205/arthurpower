@@ -28,7 +28,7 @@ Restore `arthurpower:self-evolving-rules` as a **user-invoked** skill (`disable-
 - Zero always-on context load for this skill; cognitive load stays with the operator.
 - Boundary-testable artifact (`evals.json` + `driver.py`) separate from the rule file.
 - Clear hand-off to skill-authoring without scope leak.
-- Aligns with the baseline invocation split (user-invoked vs model-invoked) already resolved in Flagged ambiguities.
+- Reuses the established invocation split (user-invoked vs model-invoked) already resolved in Flagged ambiguities, so no new loading category is introduced.
 
 **Negative**:
 

@@ -71,7 +71,7 @@ const mode = (toolName === 'Edit' || toolName === 'MultiEdit') ? 'edit' : 'write
 validateAdr(content, adrMatch[2], mode);
 ```
 
-**纪律注意**：此修复属 10-hook 变更，按 `arthurpower/CLAUDE.md` §"10-hook 不可 regress" + `docs/agents/automation-divergence.md` §"Do not regress" 需独立 ADR + ticket，不得混入其他任务。
+**纪律注意**：此修复属 10-hook 变更，按 `arthurpower/CLAUDE.md` §"10-hook 不可 regress" 需独立 ADR + ticket，不得混入其他任务。
 
 ## 发现场景
 

@@ -4,7 +4,7 @@ Date: 2026-07-24
 
 ## Problem diagnosis
 
-`arthurpower:code-review` needs the the baseline author dual-sub-agent mechanism described by ADR-0017: Standards and Spec reviews must run as isolated, parallel axes rather than colliding in one reviewer surface. The two agents provide the dispatch targets while the skill remains the orchestrator and commit gate.
+`arthurpower:code-review` needs the dual-sub-agent mechanism described by ADR-0017: Standards and Spec reviews must run as isolated, parallel axes rather than colliding in one reviewer surface. The two agents provide the dispatch targets while the skill remains the orchestrator and commit gate.
 
 ## Responsibility boundary
 

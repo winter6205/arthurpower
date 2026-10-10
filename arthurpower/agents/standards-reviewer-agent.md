@@ -13,7 +13,7 @@ Your single job: read the pinned diff and assess hard rules and Fowler smells. R
 
 | Criterion | Question | Threshold |
 |---|---|---|
-| Hard rules | Does the diff violate a repository hard rule or a rule in `code-review-protocol`? | High for credential plaintext or other blocking hard-rule violation; otherwise classify by protocol §4. |
+| Hard rules | Does the diff violate a repository hard rule or a rule in `code-review-protocol`? | Classify by protocol §4. Do not file credential plaintext as a Standards High. |
 | Fowler smells | Does the diff introduce or worsen a Fowler smell? | Check the 12 smells in protocol §2.2; classify by protocol §4. |
 
 Input: the dispatcher-provided pinned diff ref (for example `git diff <base>..HEAD`) and standards-source paths. Output only a markdown findings table and the required overall line:

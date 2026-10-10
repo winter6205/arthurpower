@@ -1,48 +1,52 @@
-# Skill Discovery Flowchart
+# Skill discovery flowchart
 
 ```
 Task arrives
 │
-├── Scale router
-│   ├── Scope 已定 + single session ─────────→ deep-dive-protocol
-│   ├── Scope 已定 + multi-session ──────────→ architecture-change-reviewer + writing-plans
-│   └── Scope 未定 + multi-session ──────────→ architecture-change-reviewer + writing-plans + session-handoff
+├── Scale router (sequence — invoke the current slot only)
+│   ├── Scope 已定 + single session ─────────→ logicsync
+│   ├── Scope 已定 + multi-session ──────────→ architecture-change-reviewer → writing-plans
+│   └── Scope 未定 + multi-session ──────────→ architecture-change-reviewer → writing-plans
+│                                              (session-handoff when the session must persist)
 │
 ├── Defining what to build
-│   ├── Vague / under-specified request ──→ deep-dive-protocol
+│   ├── Vague / under-specified request ──→ logicsync
 │   ├── Glossary / ADR / SSOT decision ───→ domain-modeling
-│   ├── Don't know what you want yet ────→ deep-dive-protocol
+│   ├── Don't know what you want yet ────→ logicsync
 │   ├── Have rough concept, need variants → wayfinder
 │   └── New project/feature/change ───────→ spec-driven-development
 │
 ├── Planning implementation
-│   ├── Multi-file change (>3 files) ─────→ architecture-change-reviewer (ACR)
+│   ├── Spec ready, ACR not yet / not yes ─→ architecture-change-reviewer
+│   ├── ACR all-yes, next artifact is plan → writing-plans
 │   └── Single-file or trivial ──────────→ minimal-change-verifier
 │
 ├── Implementing code
 │   ├── TDD: failing test first ──────────→ test-driven-development
-│   ├── 5-class boundary contract ────────→ defensive-contract-validator
+│   ├── public entry input classes ──────→ input-contract-tests
 │   ├── Module boundary violation ───────→ bounded-context-guardian
-│   ├── Complexity threshold breach ─────→ complexity-anti-drift
+│   ├── ESLint complexity / fn>60 or file>1000 ───→ complexity-anti-drift
 │   └── Empty catch / null-on-failure ───→ error-handling-enforcer
 │
 ├── Verifying
 │   ├── Bug / something broke ───────────→ systematic-debugging
+│   ├── hook/detector trigger smoke ─────→ boundary-testing (axis1 then axis2)
 │   └── Pre-merge final check ──────────→ verification-before-completion
 │
 ├── Reviewing
-│   ├── Pre-impl 5-verdict ─────────────→ architecture-change-reviewer (ACR)
-│   └── Post-impl dual-axis review ──────→ arthurpower:code-review
+│   ├── Pre-impl 5-verdict ─────────────→ architecture-change-reviewer
+│   ├── Post-impl dual-axis review ──────→ code-review
+│   └── GATE BLOCKED / High open ───────→ review-report-repair
 │
 ├── Committing / branching
-│   └── 1 commit = 1 logical task ──────→ minimal-change-verifier
+│   └── diff is one task / no drive-by ─→ minimal-change-verifier
 │
 └── Meta / orchestration
-    ├── Creating/editing SKILL.md ─────→ skill-authoring
-    ├── Self-evolving rules ───────────→ self-evolving-rules
-    └── Parallel sub-agent dispatch ───→ dispatching-parallel-agents
+    ├── Creating/editing SKILL.md ─────→ skill-authoring (user must name it)
+    ├── Self-evolving rules ───────────→ self-evolving-rules (user must name it)
+    ├── First-time / migrate setup ────→ setup-arthurpower
+    └── 2+ independent tasks to fan out → dispatching-parallel-agents
+        (current agent runs the skill; workers do the work)
 ```
 
----
-
-**Note (2026-07-18)**: `architecture-change-reviewer` is now model-invoked under [ADR-0010](../../adr/0010-acr-model-invoked.md) (Path B). The 5-line verdict still blocks on `no` / `unclear`. `writing-plans` remains user-invoked.
+`architecture-change-reviewer` is model-invoked (5-line verdict still blocks on `no` / `unclear`). `writing-plans` and `spec-driven-development` are user-invoked gates. `dispatching-parallel-agents` is model-invoked: the current agent fans out workers.

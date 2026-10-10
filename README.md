@@ -1,65 +1,116 @@
-# Arthurpower - 工作目录 (技能仓库镜像)
+# arthurpower
 
-> 本目录是 arthurpower plugin 的**工作副本**。改 plugin 在这里改、在这里验证；PR 合入仓库后，才由 V apply 到 `~/.claude/plugins/` 真正运行实例。
->
-> **绝不修改** `~/.claude/plugins/marketplaces/` 与 `~/.claude/plugins/cache/` - 那是 framework 运行时读的真值。
+A Claude Code plugin that turns engineering constraints into things an agent can
+be held to: 23 skills, 13 `PreToolUse`/`PostToolUse` hook commands, and 10
+reviewer sub-agents, with no runtime dependencies.
 
----
+Status: in active personal use, version `0.13.0`. The plugin is the product;
+the rest of this repository is the design record behind it.
 
-## 目录结构
+## What it actually does
+
+- **Governance skills, not generic advice.** Six rules (S1 bounded context, S2
+  input contracts, S3 error handling, S5 complexity thresholds, S6 minimal
+  change) each get a skill with a numeric gate and a verdict format — e.g.
+  `complexity-anti-drift` fails at cyclomatic > 10 and nesting > 4, warns at
+  60-line functions and a 1000-line file, and adds a ≤ 3% clone-rate gate you
+  wire up through jscpd yourself.
+- **The rules are machine-checked, not just written down.**
+  `hooks/pre-release-validate.ts` enforces the router invariant from ADR-0011:
+  adding, renaming, or removing a promoted skill must update the
+  `using-agent-skills` router in the same commit, and the hook reports
+  `[FAIL] router:missing-file` / drift otherwise.
+  `arthurpower/scripts/s5-complexity/` is a standalone runner that prints the
+  ESLint-backed S5 gates against a diff.
+- **Two invocation classes are a deliberate context budget.** A user-invoked
+  skill (`disable-model-invocation: true`) costs zero context but spends
+  cognitive load — you have to remember it exists. A model-invoked skill keeps
+  its description in the window every turn. The README in `arthurpower/` lists
+  every skill under its class.
+- **Review is an orchestrated gate, not a suggestion.** `code-review` dispatches
+  `standards-reviewer` and `spec-reviewer` in parallel over a pinned diff,
+  grades findings High/Medium/Low, and emits `GATE: BLOCKED`, which hands off to
+  `review-report-repair` rather than letting a patch stack.
+
+## Requirements
+
+- Claude Code with plugin and marketplace support.
+- Node.js able to run TypeScript directly — the hooks are `.ts` files invoked as
+  `node --experimental-strip-types "<hook>.ts"`. Verified on Node 24.
+- No package installation. `arthurpower/hooks/package.json` declares zero
+  dependencies; the test suite runs against `hooks/runtime/tiny-schema.ts`
+  instead of a validation library.
+
+## Install
+
+Clone and register this repository as a local marketplace source:
+
+```bash
+git clone https://github.com/winter6205/arthurpower.git
+```
+
+The marketplace manifest is at the repository root (`marketplace.json`) and
+points at the plugin directory `./arthurpower`, whose own manifest is
+`arthurpower/.claude-plugin/plugin.json`.
+
+To work on the skills themselves without going through the plugin install path,
+link every promoted skill into your harness directories (`~/.claude/skills` and
+`~/.agents/skills`):
+
+```bash
+bash scripts/link-skills.sh          # add --dry-run to preview
+```
+
+`scripts/link-skills.sh` is a maintainer convenience for a working checkout: it
+reads the `bucket:` frontmatter of each skill, links only `engineering` and
+`productivity`, and skips the rest. Each link points back into the clone, so
+`git pull` keeps installed skills current.
+
+## Try it
 
 ```
-Arthurpower/
-├── arthurpower/              # plugin 源 (marketplaces/.../plugins/arthurpower/ 的副本)
-│   ├── .claude-plugin/plugin.json   # plugin manifest (framework 校验源)
-│   ├── agents/               # 2 个 agent (audit / dispatcher)
-│   ├── commands/             # /audit, /fanout
-│   ├── docs/                 # plugin 内文档 (harness-map / 设计报告)
-│   ├── hooks/                # SessionStart + 5 PostToolUse defend-claim hooks + lib/
-│   ├── scripts/run_skill_eval.py
-│   ├── skills/               # 27 skills (6 families)
-│   ├── SKILL.md, CHANGELOG.md
-├── marketplace.json          # plugin 顶层注册 (marketplaces/.../.claude-plugin/marketplace.json 副本)
-├── known_marketplaces.json   # 用户级 marketplace 注册表副本 (参考)
-├── docs/                     # 项目级文档
-│   ├── CONTEXT.md            # 领域词汇 SSOT (domain-modeling 写主权)
-│   ├── adr/                  # 3 个 ADR (0001-0003)
-│   ├── agents/context-contract.md   # 读侧契约 (setup-arthurpower 产物)
-│   ├── handoff/              # 8 个 session handoff
-│   ├── spec/                 # v0.7.0 spec (6 文件)
-│   ├── plans/                # hook-development 蒸馏计划
-│   └── *.md                  # 设计/审阅/回归报告
-├── evals/                    # 验证脚本 + evals.json
-│   ├── run_v070_skill_eval.py + v070_skill_evals.json     # 32 静态契约
-│   ├── run_hook_scenario.py + hook_scenario_evals.json    # 30 hook 边界
-│   ├── run_context_scenario.py + context_scenario_evals.json  # 30 context 闭环
-│   ├── run_stdin_hang_scenario.py                         # 24 stdin-hang
-│   ├── run_scenario_eval.py + scenario_evals.json         # 旧 baseline
-│   ├── validate_12constraints.py                          # 12 约束静态校验
-│   └── scenario_grading_final.json
-├── hooks/                    # 项目级物理护栏源码 (v0.7.0 修复版)
-│   ├── pre-context-write-guard.cjs   # CONTEXT.md / ADR 写主权护栏
-│   └── pre-fs-guard.cjs              # 禁写区 FS 护栏
-└── project-reports/          # 历史 eval 报告 + 调试脚本 (证据存档)
+Skill(arthurpower:using-agent-skills)
 ```
 
----
+That skill is the router: it maps incoming work to a skill and reports which
+skills this run activated. From there the entry points most people reach for are
+`code-review` (after a diff exists), `architecture-change-reviewer` (before a
+multi-file change), and `systematic-debugging` (when something fails).
 
-## 工作流
+## Tests
 
-1. **改 plugin**: 在 `arthurpower/` 下编辑
-2. **验证**: 在 `evals/` 跑脚本 (`python evals/run_v070_skill_eval.py evals/v070_skill_evals.json` 等)
-3. **PR**: 提交到仓库
-4. **apply**: V 审通过后，由 V 把改动 apply 到 `~/.claude/plugins/marketplaces/arthurpower-local/...` + `~/.claude/plugins/cache/arthurpower-local/arthurpower/0.7.0/` (两处副本，framework 校验读 marketplaces 副本，installPath 指向 cache 副本)
+From the plugin directory:
 
----
+```bash
+cd arthurpower/hooks && npm test
+```
 
-## setup-arthurpower
+54 tests, no install step required. `npm test` runs `node --test
+"tests/**/*.test.ts"`, which covers hook trigger semantics — exit-code
+contracts, state-key isolation, fail-open consistency — rather than the schema
+library alone.
 
-首次接入新项目时跑 `Skill(arthurpower:setup-arthurpower)`，会在项目根创建读侧契约 + 物理护栏。本目录已含从 <local-project> 迁移的 `docs/agents/context-contract.md`，可跳过 setup 或重跑覆盖。
+## Layout
 
-## 参考来源
+```
+arthurpower/              the plugin
+  .claude-plugin/         manifest
+  skills/                 23 skills, two promoted buckets
+  hooks/                  hooks.json + 12 .ts hooks + tests/
+  agents/                 10 reviewer sub-agents
+  commands/               /audit, /fanout, and two sync commands
+  scripts/                bootstrap.sh, update.sh, s5-complexity/
+  docs/                   harness map, design reports, review records
+docs/                     design record for this repository
+  adr/                    24 architecture decision records
+  rules/                  the rule text the skills encode
+  CONTEXT.md              domain vocabulary (single source of truth)
+scripts/link-skills.sh    developer symlink installer
+marketplace.json          plugin registration manifest
+```
 
-- v0.7.0 完成交接: `docs/handoff/2026-07-15-arthurpower-v0.7.0-phase-b-complete.md`
-- 领域词汇: `docs/CONTEXT.md`
-- 验证基线: `evals/v070_skill_evals.json` (32 case ×3 稳定 100%)
+`docs/adr/` is where the non-obvious decisions live.
+
+## License
+
+MIT — see [LICENSE](LICENSE).

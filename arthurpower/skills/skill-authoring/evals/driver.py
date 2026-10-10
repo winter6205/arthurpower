@@ -16,7 +16,7 @@ SKILL_DESC = """Reference for writing and editing skills well — the vocabulary
 and principles that make a skill predictable."""
 
 # Trigger terms drawn from SKILL.md description + body concepts.
-# Covers the baseline author baseline concepts plus the Eval System extension.
+# Covers the established skills baseline concepts plus the Eval System extension.
 TRIGGER_TERMS = [
     r"\bskill\b",
     r"\bSKILL\.md\b",
@@ -122,7 +122,7 @@ def would_load(query: str) -> bool:
 
 
 def has_baseline_term(skill_text: str, term: str) -> bool:
-    """Assert that a the baseline keyword is present in the real SKILL.md."""
+    """Assert that a baseline keyword is present in the real SKILL.md."""
     return term.lower() in skill_text.lower()
 
 
@@ -132,7 +132,7 @@ def has_old_concept(skill_text: str, term: str) -> bool:
 
 
 def behavior_match(skill_text: str, query: str) -> bool:
-    """Positive cases must surface at least one the baseline keyword from SKILL.md."""
+    """Positive cases must surface at least one baseline keyword from SKILL.md."""
     return any(has_baseline_term(skill_text, kw) for kw in BASELINE_KEYWORDS)
 
 
@@ -250,7 +250,7 @@ def main() -> int:
 
     # Reverse assertions on SKILL.md content.
     for kw in BASELINE_KEYWORDS:
-        assert has_baseline_term(skill_text, kw), f"SKILL.md missing the baseline keyword: {kw}"
+        assert has_baseline_term(skill_text, kw), f"SKILL.md missing baseline keyword: {kw}"
     for old in OLD_CONCEPTS:
         assert not has_old_concept(skill_text, old), f"SKILL.md still contains old concept: {old}"
 

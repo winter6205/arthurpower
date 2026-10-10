@@ -8,7 +8,7 @@
 #   bash scripts/update.sh --force                            # overwrite customized (still respects PROTECTED)
 #
 # Strategy:
-#   - Default template source: sibling ../arthur-tpl/ or $ARTHUR_TEMPLATE env var
+#   - Default template source: $ARTHUR_TEMPLATE_GIT, $ARTHUR_TEMPLATE, or a sibling checkout
 #   - --from-git: git clone --depth=1 <url> to temp dir, use as template
 #   - Compare each template file with local copy via sha256
 #   - If local missing -> copy (new file)
@@ -35,7 +35,7 @@ ONLY_MODE=0
 ONLY_PATHS=()
 
 # Default GitHub source (V's template repo)
-DEFAULT_GIT="https://github.com/<owner>/<repo>.git"
+DEFAULT_GIT="${ARTHUR_TEMPLATE_GIT:-}"
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -94,7 +94,7 @@ fi
 if [ -z "$TEMPLATE" ] || [ ! -d "$TEMPLATE" ]; then
   echo "[update] ERROR: template source not found." >&2
   echo "[update] Set ARTHUR_TEMPLATE env var, pass --from <path>, or --from-git <url>" >&2
-  echo "[update] Example: bash scripts/update.sh --from-git <owner>/<repo>" >&2
+  echo "[update] Example: bash scripts/update.sh --from-git <owner>/<template-repo>" >&2
   exit 1
 fi
 

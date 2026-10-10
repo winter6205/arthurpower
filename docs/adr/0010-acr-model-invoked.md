@@ -36,9 +36,9 @@ tracer bullets), and §Decision 3 (verdict SSOT = `plans/<feature>.md`) were
 all preserved verbatim.
 
 Operator requested ACR re-enabled in a format that agents can auto-trigger.
-[ticket 01](../wayfinder/tickets/01-trigger-mode.md) closed 2026-07-18 with
+ticket 01 (`../wayfinder/tickets/01-trigger-mode.md`) closed 2026-07-18 with
 Path B chosen: add `description` and flip `disable-model-invocation: false`.
-[ticket 02](../wayfinder/tickets/02-verdict-grammar-tips.md) is orthogonal —
+ticket 02 (`../wayfinder/tickets/02-verdict-grammar-tips.md`) is orthogonal —
 it fixes a verdict grammar mismatch + a real `git diff --stat | wc -l` bug in
 the SKILL.md body, landed in the same session as separate commits.
 

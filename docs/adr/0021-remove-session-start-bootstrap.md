@@ -103,8 +103,6 @@ Remove the `SessionStart` constraint bootstrap from the arthurpower plugin.
    - `docs/Arthuropower_usage.md` — drop the `session-start.sh` rows
      from the plugin-tree listing and the hook table; drop the
      `session-start.sh` mention in the post-tool reference block.
-   - `docs/agents/automation-divergence.md` — drop the
-     `session-start.sh` entry from the registered-hooks list.
    CHANGELOG.md, Regress reports, archive/, and plan/ documents are
    historical and untouched.
 4. **No comment edits in `pre-context-write-guard.ts`.** That file
@@ -204,7 +202,7 @@ single change that prevents the drift from recurring.
 - `arthurpower/hooks/hooks.json` — `SessionStart` block removed.
 - `arthurpower/hooks/session-start.sh` — deleted.
 - `arthurpower/hooks/README.md`, `docs/rules/git.md`,
-  `docs/Arthuropower_usage.md`, `docs/agents/automation-divergence.md`
+  `docs/Arthuropower_usage.md`
   — sync edits (drop `session-start.sh` mentions).
 - Verifier-agent single sources of truth (untouched):
   `arthurpower/agents/bounded-context-guardian-agent.md` (S1),

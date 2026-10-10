@@ -2,7 +2,7 @@
 
 > Schema for Architecture Decision Records in `docs/adr/`.
 > In-bundle reference — skills read this file, not a per-project copy.
-> Aligned to the baseline skills repo source — lightweight by default, sections only when they earn their place.
+> Lightweight by default — sections only when they earn their place.
 
 ADRs live in `docs/adr/` and use sequential numbering: `0001-slug.md`, `0002-slug.md`, etc.
 
