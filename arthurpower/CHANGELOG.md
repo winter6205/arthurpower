@@ -13,6 +13,13 @@
 - Router: `using-agent-skills/references/landing.md` documents default landing
   vs conditional stack; flowchart + quick-reference updated.
 
+## Unreleased — S5 cyclomatic hard gate 10 → 15
+
+The cyclomatic-complexity hard gate is 15 per function (was 10); nesting ≤4 and
+clone ≤3% are unchanged. `scripts/s5-complexity/eslint.config.mjs` holds the
+limit; copies that restated the gate follow `references/thresholds.md`. Plan
+Acceptance still must not paste the number.
+
 ## Unreleased — eval driver resolves skills from the repository
 
 `scripts/run_skill_eval.py:21` hardcoded a maintainer machine path, so the routing

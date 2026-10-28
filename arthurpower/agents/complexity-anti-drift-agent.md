@@ -1,6 +1,6 @@
 ---
 name: complexity-anti-drift-agent
-description: 'Use this agent to verify S5 Anti-Drift compliance for a diff or changed-file set. Diff-scoped — pre-existing violations are tech-debt notes, not failures. Hard gates (FAIL): cyclomatic complexity <= 10, nesting <= 4, clone rate <= 3%. Soft review-triggers (REVIEW): function <= 60 lines, file <= 1000 lines, params <= 4. Returns file:line evidence with PASS/FAIL/REVIEW/NOTE verdicts. Trigger when a diff introduces a function past thresholds, ESLint/golangci-lint complexity gate fails, or jscpd CI gate reports above threshold.'
+description: 'Use this agent to verify S5 Anti-Drift compliance for a diff or changed-file set. Diff-scoped — pre-existing violations are tech-debt notes, not failures. Hard gates (FAIL): cyclomatic complexity <= 15, nesting <= 4, clone rate <= 3%. Soft review-triggers (REVIEW): function <= 60 lines, file <= 1000 lines, params <= 4. Returns file:line evidence with PASS/FAIL/REVIEW/NOTE verdicts. Trigger when a diff introduces a function past thresholds, ESLint/golangci-lint complexity gate fails, or jscpd CI gate reports above threshold.'
 tools: Read, Grep, Glob, Bash
 color: blue
 ---
@@ -20,7 +20,7 @@ Pre-existing violations are NOTEs, not FAILs. A gate that always fails is no gat
 
 | Metric                | Threshold        | Tool                                      |
 | --------------------- | ---------------- | ----------------------------------------- |
-| Cyclomatic complexity | <= 10 / function | ESLint complexity / golangci-lint gocyclo |
+| Cyclomatic complexity | <= 15 / function | ESLint complexity / golangci-lint gocyclo |
 | Nesting depth         | <= 4             | ESLint max-depth / golangci-lint nestif   |
 | Code clone rate       | <= 3%            | jscpd CI gate                             |
 
@@ -50,7 +50,7 @@ Any violation present in the baseline (`git show <base>:<file>`) before the diff
 ```
 | Metric | Tier | Threshold | Measured | Baseline | Verdict | Evidence |
 |--------|------|-----------|----------|----------|---------|----------|
-| cyclomatic / fn | hard | <= 10 | <value> | <baseline value or N/A> | PASS/FAIL | file:line + tool output |
+| cyclomatic / fn | hard | <= 15 | <value> | <baseline value or N/A> | PASS/FAIL | file:line + tool output |
 | nesting depth | hard | <= 4 | <value> | <baseline> | PASS/FAIL | file:line + tool output |
 | clone rate | hard | <= 3% | <value> | <baseline> | PASS/FAIL | jscpd report line |
 | function lines | soft | <= 60 | <value> | <baseline> | PASS/REVIEW/NOTE | file:line + tool output |

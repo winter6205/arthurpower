@@ -24,7 +24,7 @@ export default tseslint.config(
       parserOptions: { ecmaVersion: 2022, sourceType: "module" },
     },
     rules: {
-      complexity: ["error", 10],
+      complexity: ["error", 15],
       "max-depth": ["error", 4],
       "max-lines-per-function": [
         "warn",

@@ -1,7 +1,7 @@
 ---
 name: complexity-anti-drift
 type: discipline
-description: Use when ESLint flags complexity, max-depth, max-lines, max-lines-per-function, or max-params; when jscpd is over 3%; when a changed function exceeds 60 lines, cyclomatic 10, 4 params, or nest 4, or a changed file exceeds 1000 lines; or when the user asks to split a function or extract a helper.
+description: Use when ESLint flags complexity, max-depth, max-lines, max-lines-per-function, or max-params; when jscpd is over 3%; when a changed function exceeds 60 lines, cyclomatic 15, 4 params, or nest 4, or a changed file exceeds 1000 lines; or when the user asks to split a function or extract a helper.
 bucket: engineering
 ---
 

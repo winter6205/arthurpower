@@ -349,7 +349,7 @@ test("attributedErrors: report outside every function is not attributable", () =
 
 test("metricValue: reads the measured number out of the message", () => {
   assert.equal(
-    metricValue({ ruleId: "complexity", message: "Function 'f' has a complexity of 49. Maximum allowed is 10." }),
+    metricValue({ ruleId: "complexity", message: "Function 'f' has a complexity of 49. Maximum allowed is 15." }),
     49,
   );
   assert.equal(

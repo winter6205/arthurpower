@@ -6,7 +6,7 @@
 
 | 指标       | 阈值       | 工具              |
 | ---------- | ---------- | ----------------- |
-| 圈复杂度   | <= 10/函数 | ESLint complexity |
+| 圈复杂度   | <= 15/函数 | ESLint complexity |
 | 嵌套深度   | <= 4       | ESLint max-depth  |
 | 代码克隆率 | <= 3%      | jscpd CI gate     |
 

@@ -83,5 +83,5 @@ Pick one `try/catch` in the diff and answer out loud:
 ## 5. Related verification skills
 
 - `input-contract-tests` — boundary-case test coverage (empty / negative / oversized / concurrent / exception)
-- `complexity-anti-drift` — keeps error-handling helpers small (≤60 lines soft review-trigger, ≤10 branches)
+- `complexity-anti-drift` — keeps error-handling helpers within the limits in [its S5 threshold table](../../complexity-anti-drift/references/thresholds.md); function length remains a soft review-trigger
 - `minimal-change-verifier` — confirms error-handling change does not smuggle an unrelated refactor into the fix
